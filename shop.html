@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simonsbrotkörbchen – Vorbestellung & Abholung</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header" data-header>
+    <div class="container header-layout">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+        <span class="brand-copy">
+          <span class="brand-title">Simonsbrotkörbchen</span>
+          <span class="brand-subtitle">Vorbestellung &amp; Abholung in Düsseldorf</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
+        <span class="sr-only">Menü öffnen</span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <nav class="site-nav" id="primary-navigation" data-nav>
+        <a class="nav-link" href="index.html">Startseite</a>
+        <a class="nav-link is-active" href="jetzt-bestellen.html">Jetzt Bestellen</a>
+        <a class="nav-link" href="gallery.html">Galerie</a>
+        <a class="nav-link" href="contact.html">Kontakt</a>
+        <a class="nav-link" href="impressum.html">Impressum</a>
+        <a class="btn btn-outline nav-cart" href="checkout.html">
+          <span>Warenkorb</span>
+          <span class="cart-count" data-cart-count>0</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section" id="produkte">
+      <div class="container">
+        <div class="section-header">
+          <span class="eyebrow">Online vorbestellen</span>
+          <h2>Ofenwarme Brötchen und belegte Klassiker bequem online zur Abholung reservieren.</h2>
+          <p>Du bestellst online und holst deine Auswahl anschließend in unserer Filiale ab – mit den gleichen Produkten und Preisen wie vor Ort.</p>
+        </div>
+
+        <div class="catalog-layout">
+          <div class="catalog-main">
+            <div class="category-bar" id="category-bar" aria-live="polite"></div>
+            <div class="product-grid" id="product-grid" aria-live="polite"></div>
+          </div>
+
+          <aside class="cart-panel" id="cart" aria-labelledby="cart-title">
+            <div class="cart-header">
+              <h2 class="cart-title" id="cart-title">Warenkorb</h2>
+              <button class="btn-icon" type="button" aria-label="Warenkorb schließen" data-cart-close>
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="cart-body" id="cart-items">
+              <p class="empty-cart">Noch keine Produkte im Warenkorb.</p>
+            </div>
+            <div class="cart-footer">
+              <div class="cart-summary">
+                <span>Zwischensumme</span>
+                <span class="cart-total" id="cart-subtotal">0,00 €</span>
+              </div>
+              <p class="cart-note" id="cart-note"></p>
+              <button class="btn btn-primary is-full" type="button" id="checkout-btn">Zur Kasse</button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand brand-footer" href="index.html">
+          <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+          <span class="brand-copy">
+            <span class="brand-title">Simonsbrotkörbchen</span>
+            <span class="brand-subtitle">Traditionell gebacken. Modern vorbestellt.</span>
+          </span>
+        </a>
+        <p class="footer-text">Vorbestellungen für Privatpersonen, Teams und Veranstaltungen – direkt zur Abholung in der Filiale.</p>
+      </div>
+      <div>
+        <h4 class="footer-heading">Navigation</h4>
+        <ul class="footer-links">
+          <li><a href="index.html">Startseite</a></li>
+          <li><a href="jetzt-bestellen.html">Jetzt Bestellen</a></li>
+          <li><a href="gallery.html">Galerie</a></li>
+          <li><a href="contact.html">Kontakt</a></li>
+          <li><a href="impressum.html">Impressum</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-heading">Servicezeiten</h4>
+        <ul class="footer-links">
+          <li>Abholung Mo – Fr: 06:30 – 17:00 Uhr</li>
+          <li>Abholung Sa: 07:00 – 14:00 Uhr</li>
+          <li>Vorbestellung am selben Tag möglich</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-heading">Kontakt</h4>
+        <ul class="footer-links">
+          <li>Lenaustraße 1<br>40472 Düsseldorf</li>
+          <li>Telefon: 0211 · 000000</li>
+          <li><a href="mailto:info@simonsbrotkoerbchen.de">info@simonsbrotkoerbchen.de</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Simonsbrotkörbchen</span>
+      <div class="footer-bottom-links">
+        <a href="agb.html">AGB</a>
+        <a href="admin.html">Admin</a>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal" id="checkout-modal" aria-hidden="true" role="dialog" aria-labelledby="checkout-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-brand">
+          <img src="logo-minus-simons.png" alt="Simonsbrotkörbchen" class="modal-logo" loading="lazy">
+          <div>
+            <p class="modal-eyebrow">Checkout</p>
+            <h2 id="checkout-title">Bestelldetails</h2>
+          </div>
+        </div>
+        <button class="btn-icon" type="button" aria-label="Checkout schließen" data-checkout-close>&times;</button>
+      </div>
+      <form class="modal-body" id="checkout-form" novalidate>
+        <div class="form-grid">
+          <label for="customer-name"> Name
+            <input type="text" id="customer-name" name="name" autocomplete="name" required>
+          </label>
+          <label for="customer-phone"> Telefon
+            <input type="tel" id="customer-phone" name="phone" autocomplete="tel" required>
+          </label>
+          <label for="customer-email"> E-Mail
+            <input type="email" id="customer-email" name="email" autocomplete="email" required>
+          </label>
+        </div>
+        <fieldset class="fieldset" id="fulfillment-fieldset">
+          <legend>Bestellart</legend>
+          <p class="checkout-hint" style="margin:0;">Ausschließlich Vorbestellung zur Abholung in der Filiale.</p>
+          <input type="hidden" name="fulfillment" value="pickup">
+        </fieldset>
+        <div class="form-grid fulfillment-grid" data-fulfillment="pickup">
+          <div class="calendar-picker" data-calendar="pickup">
+            <div class="calendar-header">
+              <button class="calendar-nav" type="button" aria-label="Vormonat anzeigen" data-calendar-prev="pickup">&lsaquo;</button>
+              <p class="calendar-title" data-calendar-label="pickup"></p>
+              <button class="calendar-nav" type="button" aria-label="Nächsten Monat anzeigen" data-calendar-next="pickup">&rsaquo;</button>
+            </div>
+            <div class="calendar-grid" data-calendar-grid="pickup"></div>
+            <p class="calendar-hint">Abholung Montag bis Samstag. NRW-Feiertage sind rot markiert.</p>
+            <input type="hidden" id="pickup-date" name="pickup-date">
+          </div>
+          <label for="pickup-time"> Abholzeit (07:00 – 15:00 Uhr)
+            <input type="time" id="pickup-time" name="pickup-time" min="07:00" max="15:00">
+          </label>
+        </div>
+        <fieldset class="fieldset">
+          <legend>Zahlungsart</legend>
+          <label class="radio">
+            <input type="radio" name="payment" value="Barzahlung" checked> Barzahlung bei Abholung
+          </label>
+          <label class="radio">
+            <input type="radio" name="payment" value="PayPal"> PayPal <span class="payment-badge" aria-hidden="true"><span class="payment-badge-pay">Pay</span><span class="payment-badge-pal">Pal</span></span>
+          </label>
+          <label class="radio">
+            <input type="radio" name="payment" value="Online"> Onlinezahlung (Vorkasse)
+          </label>
+        </fieldset>
+        <label for="customer-notes"> Hinweis für das Team (optional)
+          <textarea id="customer-notes" name="notes" rows="3" placeholder="z.B. Klingeln, wenn die Brotkiste vor der Tür steht oder Abholzeit"></textarea>
+        </label>
+        <p class="checkout-hint">Abholung in der Filiale · Lenaustraße 1, 40472 Düsseldorf</p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" data-checkout-close>Abbrechen</button>
+          <button class="btn btn-primary" type="submit">Bestellung abschicken</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="confirmation-modal" aria-hidden="true" role="dialog" aria-labelledby="confirmation-title">
+    <div class="modal-dialog modal-dialog-confirmation">
+      <div class="modal-header">
+        <div class="modal-brand">
+          <img src="logo-minus-simons.png" alt="Simonsbrotkörbchen" class="modal-logo" loading="lazy">
+          <div>
+            <p class="modal-eyebrow">Bestellbestätigung</p>
+            <h2 id="confirmation-title">Vielen Dank für deine Bestellung!</h2>
+          </div>
+        </div>
+        <button class="btn-icon" type="button" aria-label="Bestätigung schließen" data-confirmation-close>&times;</button>
+      </div>
+      <div class="modal-body confirmation-body" id="confirmation-content"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="message" role="status" aria-live="polite"></div>
+
+  <div class="modal" id="belegte-modal" aria-hidden="true" role="dialog" aria-labelledby="belegte-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <p class="modal-eyebrow">Belegte Brötchen</p>
+          <h2 id="belegte-title">Varianten wählen</h2>
+        </div>
+        <button class="btn-icon" type="button" aria-label="Auswahl schließen" data-belegte-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="checkout-hint" id="belegte-subtitle"></p>
+        <div class="wunsch-grid" id="belegte-variants"></div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" data-belegte-close>Abbrechen</button>
+          <button class="btn btn-primary" type="button" id="belegte-add-btn">Auswahl in den Warenkorb</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/site-core.js"></script>
+  <script>
+    (function(){
+      const navToggle = document.querySelector('[data-nav-toggle]');
+      const nav = document.querySelector('[data-nav]');
+      if (navToggle && nav) {
+        navToggle.addEventListener('click', () => {
+          const isOpen = nav.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          document.body.classList.toggle('nav-open', isOpen);
+        });
+      }
+    })();
+
+    const DATA_SOURCES = {
+      catalog: [
+        { catCode: '1', path: 'data/wunschbroetchen/broetchen.csv' },
+        { catCode: '2', path: 'data/belegte_broetchen.csv' },
+        { catCode: '6', path: 'data/softgetraenke.csv' },
+        { catCode: '7', path: 'data/frischsaefte.csv' }
+      ],
+      wunsch: {
+        aufstrich: 'data/wunschbroetchen/aufstrich.csv',
+        schnickSchnack: 'data/wunschbroetchen/schnick_schnack.csv',
+        belag: 'data/wunschbroetchen/belag.csv'
+      },
+      salate: 'data/salate.csv',
+      extras: 'data/extras.csv'
+    };
+    const CATEGORY_DEFINITIONS = [
+      { id: '2', name: 'Belegte Brötchen', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80' },
+      { id: '7', name: 'Frischgepresste Säfte', image: 'https://images.unsplash.com/photo-1580915411954-282cb1c92795?auto=format&fit=crop&w=800&q=80' },
+      { id: '9', name: 'Salate', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80' },
+      { id: '6', name: 'Softgetränke', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80' },
+      { id: '10', name: 'Extras', image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=800&q=80' }
+    ];
+    const CATEGORY_IMAGE_MAP = CATEGORY_DEFINITIONS.reduce((acc, def) => {
+      if (def.image) acc[def.name] = def.image;
+      return acc;
+    }, {});
+    const BROETCHEN_IMAGES = {
+      'Brötchen': 'schnittbrötchen.jpg',
+      'Schnittbrötchen': 'schnittbrötchen.jpg',
+      'Mohnbrötchen': 'mohnbrötchen.jpg',
+      'Sesambrötchen': 'sesambrötchen.jpg',
+      'Kartoffel': 'kartoffelbrötchen.jpg',
+      'Kartoffelbrötchen': 'kartoffelbrötchen.jpg',
+      'Wellenreiter': 'wellenreiter.jpg',
+      'Roggen': 'roggenbrötchen.jpg',
+      'Roggenbrötchen': 'roggenbrötchen.jpg',
+      'Dinkelbrötchen': 'dinkelbrötchen.jpg',
+      'Käsebrötchen': 'käsebrötchen.jpg',
+      'Mehrkorn': 'mehrkornbrötchen.jpg',
+      'Mohnkorn': 'mohnkornbrötchen.jpg',
+      'Mohnkornbrötchen': 'mohnkornbrötchen.jpg',
+      'Lauge': 'laugenbrötchen.jpg',
+      'Laugenbrötchen': 'laugenbrötchen.jpg',
+      'Laugenecke': 'Laugenecke.jpg',
+      'laugenecke': 'Laugenecke.jpg'
+    };
+    let AUFSTRICH_OPTIONS = [
+      { name: 'Nichts', price: 0 },
+      { name: 'Butter', price: 0 },
+      { name: 'Margarine', price: 0 },
+      { name: 'Remoulade', price: 0 },
+      { name: 'Ketchup', price: 0 }
+    ];
+
+    let BELAG_OPTIONS = [
+      { name: 'Käse', price: 2.25 },
+      { name: 'Salami', price: 2.25 },
+      { name: 'Fleischwurst', price: 2.25 },
+      { name: 'Schinken', price: 2.25 },
+      { name: 'Ei', price: 2.25 },
+      { name: 'Leberwurst', price: 2.25 },
+      { name: 'Frischkäse', price: 2.25 },
+      { name: 'Rohrschinken', price: 2.55 },
+      { name: 'Brie', price: 2.55 },
+      { name: 'Putenbrust', price: 2.55 },
+      { name: 'Mett', price: 2.55 },
+      { name: 'Rührei', price: 2.85 },
+      { name: 'Mozzarella', price: 2.85 },
+      { name: 'Thunfisch', price: 3.05 },
+      { name: 'Frikadelle', price: 3.25 },
+      { name: 'Lachs', price: 3.45 },
+      { name: 'Schnitzel', price: 3.75 }
+    ];
+    let SCHNICK_SCHNACK_OPTIONS = [
+      { name: 'Gurke', price: 0.10 },
+      { name: 'Tomate', price: 0.10 },
+      { name: 'Belagsalat', price: 0.10 },
+      { name: 'Scheibe Ei', price: 0.10 }
+    ];
+    let EXTRAS_PRODUCTS = [
+      { id: 'extras-obstbecher', name: 'Obstbecher', price: 2.50, image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=800&q=80', options: [{ name: 'mit Zitrone', price: 0.30 }, { name: 'mit Limette', price: 0.30 }] },
+      { id: 'extras-obstplatte', name: 'Obstplatte', price: 5.50, image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=800&q=80', options: [{ name: 'mit Zitrone', price: 0.30 }, { name: 'mit Limette', price: 0.30 }] },
+      { id: 'extras-rohkostbecher', name: 'Rohkostbecher', price: 2.50, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80', options: [{ name: 'mit Kräutercreme', price: 0.50 }] },
+      { id: 'extras-rohkostplatte', name: 'Rohkostplatte', price: 5.50, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80', options: [{ name: 'mit Kräutercreme', price: 0.50 }] }
+    ];
+    let SALATE_PRODUCTS = [
+      { id: 'salat-gemischt', name: 'Gemischter Salat', price: 4.50, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80' },
+      { id: 'salat-tomaten', name: 'Tomatensalat', price: 3.90, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80' },
+      { id: 'salat-gurken', name: 'Gurkensalat', price: 3.50, image: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80' }
+    ];
+    const FALLBACK_IMAGES = [
+      'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1447078806655-40579c2520d6?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=800&q=80'
+    ];
+    const ALLOWED_POSTCODES = ['40470', '40468', '40476', '40237', '40235', '40629', '40472'];
+    const MIN_ORDER_VALUE = 10;
+    const DELIVERY_FEE = 2.9;
+    const STORAGE_KEYS = {
+      postal: 'sb_postal_code',
+      fulfillment: 'sb_fulfillment_mode'
+    };
+    const CLASS_INVALID_FIELD = 'is-invalid';
+    const PRELOAD_STORAGE_KEY = 'sb_preload_cart';
+    const CART_STORAGE_KEY = 'sb_shop_cart_v1';
+    const BULK_DISCOUNT_RULES = [
+      {
+        matcher: item => item?.name?.toLocaleLowerCase('de-DE') === 'brötchen',
+        bundleSize: 10,
+        bundleTotal: 4.2
+      }
+    ];
+    const PICKUP_CODEWORDS = [
+      'Forrest', 'Grinch', 'Walle', 'Simba', 'Moana', 'Elsa', 'Ariel', 'Batman', 'Joker', 'Neo',
+      'Trinity', 'Yoda', 'Gandalf', 'Frodo', 'Legolas', 'Arwen', 'Bilbo', 'Hermione', 'Hagrid', 'Shrek',
+      'Donkey', 'Rapunzel', 'Mulan', 'Merida', 'Baymax', 'Buzz', 'Dory', 'Sulley', 'Remy', 'Woody',
+      'Nemo', 'Tiana', 'Aladdin', 'Genie', 'Baloo', 'Bagheera', 'Tarzan', 'Aurora', 'Mickey', 'Olaf',
+      'Stitch', 'Pumbaa', 'Scar', 'Pooh', 'Bambi', 'Django', 'Amelie', 'Rocky', 'Rambo', 'Ratatouille',
+      'Marlin', 'Kuzco', 'Zazu', 'Pocahontas', 'Sisu', 'Tadashi', 'Miguel', 'Mirabel', 'Prince', 'Beyonce',
+      'Madonna', 'Adele', 'Drake', 'Eminem', 'Shakira', 'Sinatra', 'Elvis', 'Rihanna', 'Lizzo', 'Usher',
+      'Lorde', 'Nena', 'Falco', 'Cher', 'Bjork', 'Pink', 'Sia', 'Jagger', 'Paris', 'Berlin',
+      'Cologne', 'Munich', 'Hamburg', 'Lisbon', 'Porto', 'Madrid', 'Seville', 'Barcelona', 'Vienna', 'Prague',
+      'Warsaw', 'Budapest', 'Milan', 'Venice', 'Florence', 'Naples', 'Rome', 'Turin', 'Zurich', 'Geneva',
+      'Basel', 'Lucerne', 'Reykjavik', 'Oslo', 'Stockholm', 'Helsinki', 'Copenhagen', 'Brussels', 'Amsterdam', 'Rotterdam',
+      'Antwerp', 'Dublin', 'Galway', 'Edinburgh', 'Glasgow', 'Cardiff', 'Bristol', 'Brighton', 'Tokyo', 'Kyoto',
+      'Osaka', 'Seoul', 'Busan', 'Taipei', 'Manila', 'Jakarta', 'Sydney', 'Melbourne', 'Brisbane', 'Auckland',
+      'Wellington', 'Doha', 'Dubai', 'AbuDhabi', 'Cairo', 'Marrakesh', 'Nairobi', 'Lagos', 'Eiffel', 'Louvre',
+      'Colosseum', 'Bigben', 'Acropolis', 'Sagrada', 'Stonehenge', 'Brandenburg', 'Liberty', 'Pyramids', 'Petra', 'Gherkin',
+      'Atomium', 'Neuschwanstein', 'Angkor', 'Chichen', 'Fushimi', 'Shwedagon', 'Montjuic', 'Sphinx', 'Aurora', 'Nebula',
+      'Comet', 'Meteor', 'Galaxy', 'Orbit', 'Nova', 'Quasar', 'Cosmos', 'Zenith'
+    ];
+
+    const numberFormatter = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const state = {
+      activeCategory: 'Belegte Brötchen',
+      products: [],
+      productIndex: new Map(),
+      broetchenTypes: [],
+      belegteGroups: [],
+      juices: [],
+      categories: [],
+      cart: [],
+      postalCode: null,
+      fulfillment: 'pickup',
+      selectedDates: {
+        delivery: null,
+        pickup: null
+      },
+      checkoutAuthMode: 'guest'
+    };
+
+    const elements = {
+      grid: document.getElementById('product-grid'),
+      categoryBar: document.getElementById('category-bar'),
+      cartContainer: document.getElementById('cart-items'),
+      cartSubtotal: document.getElementById('cart-subtotal'),
+      cartNote: document.getElementById('cart-note'),
+      cartCount: document.querySelector('[data-cart-count]'),
+      cartPanel: document.getElementById('cart'),
+      cartToggleButtons: document.querySelectorAll('[data-cart-toggle]'),
+      cartCloseButton: document.querySelector('[data-cart-close]'),
+      checkoutBtn: document.getElementById('checkout-btn'),
+      checkoutModal: document.getElementById('checkout-modal'),
+      checkoutCloseButtons: document.querySelectorAll('[data-checkout-close]'),
+      checkoutForm: document.getElementById('checkout-form'),
+      confirmationModal: document.getElementById('confirmation-modal'),
+      confirmationContent: document.getElementById('confirmation-content'),
+      confirmationCloseButton: document.querySelector('[data-confirmation-close]'),
+      toast: document.getElementById('message'),
+      postalModal: document.getElementById('postal-modal'),
+      postalForm: document.getElementById('postal-form'),
+      postalInput: document.getElementById('postal-input'),
+      postalError: document.getElementById('postal-error'),
+      deliveryDateInput: document.getElementById('delivery-date'),
+      deliverySlotSelect: document.getElementById('delivery-slot'),
+      pickupDateInput: document.getElementById('pickup-date'),
+      pickupTimeInput: document.getElementById('pickup-time'),
+      addressSection: document.querySelector('[data-delivery-only]'),
+      addressStreet: document.getElementById('address-street'),
+      addressNumber: document.getElementById('address-number'),
+      addressZip: document.getElementById('address-zip'),
+      addressCity: document.getElementById('address-city'),
+      fulfillmentRadios: document.querySelectorAll('input[name="fulfillment"]'),
+      deliveryFields: document.querySelector('[data-fulfillment="delivery"]'),
+      pickupFields: document.querySelector('[data-fulfillment="pickup"]'),
+      authModeButtons: document.querySelectorAll('[data-auth-mode]'),
+      authPanels: document.querySelectorAll('[data-auth-panel]'),
+      authFeedback: document.getElementById('checkout-auth-feedback'),
+      authLoginEmail: document.getElementById('auth-login-email'),
+      authLoginPassword: document.getElementById('auth-login-password'),
+      authLoginBtn: document.getElementById('auth-login-btn'),
+      authRegisterFirstName: document.getElementById('auth-register-firstname'),
+      authRegisterLastName: document.getElementById('auth-register-lastname'),
+      authRegisterPhone: document.getElementById('auth-register-phone'),
+      authRegisterEmail: document.getElementById('auth-register-email'),
+      authRegisterPassword: document.getElementById('auth-register-password'),
+      authRegisterNewsletter: document.getElementById('auth-register-newsletter'),
+      authRegisterBtn: document.getElementById('auth-register-btn'),
+      belegteModal: document.getElementById('belegte-modal'),
+      belegteTitle: document.getElementById('belegte-title'),
+      belegteSubtitle: document.getElementById('belegte-subtitle'),
+      belegteVariants: document.getElementById('belegte-variants'),
+      belegteAddBtn: document.getElementById('belegte-add-btn'),
+      belegteCloseButtons: document.querySelectorAll('[data-belegte-close]')
+    };
+
+    const calendars = {};
+    const holidayCache = new Map();
+    let preloadedSetApplied = false;
+
+    if (elements.grid) {
+      elements.grid.innerHTML = '<div class="empty-state"><p>Sortiment wird geladen …</p></div>';
+    }
+
+    initPostalGate();
+    initCalendars();
+    restoreFulfillmentPreference();
+    initCheckoutAuth();
+    restoreCartFromStorage();
+
+    loadAllData()
+      .then(buildCatalog)
+      .catch(error => {
+        console.error(error);
+        if (elements.grid) {
+          elements.grid.innerHTML = `<div class="empty-state"><p>${error.message}</p></div>`;
+        }
+      });
+
+    function setAuthFeedback(message, success = false) {
+      if (!elements.authFeedback) return;
+      elements.authFeedback.textContent = message || '';
+      elements.authFeedback.classList.toggle('feedback-success', !!message && success);
+    }
+
+    function applyUserToCheckout(user) {
+      if (!user) return;
+      const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+      const nameField = document.getElementById('customer-name');
+      const phoneField = document.getElementById('customer-phone');
+      const emailField = document.getElementById('customer-email');
+      if (nameField && fullName) nameField.value = fullName;
+      if (phoneField && user.phone) phoneField.value = user.phone;
+      if (emailField && user.email) emailField.value = user.email;
+    }
+
+    function setCheckoutAuthMode(mode) {
+      state.checkoutAuthMode = mode;
+      elements.authModeButtons?.forEach(button => {
+        button.classList.toggle('is-active', button.dataset.authMode === mode);
+      });
+      elements.authPanels?.forEach(panel => {
+        panel.hidden = panel.dataset.authPanel !== mode;
+      });
+      setAuthFeedback('');
+      if (window.SBPlatform?.trackEvent) {
+        window.SBPlatform.trackEvent('shop_auth_mode_changed', { mode });
+      }
+    }
+
+    function initCheckoutAuth() {
+      const current = window.SBPlatform?.getCurrentUser?.();
+      if (current) {
+        applyUserToCheckout(current);
+        setCheckoutAuthMode('login');
+        setAuthFeedback(`Eingeloggt als ${current.email}`, true);
+      }
+
+      elements.authModeButtons?.forEach(button => {
+        button.addEventListener('click', () => setCheckoutAuthMode(button.dataset.authMode || 'guest'));
+      });
+
+      elements.authLoginBtn?.addEventListener('click', () => {
+        const email = elements.authLoginEmail?.value || '';
+        const password = elements.authLoginPassword?.value || '';
+        const result = window.SBPlatform?.loginUser?.(email, password);
+        if (!result?.ok) {
+          setAuthFeedback(result?.message || 'Login fehlgeschlagen.');
+          return;
+        }
+        applyUserToCheckout(result.user);
+        setAuthFeedback(`Login erfolgreich: ${result.user.email}`, true);
+      });
+
+      elements.authRegisterBtn?.addEventListener('click', () => {
+        const payload = {
+          firstName: elements.authRegisterFirstName?.value || '',
+          lastName: elements.authRegisterLastName?.value || '',
+          phone: elements.authRegisterPhone?.value || '',
+          email: elements.authRegisterEmail?.value || '',
+          password: elements.authRegisterPassword?.value || '',
+          newsletterConsent: !!elements.authRegisterNewsletter?.checked
+        };
+
+        if (!payload.firstName || !payload.lastName || !payload.phone || !payload.email || payload.password.length < 6) {
+          setAuthFeedback('Bitte alle Felder ausfüllen (Passwort mind. 6 Zeichen).');
+          return;
+        }
+
+        const result = window.SBPlatform?.registerUser?.(payload);
+        if (!result?.ok) {
+          setAuthFeedback(result?.message || 'Registrierung fehlgeschlagen.');
+          return;
+        }
+        applyUserToCheckout(result.user);
+        setAuthFeedback(`Konto erstellt: ${result.user.email}`, true);
+        setCheckoutAuthMode('login');
+      });
+    }
+
+    elements.categoryBar?.addEventListener('click', event => {
+      const button = event.target.closest('button[data-category]');
+      if (!button) return;
+      state.activeCategory = button.dataset.category;
+      elements.categoryBar.querySelectorAll('button[data-category]').forEach(btn => btn.classList.toggle('is-active', btn === button));
+      renderProducts();
+    });
+
+    function fetchTextOrThrow(path) {
+      return fetch(path).then(response => {
+        if (!response.ok) throw new Error(`Datei konnte nicht geladen werden: ${path}`);
+        return response.text();
+      });
+    }
+
+    function parseSimpleListCsv(text) {
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      const entries = [];
+      lines.forEach((line, index) => {
+        if (index === 0) return;
+        const cells = line.split(';');
+        if (cells.length < 3) return;
+        const order = cells[0].trim();
+        const name = cells[1].trim();
+        const price = parsePrice(cells[2].trim());
+        if (!name) return;
+        entries.push({ order, name, price, index });
+      });
+      return entries;
+    }
+
+    async function loadCatalogEntries() {
+      const chunks = await Promise.all(
+        DATA_SOURCES.catalog.map(async source => {
+          const text = await fetchTextOrThrow(source.path);
+          return parseSimpleListCsv(text).map(entry => ({
+            catCode: source.catCode,
+            order: entry.order,
+            name: entry.name,
+            price: entry.price,
+            index: entry.index
+          }));
+        })
+      );
+      return chunks.flat();
+    }
+
+    async function loadWunschLists() {
+      const [aufstrichText, schnickSchnackText, belagText] = await Promise.all([
+        fetchTextOrThrow(DATA_SOURCES.wunsch.aufstrich),
+        fetchTextOrThrow(DATA_SOURCES.wunsch.schnickSchnack),
+        fetchTextOrThrow(DATA_SOURCES.wunsch.belag)
+      ]);
+
+      AUFSTRICH_OPTIONS = parseSimpleListCsv(aufstrichText).map(x => ({ name: x.name, price: x.price }));
+      SCHNICK_SCHNACK_OPTIONS = parseSimpleListCsv(schnickSchnackText).map(x => ({ name: x.name, price: x.price }));
+      BELAG_OPTIONS = parseSimpleListCsv(belagText).map(x => ({ name: x.name, price: x.price }));
+    }
+
+    async function loadSalateList() {
+      const text = await fetchTextOrThrow(DATA_SOURCES.salate);
+      const list = parseSimpleListCsv(text);
+      if (!list.length) return;
+      const salatImages = [
+        'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80'
+      ];
+      SALATE_PRODUCTS = list.map((item, i) => ({
+        id: `salat-${i + 1}`,
+        name: item.name,
+        price: item.price,
+        image: salatImages[i % salatImages.length]
+      }));
+    }
+
+    async function loadExtrasList() {
+      const text = await fetchTextOrThrow(DATA_SOURCES.extras);
+      const list = parseSimpleListCsv(text);
+      if (!list.length) return;
+      const extrasImage = 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=800&q=80';
+      EXTRAS_PRODUCTS = list.map((item, i) => ({
+        id: `extras-${i + 1}`,
+        name: item.name,
+        price: item.price,
+        image: extrasImage,
+        options: []
+      }));
+    }
+
+    async function loadAllData() {
+      const [entries] = await Promise.all([
+        loadCatalogEntries(),
+        loadWunschLists(),
+        loadSalateList(),
+        loadExtrasList()
+      ]);
+      return entries;
+    }
+
+    elements.grid?.addEventListener('click', event => {
+      const button = event.target.closest('button[data-product-id]');
+      if (!button) return;
+      const card = button.closest('.product-card');
+      const qtyInput = card?.querySelector('[data-quantity]');
+      const quantity = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+      addSimpleProductToCart(button.dataset.productId, quantity);
+      if (qtyInput) qtyInput.value = '1';
+    });
+
+    elements.cartContainer?.addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const key = button.dataset.key;
+      const action = button.dataset.action;
+      changeQuantity(key, action === 'increase' ? 1 : -1);
+    });
+
+    elements.cartToggleButtons?.forEach(button => button.addEventListener('click', toggleCart));
+    elements.cartCloseButton?.addEventListener('click', closeCart);
+    elements.checkoutBtn?.addEventListener('click', openCheckout);
+    elements.checkoutCloseButtons?.forEach(button => button.addEventListener('click', closeCheckout));
+    elements.checkoutForm?.addEventListener('submit', placeOrder);
+    elements.deliverySlotSelect?.addEventListener('change', () => clearFieldInvalid(elements.deliverySlotSelect));
+    elements.pickupTimeInput?.addEventListener('change', () => clearFieldInvalid(elements.pickupTimeInput));
+    [elements.addressStreet, elements.addressNumber, elements.addressZip, elements.addressCity].forEach(field => {
+      field?.addEventListener('input', () => clearFieldInvalid(field));
+    });
+    elements.addressZip?.addEventListener('blur', handleZipValidation);
+    elements.confirmationCloseButton?.addEventListener('click', closeConfirmation);
+
+    elements.checkoutModal?.addEventListener('click', event => {
+      if (event.target === elements.checkoutModal) {
+        closeCheckout();
+      }
+    });
+
+    elements.belegteCloseButtons?.forEach(button => button.addEventListener('click', closeBelegteModal));
+    elements.belegteModal?.addEventListener('click', event => {
+      if (event.target === elements.belegteModal) closeBelegteModal();
+    });
+
+    elements.confirmationModal?.addEventListener('click', event => {
+      if (event.target === elements.confirmationModal) {
+        closeConfirmation();
+      }
+    });
+
+    elements.fulfillmentRadios?.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.checked) {
+          handleFulfillmentChange(radio.value);
+        }
+      });
+    });
+
+    elements.postalForm?.addEventListener('submit', event => {
+      event.preventDefault();
+      const code = (elements.postalInput?.value || '').trim();
+      if (!/^\d{5}$/.test(code)) {
+        setPostalError('Bitte gib eine gültige fünfstellige Postleitzahl ein.');
+        return;
+      }
+      if (!ALLOWED_POSTCODES.includes(code)) {
+        setPostalError('Leider liefern wir nicht in Ihrem Gebiet.');
+        return;
+      }
+      setPostalError('');
+      applyPostalCode(code);
+    });
+
+    elements.postalInput?.addEventListener('input', () => setPostalError(''));
+
+    const viewportWatcher = window.matchMedia('(max-width: 960px)');
+    viewportWatcher.addEventListener('change', () => {
+      if (!viewportWatcher.matches) {
+        elements.cartPanel?.classList.remove('is-visible');
+        elements.cartPanel?.setAttribute('aria-hidden', 'false');
+        document.body.classList.remove('cart-open');
+      } else {
+        closeCart();
+      }
+    });
+
+    renderCart();
+    if (viewportWatcher.matches) {
+      closeCart();
+    } else {
+      elements.cartPanel?.setAttribute('aria-hidden', 'false');
+    }
+
+    function parseCsv(text) {
+      const lines = text.split(/\r?\n/);
+      const entries = [];
+      lines.forEach((line, index) => {
+        if (index === 0 || !line.trim()) return;
+        const cells = line.split(';');
+        if (cells.length < 5) return;
+        const catCode = cells[0].trim();
+        const order = cells[1].trim();
+        const name = cells[2].trim();
+        const price = parsePrice(cells[4]);
+        if (!catCode || !name) return;
+        entries.push({ catCode, order, name, price, index });
+      });
+      return entries;
+    }
+
+    function parsePrice(raw) {
+      if (!raw) return 0;
+      const normalized = raw.replace(/\./g, '').replace(',', '.');
+      const value = Number.parseFloat(normalized);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function buildCatalog(entries) {
+      state.products = [];
+      state.productIndex.clear();
+      state.broetchenTypes = [];
+      const juiceGroups = new Map();
+      state.juices = [];
+      let fallbackIndex = 0;
+
+      entries.forEach(entry => {
+        // Category 1: Brötchen types → for wizard step 1
+        if (entry.catCode === '1') {
+          const normalizedName = entry.name.trim();
+          const image = BROETCHEN_IMAGES[normalizedName] || BROETCHEN_IMAGES[normalizedName.toLocaleLowerCase('de-DE')] || BROETCHEN_IMAGES['Brötchen'] || FALLBACK_IMAGES[0];
+          state.broetchenTypes.push({ name: entry.name, price: entry.price, image, order: Number(entry.order) || entry.index });
+          return;
+        }
+        // Category 2: fertige belegte Brötchen/Baguettes (Aufschläge/Extras ausblenden)
+        if (entry.catCode === '2') {
+          if (/aufschlag|extra\s*remo|extra\s*ei/i.test(entry.name)) return;
+        }
+        // Categories 3,4,5,8: not in new shop → skip
+        if (['3','4','5','8'].includes(entry.catCode)) return;
+
+        if (entry.catCode === '7') {
+          const parsedJuice = parseJuiceVariant(entry.name);
+          if (parsedJuice) {
+            const key = parsedJuice.baseName.toLowerCase();
+            if (!juiceGroups.has(key)) juiceGroups.set(key, []);
+            juiceGroups.get(key).push({
+              baseName: parsedJuice.baseName,
+              sizeLabel: parsedJuice.sizeLabel,
+              rawName: entry.name,
+              price: entry.price,
+              order: entry.index
+            });
+            return;
+          }
+        }
+
+        const def = CATEGORY_DEFINITIONS.find(item => item.id === entry.catCode);
+        if (!def) return;
+
+        const productId = `${entry.catCode}-${entry.index}`;
+        const image = CATEGORY_IMAGE_MAP[def.name] || FALLBACK_IMAGES[fallbackIndex % FALLBACK_IMAGES.length];
+        if (!CATEGORY_IMAGE_MAP[def.name]) fallbackIndex += 1;
+        const orderValue = Number(entry.order.replace(/[^0-9.]/g, '')) || entry.index;
+        const product = { id: productId, categoryId: def.id, categoryName: def.name, name: entry.name, price: entry.price, image, order: orderValue };
+        state.products.push(product);
+        state.productIndex.set(productId, product);
+      });
+
+      state.broetchenTypes.sort((a, b) => a.order - b.order || a.price - b.price || a.name.localeCompare(b.name, 'de'));
+
+      juiceGroups.forEach((variants, key) => {
+        if (variants.length < 2) {
+          variants.forEach(variant => {
+            const def = CATEGORY_DEFINITIONS.find(item => item.id === '7');
+            const image = CATEGORY_IMAGE_MAP[def.name] || FALLBACK_IMAGES[0];
+            const productId = `7-${variant.order}`;
+            const product = { id: productId, categoryId: def.id, categoryName: def.name, name: `${variant.sizeLabel} ${variant.baseName}`.trim(), price: variant.price, image, order: variant.order };
+            state.products.push(product);
+            state.productIndex.set(productId, product);
+          });
+          return;
+        }
+        variants.sort((a, b) => a.order - b.order || a.price - b.price);
+        const baseName = variants[0].baseName;
+        state.juices.push({
+          id: `juice-${key}`, baseName, displayName: toTitleCase(baseName),
+          variants: variants.map(v => ({ sizeLabel: v.sizeLabel, rawName: v.rawName, price: v.price, order: v.order })),
+          order: variants[0].order, image: CATEGORY_IMAGE_MAP['Frischgepresste Säfte'] || FALLBACK_IMAGES[0]
+        });
+      });
+
+      state.products.sort((a, b) => {
+        if (a.categoryId === b.categoryId) {
+          return a.order === b.order ? a.name.localeCompare(b.name, 'de') : a.order - b.order;
+        }
+        return CATEGORY_DEFINITIONS.findIndex(d => d.id === a.categoryId) - CATEGORY_DEFINITIONS.findIndex(d => d.id === b.categoryId);
+      });
+      state.juices.sort((a, b) => a.order - b.order || a.displayName.localeCompare(b.displayName, 'de'));
+
+      const belegteMap = new Map();
+      state.products.filter(product => product.categoryId === '2').forEach(product => {
+        const normalized = product.name
+          .replace(/^belegtes\s+br(?:ö|oe)?tchen\s+mit\s+/i, '')
+          .replace(/^belegtes\s+baguette\s+mit\s+/i, '')
+          .trim();
+        const key = normalized.toLocaleLowerCase('de-DE');
+        if (!key) return;
+        const existing = belegteMap.get(key) || {
+          id: `belegte-${key.replace(/[^a-z0-9]+/gi, '-')}`,
+          label: normalized,
+          minPrice: Number.POSITIVE_INFINITY,
+          variants: []
+        };
+        existing.minPrice = Math.min(existing.minPrice, Number(product.price) || 0);
+        existing.variants.push(product);
+        belegteMap.set(key, existing);
+      });
+      state.belegteGroups = Array.from(belegteMap.values())
+        .map(group => ({ ...group, minPrice: Number.isFinite(group.minPrice) ? group.minPrice : 0 }))
+        .sort((a, b) => a.minPrice - b.minPrice || a.label.localeCompare(b.label, 'de'));
+
+      state.activeCategory = 'Belegte Brötchen';
+      buildCategoryBar();
+      renderProducts();
+      applyPreloadedSet();
+    }
+
+    function parseJuiceVariant(name) {
+      if (!name) return null;
+      const trimmed = name.trim();
+      const lower = trimmed.toLowerCase();
+      if (lower.startsWith('kl.') || lower.startsWith('kl ')) {
+        return {
+          baseName: trimmed.replace(/^kl\.?\s*/i, '').trim(),
+          sizeLabel: 'Klein'
+        };
+      }
+      if (lower.startsWith('gr.') || lower.startsWith('gr ')) {
+        return {
+          baseName: trimmed.replace(/^gr\.?\s*/i, '').trim(),
+          sizeLabel: 'Groß'
+        };
+      }
+      return null;
+    }
+
+    function buildCategoryBar() {
+      if (!elements.categoryBar) return;
+      const categories = ['Belegte Brötchen', 'Wunschbrötchen', 'Frischgepresste Säfte', 'Salate', 'Softgetränke', 'Extras'];
+      elements.categoryBar.innerHTML = categories.map(category => {
+        const isActive = state.activeCategory === category;
+        return `<button class="chip${isActive ? ' is-active' : ''}" data-category="${category}">${category}</button>`;
+      }).join('');
+    }
+
+    function renderProducts() {
+      if (!elements.grid) return;
+      elements.grid.innerHTML = '';
+      let hasContent = false;
+      if (state.activeCategory === 'Wunschbrötchen') {
+        if (state.broetchenTypes.length) {
+          const card = createBroetchenWizardCard();
+          if (card) { elements.grid.appendChild(card); hasContent = true; }
+        }
+      }
+
+      if (state.activeCategory === 'Belegte Brötchen') {
+        state.belegteGroups.forEach(group => {
+          const card = createBelegteGroupCard(group);
+          if (card) { elements.grid.appendChild(card); hasContent = true; }
+        });
+      }
+
+      if (state.activeCategory === 'Frischgepresste Säfte' && state.juices.length) {
+        state.juices.forEach(group => {
+          const card = createJuiceCard(group);
+          if (card) { elements.grid.appendChild(card); hasContent = true; }
+        });
+      }
+
+      if (state.activeCategory === 'Salate') {
+        SALATE_PRODUCTS.forEach(salat => {
+          const card = createSimpleStaticCard(salat, 'Salate');
+          if (card) { elements.grid.appendChild(card); hasContent = true; }
+        });
+      }
+
+      if (state.activeCategory === 'Softgetränke') {
+        state.products.filter(p => p.categoryId === '6').forEach(product => {
+          elements.grid.appendChild(createProductCard(product));
+          hasContent = true;
+        });
+      }
+
+      if (state.activeCategory === 'Extras') {
+        EXTRAS_PRODUCTS.forEach(product => {
+          const card = createExtrasCard(product);
+          if (card) { elements.grid.appendChild(card); hasContent = true; }
+        });
+      }
+
+      if (!hasContent) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = '<p>In dieser Kategorie sind aktuell keine Produkte hinterlegt.</p>';
+        elements.grid.appendChild(empty);
+      }
+    }
+
+    function createProductCard(product) {
+      const card = document.createElement('article');
+      card.className = 'product-card';
+      const quantityId = `qty-${product.id}`;
+      card.innerHTML = `
+        <img src="${product.image}" alt="${product.name}">
+        <div class="product-card-body">
+          <div class="product-info">
+            <h3>${product.name}</h3>
+            <span class="product-category">${product.categoryName}</span>
+          </div>
+          <div class="product-meta-row">
+            <span class="product-price">${formatPrice(product.price)}</span>
+            <div class="product-add">
+              <label class="sr-only" for="${quantityId}">Menge</label>
+              <input class="quantity-input" id="${quantityId}" type="number" min="1" value="1" data-quantity>
+              <button class="btn btn-secondary" type="button" data-product-id="${product.id}">In den Warenkorb</button>
+            </div>
+          </div>
+        </div>`;
+      return card;
+    }
+
+    function createBroetchenWizardCard() {
+      if (!state.broetchenTypes || !state.broetchenTypes.length) return null;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'wunsch-wizard';
+
+      // Schritt 1: Brötchen – Mehrfachauswahl mit Menge pro Kachel
+      const step1 = document.createElement('div');
+      step1.className = 'wunsch-step';
+      step1.dataset.step = '1';
+      step1.innerHTML = `
+        <div class="wunsch-grid">
+          ${state.broetchenTypes.map(brot => `
+            <div class="wunsch-tile" data-brot-name="${escapeHtml(brot.name)}" data-brot-price="${brot.price}">
+              <img src="${escapeHtml(brot.image)}" alt="${escapeHtml(brot.name)}" loading="lazy">
+              <span class="wunsch-tile-name">${escapeHtml(brot.name)}</span>
+              <span class="wunsch-tile-price">${formatPrice(brot.price)}</span>
+              <div class="wunsch-tile-qty" hidden>
+                <button class="wunsch-qty-btn" type="button" data-tile-dec>−</button>
+                <span class="wunsch-tile-count" data-tile-count>1</span>
+                <button class="wunsch-qty-btn" type="button" data-tile-inc>+</button>
+              </div>
+            </div>`).join('')}
+        </div>
+        <p class="wunsch-multi-hint" hidden data-multi-hint>Bei mehreren Brötchensorten erhält jede Sorte denselben Aufstrich, denselben Schnick Schnack und denselben Belag.</p>
+        <div class="wunsch-footer">
+          <button class="btn btn-primary" type="button" data-to-step="2">Weiter →</button>
+        </div>`;
+
+      // Schritt 2: Aufstrich – Butter ODER Margarine, Remoulade/Ketchup zusätzlich möglich
+      const step2 = document.createElement('div');
+      step2.className = 'wunsch-step';
+      step2.dataset.step = '2';
+      step2.hidden = true;
+      step2.innerHTML = `
+        <div class="wunsch-grid">
+          ${AUFSTRICH_OPTIONS.map((s, i) => `
+            <div class="wunsch-tile${i === 0 ? ' is-selected' : ''}" data-aufstrich-name="${escapeHtml(s.name)}" data-aufstrich-price="${s.price}">
+              <span class="wunsch-tile-name">${escapeHtml(s.name)}</span>
+              <span class="wunsch-tile-price">${s.price > 0 ? '+' + formatPrice(s.price) : 'inklusive'}</span>
+            </div>`).join('')}
+        </div>
+        <div class="wunsch-footer">
+          <button class="btn btn-ghost" type="button" data-to-step="1">← Zurück</button>
+          <button class="btn btn-primary" type="button" data-to-step="3">Weiter →</button>
+        </div>`;
+
+      // Schritt 3: Deko – Mehrfachauswahl mit Menge pro Kachel
+      const step3 = document.createElement('div');
+      step3.className = 'wunsch-step';
+      step3.dataset.step = '3';
+      step3.hidden = true;
+      step3.innerHTML = `
+        <div class="wunsch-grid">
+          ${SCHNICK_SCHNACK_OPTIONS.map(d => `
+            <div class="wunsch-tile" data-deko-name="${escapeHtml(d.name)}" data-deko-price="${d.price}">
+              <span class="wunsch-tile-name">${escapeHtml(d.name)}</span>
+              <span class="wunsch-tile-price">${formatPrice(d.price)}</span>
+              <div class="wunsch-tile-qty" hidden>
+                <button class="wunsch-qty-btn" type="button" data-tile-dec>−</button>
+                <span class="wunsch-tile-count" data-tile-count>1</span>
+                <button class="wunsch-qty-btn" type="button" data-tile-inc>+</button>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="wunsch-footer">
+          <button class="btn btn-ghost" type="button" data-to-step="2">← Zurück</button>
+          <button class="btn btn-primary" type="button" data-to-step="4">Weiter →</button>
+        </div>`;
+
+      const getBelagUnitHint = (name) => {
+        const n = (name || '').toLocaleLowerCase('de-DE');
+        if (['käse', 'salami', 'fleischwurst', 'schinken', 'putenbrust'].includes(n)) return 'pro halbe Scheibe';
+        if (n === 'rohrschinken') return 'pro ganze Scheibe';
+        return 'pro Portion';
+      };
+
+      // Schritt 4: Belag – Mehrfachauswahl mit Menge pro Kachel
+      const step4 = document.createElement('div');
+      step4.className = 'wunsch-step';
+      step4.dataset.step = '4';
+      step4.hidden = true;
+      step4.innerHTML = `
+        <div class="wunsch-grid">
+          ${BELAG_OPTIONS.map(b => `
+            <div class="wunsch-tile" data-belag-name="${escapeHtml(b.name)}" data-belag-price="${b.price}">
+              <span class="wunsch-tile-name">${escapeHtml(b.name)}</span>
+              <span class="wunsch-tile-price">${formatPrice(b.price)}</span>
+              <span class="wunsch-tile-unit">${getBelagUnitHint(b.name)}</span>
+              <div class="wunsch-tile-qty" hidden>
+                <button class="wunsch-qty-btn" type="button" data-tile-dec>−</button>
+                <span class="wunsch-tile-count" data-tile-count>1</span>
+                <button class="wunsch-qty-btn" type="button" data-tile-inc>+</button>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="wunsch-footer">
+          <button class="btn btn-ghost" type="button" data-to-step="3">← Zurück</button>
+          <button class="btn btn-primary" type="button" data-wunsch-add>🛒 In den Warenkorb</button>
+        </div>`;
+
+      wrapper.appendChild(step1);
+      wrapper.appendChild(step2);
+      wrapper.appendChild(step3);
+      wrapper.appendChild(step4);
+
+      // Hilfsfunktionen
+      const getSelectedBrote = () => Array.from(step1.querySelectorAll('.wunsch-tile.is-selected[data-brot-name]'))
+        .map(t => ({ name: t.dataset.brotName, price: Number(t.dataset.brotPrice), qty: parseInt(t.querySelector('[data-tile-count]')?.textContent || '1') }));
+      const getSelectedAufstrich = () => {
+        const selected = Array.from(step2.querySelectorAll('.wunsch-tile.is-selected[data-aufstrich-name]'))
+          .map(t => ({ name: t.dataset.aufstrichName, price: Number(t.dataset.aufstrichPrice) }));
+        return selected.length ? selected : [{ name: 'Nichts', price: 0 }];
+      };
+      const getSelectedDeko = () => Array.from(step3.querySelectorAll('.wunsch-tile.is-selected[data-deko-name]'))
+        .map(t => ({ name: t.dataset.dekoName, price: Number(t.dataset.dekoPrice), qty: parseInt(t.querySelector('[data-tile-count]')?.textContent || '1', 10) || 1 }));
+      const getSelectedBelag = () => Array.from(step4.querySelectorAll('.wunsch-tile.is-selected[data-belag-name]'))
+        .map(t => ({ name: t.dataset.belagName, price: Number(t.dataset.belagPrice), qty: parseInt(t.querySelector('[data-tile-count]')?.textContent || '1', 10) || 1 }));
+
+      const updateMultiHint = () => {
+        const hint = step1.querySelector('[data-multi-hint]');
+        if (hint) hint.hidden = getSelectedBrote().length < 2;
+      };
+
+      wrapper.addEventListener('click', e => {
+        // Navigation
+        const navBtn = e.target.closest('[data-to-step]');
+        if (navBtn) {
+          const toStep = Number(navBtn.dataset.toStep);
+          // Validierung: bei Weiter ab Schritt 1 mind. 1 Brötchen
+          if (toStep === 2 && !getSelectedBrote().length) {
+            showToast('Bitte wähle mindestens ein Brötchen.', true); return;
+          }
+          wrapper.querySelectorAll('.wunsch-step').forEach(s => { s.hidden = Number(s.dataset.step) !== toStep; });
+          return;
+        }
+
+        // Mengen-Buttons innerhalb Brötchen-Kachel
+        const decBtn = e.target.closest('[data-tile-dec]');
+        const incBtn = e.target.closest('[data-tile-inc]');
+        if (decBtn || incBtn) {
+          e.stopPropagation();
+          const tile = (decBtn || incBtn).closest('.wunsch-tile');
+          const countEl = tile.querySelector('[data-tile-count]');
+          const qtyDiv = tile.querySelector('.wunsch-tile-qty');
+          let n = parseInt(countEl.textContent || '1', 10);
+          if (decBtn && n <= 1) {
+            tile.classList.remove('is-selected');
+            if (qtyDiv) qtyDiv.hidden = true;
+            countEl.textContent = '1';
+            if (tile.matches('[data-brot-name]')) updateMultiHint();
+            return;
+          }
+          n = decBtn ? n - 1 : n + 1;
+          countEl.textContent = String(n);
+          return;
+        }
+
+        // Brötchen-Kachel anklicken → Toggle-Auswahl
+        const brotTile = e.target.closest('[data-brot-name]');
+        if (brotTile) {
+          brotTile.classList.toggle('is-selected');
+          const qtyDiv = brotTile.querySelector('.wunsch-tile-qty');
+          if (qtyDiv) qtyDiv.hidden = !brotTile.classList.contains('is-selected');
+          updateMultiHint();
+          return;
+        }
+
+        // Aufstrich-Kachel: Butter/Margarine exklusiv, Remoulade/Ketchup kombinierbar
+        const aufstrichTile = e.target.closest('[data-aufstrich-name]');
+        if (aufstrichTile) {
+          const all = Array.from(step2.querySelectorAll('[data-aufstrich-name]'));
+          const name = (aufstrichTile.dataset.aufstrichName || '').toLocaleLowerCase('de-DE');
+          const isButter = name === 'butter';
+          const isMargarine = name === 'margarine';
+          const isNichts = name === 'nichts';
+
+          if (isNichts) {
+            all.forEach(t => t.classList.remove('is-selected'));
+            aufstrichTile.classList.add('is-selected');
+            return;
+          }
+
+          // Nichts deaktivieren, sobald echte Auswahl getroffen wird
+          all.forEach(t => {
+            if ((t.dataset.aufstrichName || '').toLocaleLowerCase('de-DE') === 'nichts') t.classList.remove('is-selected');
+          });
+
+          if (isButter || isMargarine) {
+            all.forEach(t => {
+              const n = (t.dataset.aufstrichName || '').toLocaleLowerCase('de-DE');
+              if (n === 'butter' || n === 'margarine') t.classList.remove('is-selected');
+            });
+            aufstrichTile.classList.add('is-selected');
+          } else {
+            aufstrichTile.classList.toggle('is-selected');
+          }
+
+          // Fallback: wenn nichts ausgewählt ist, setze Nichts
+          if (!all.some(t => t.classList.contains('is-selected'))) {
+            const nichtsTile = all.find(t => (t.dataset.aufstrichName || '').toLocaleLowerCase('de-DE') === 'nichts');
+            if (nichtsTile) nichtsTile.classList.add('is-selected');
+          }
+          return;
+        }
+
+        // Deko-Kachel: Toggle-Auswahl + Mengenanzeige
+        const dekoTile = e.target.closest('[data-deko-name]');
+        if (dekoTile) {
+          dekoTile.classList.toggle('is-selected');
+          const qtyDiv = dekoTile.querySelector('.wunsch-tile-qty');
+          if (qtyDiv) qtyDiv.hidden = !dekoTile.classList.contains('is-selected');
+          if (!dekoTile.classList.contains('is-selected')) {
+            const c = dekoTile.querySelector('[data-tile-count]');
+            if (c) c.textContent = '1';
+          }
+          return;
+        }
+
+        // Belag-Kachel: Toggle-Auswahl + Mengenanzeige
+        const belagTile = e.target.closest('[data-belag-name]');
+        if (belagTile) {
+          belagTile.classList.toggle('is-selected');
+          const qtyDiv = belagTile.querySelector('.wunsch-tile-qty');
+          if (qtyDiv) qtyDiv.hidden = !belagTile.classList.contains('is-selected');
+          if (!belagTile.classList.contains('is-selected')) {
+            const c = belagTile.querySelector('[data-tile-count]');
+            if (c) c.textContent = '1';
+          }
+          return;
+        }
+
+        // In den Warenkorb
+        if (e.target.closest('[data-wunsch-add]')) {
+          const brote = getSelectedBrote();
+          const deko = getSelectedDeko();
+          const belag = getSelectedBelag();
+          if (!brote.length) { showToast('Bitte wähle mindestens ein Brötchen.', true); return; }
+          if (!belag.length) { showToast('Bitte wähle mindestens einen Belag.', true); return; }
+          const aufstrich = getSelectedAufstrich();
+          brote.forEach(brot => {
+            const aufstrichTotal = aufstrich.reduce((s, a) => s + a.price, 0);
+            const dekoTotal = deko.reduce((s, d) => s + (d.price * d.qty), 0);
+            const belagTotal = belag.reduce((s, b) => s + (b.price * b.qty), 0);
+            const price = roundCurrency(brot.price + aufstrichTotal + dekoTotal + belagTotal);
+            const key = [
+              'belegtes-broetchen',
+              brot.name,
+              ...aufstrich.map(a => a.name).sort(),
+              ...deko.map(d => `${d.name}x${d.qty}`).sort(),
+              ...belag.map(b => `${b.name}x${b.qty}`).sort()
+            ].join('::');
+            const extras = [];
+            aufstrich.forEach(a => { if (a.name !== 'Nichts') extras.push(a.name); });
+            deko.forEach(d => extras.push(`${d.name} x${d.qty}`));
+            belag.forEach(b => extras.push(`${b.name} x${b.qty}`));
+            addCartEntry(key, { id: 'belegtes-broetchen', name: `Wunsch Brötchen (${brot.name})`, price, category: 'Wunschbrötchen', variantLabel: brot.name, extras }, brot.qty);
+          });
+          showToast(`${brote.length > 1 ? brote.length + ' Wunsch Brötchen' : 'Wunsch Brötchen'} wurde dem Warenkorb hinzugefügt.`);
+          // Reset
+          step1.querySelectorAll('.wunsch-tile.is-selected').forEach(t => {
+            t.classList.remove('is-selected');
+            const qtyDiv = t.querySelector('.wunsch-tile-qty');
+            if (qtyDiv) qtyDiv.hidden = true;
+            const c = t.querySelector('[data-tile-count]'); if (c) c.textContent = '1';
+          });
+          step2.querySelectorAll('.wunsch-tile.is-selected').forEach(t => t.classList.remove('is-selected'));
+          const nichtsTile = step2.querySelector('[data-aufstrich-name="Nichts"]');
+          if (nichtsTile) nichtsTile.classList.add('is-selected');
+          step3.querySelectorAll('.wunsch-tile.is-selected').forEach(t => {
+            t.classList.remove('is-selected');
+            const qtyDiv = t.querySelector('.wunsch-tile-qty');
+            if (qtyDiv) qtyDiv.hidden = true;
+            const c = t.querySelector('[data-tile-count]'); if (c) c.textContent = '1';
+          });
+          step4.querySelectorAll('.wunsch-tile.is-selected').forEach(t => {
+            t.classList.remove('is-selected');
+            const qtyDiv = t.querySelector('.wunsch-tile-qty');
+            if (qtyDiv) qtyDiv.hidden = true;
+            const c = t.querySelector('[data-tile-count]'); if (c) c.textContent = '1';
+          });
+          updateMultiHint();
+          wrapper.querySelectorAll('.wunsch-step').forEach(s => { s.hidden = Number(s.dataset.step) !== 1; });
+          openCart();
+        }
+      });
+
+      return wrapper;
+    }
+
+    function createExtrasCard(product) {
+      const card = document.createElement('article');
+      card.className = 'product-card product-card-configurable';
+      const idPrefix = `extras-${product.id}`;
+      const qtyId = `${idPrefix}-qty`;
+      const optHtml = (product.options || []).map((opt, i) => `
+        <label for="${idPrefix}-opt-${i}">
+          <input type="checkbox" id="${idPrefix}-opt-${i}" data-extra-price="${opt.price}" data-extra-label="${escapeHtml(opt.name)}">
+          ${escapeHtml(opt.name)} (+${formatPrice(opt.price)})
+        </label>`).join('');
+      const extrasBlock = optHtml ? `<div class="field-group"><span class="field-label">Optionen</span><div class="config-extras">${optHtml}</div></div>` : '';
+      card.innerHTML = `
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy">
+        <div class="product-card-body">
+          <div class="product-info">
+            <h3>${escapeHtml(product.name)}</h3>
+            <span class="product-category">Extras</span>
+          </div>
+          <form class="config-form" novalidate>
+            ${extrasBlock}
+            <div class="config-actions">
+              <span class="config-price" data-config-price>${formatPrice(product.price)}</span>
+              <div class="quantity-field">
+                <label class="sr-only" for="${qtyId}">Menge</label>
+                <input class="quantity-input" id="${qtyId}" type="number" min="1" value="1" data-extras-qty>
+              </div>
+              <button class="btn btn-secondary" type="button" data-extras-add>In den Warenkorb</button>
+            </div>
+          </form>
+        </div>`;
+      const extraInputs = Array.from(card.querySelectorAll('[data-extra-price]'));
+      const priceNode = card.querySelector('[data-config-price]');
+      const qtyInput = card.querySelector('[data-extras-qty]');
+      const updatePrice = () => { priceNode.textContent = formatPrice(roundCurrency(product.price + extraInputs.filter(el => el.checked).reduce((s, el) => s + Number(el.dataset.extraPrice), 0))); };
+      extraInputs.forEach(el => el.addEventListener('change', updatePrice));
+      card.querySelector('[data-extras-add]')?.addEventListener('click', () => {
+        const sel = extraInputs.filter(el => el.checked);
+        const price = roundCurrency(product.price + sel.reduce((s, el) => s + Number(el.dataset.extraPrice), 0));
+        const labels = sel.map(el => el.dataset.extraLabel);
+        const qty = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+        addCartEntry([product.id, ...labels.sort()].join('::'), { id: product.id, name: product.name, price, category: 'Extras', extras: labels }, qty);
+        showToast(`${product.name} wurde dem Warenkorb hinzugefügt.`);
+        sel.forEach(el => { el.checked = false; });
+        if (qtyInput) qtyInput.value = '1';
+        updatePrice(); openCart();
+      });
+      return card;
+    }
+
+    function createSimpleStaticCard(product, category) {
+      const card = document.createElement('article');
+      card.className = 'product-card';
+      const qtyId = `static-qty-${product.id}`;
+      card.innerHTML = `
+        <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy">
+        <div class="product-card-body">
+          <div class="product-info">
+            <h3>${escapeHtml(product.name)}</h3>
+            <span class="product-category">${escapeHtml(category)}</span>
+          </div>
+          <div class="product-meta-row">
+            <span class="product-price">${formatPrice(product.price)}</span>
+            <div class="product-add">
+              <label class="sr-only" for="${qtyId}">Menge</label>
+              <input class="quantity-input" id="${qtyId}" type="number" min="1" value="1" data-static-qty>
+              <button class="btn btn-secondary" type="button" data-static-add>In den Warenkorb</button>
+            </div>
+          </div>
+        </div>`;
+      const qtyInput = card.querySelector('[data-static-qty]');
+      card.querySelector('[data-static-add]')?.addEventListener('click', () => {
+        const qty = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+        addCartEntry(product.id, { id: product.id, name: product.name, price: product.price, category, extras: [] }, qty);
+        showToast(`${product.name} wurde dem Warenkorb hinzugefügt.`);
+        if (qtyInput) qtyInput.value = '1';
+        openCart();
+      });
+      return card;
+    }
+
+    function createBelegteGroupCard(group) {
+      const card = document.createElement('article');
+      card.className = 'product-card';
+      card.innerHTML = `
+        <img src="käsebrötchen.jpg" alt="${escapeHtml(group.label)}" loading="lazy">
+        <div class="product-card-body">
+          <div class="product-info">
+            <h3>Brötchen mit ${escapeHtml(group.label)}</h3>
+            <span class="product-category">Belegte Brötchen</span>
+          </div>
+          <div class="product-meta-row">
+            <span class="product-price">Ab ${formatPrice(group.minPrice)}</span>
+            <div class="product-add">
+              <button class="btn btn-secondary" type="button">Varianten wählen</button>
+            </div>
+          </div>
+        </div>`;
+      card.querySelector('button')?.addEventListener('click', () => openBelegteModal(group));
+      return card;
+    }
+
+    function openBelegteModal(group) {
+      if (!elements.belegteModal || !elements.belegteVariants) return;
+      elements.belegteTitle.textContent = `Brötchen mit ${group.label}`;
+      elements.belegteSubtitle.textContent = `Wähle Brötchensorten aus. Preis ab ${formatPrice(group.minPrice)}.`;
+      const minBreadPrice = Math.min(...state.broetchenTypes.map(b => Number(b.price) || 0));
+      elements.belegteVariants.innerHTML = state.broetchenTypes.map(bread => `
+        <div class="wunsch-tile" data-belegte-bread="${escapeHtml(bread.name)}" data-belegte-price="${Number(bread.price) || 0}">
+          <img src="${escapeHtml(bread.image)}" alt="${escapeHtml(bread.name)}" loading="lazy">
+          <span class="wunsch-tile-name">${escapeHtml(bread.name)}</span>
+          <span class="wunsch-tile-price">${formatPrice(group.minPrice + Math.max(0, (Number(bread.price) || 0) - minBreadPrice))}</span>
+          <div class="wunsch-tile-qty" hidden>
+            <button class="wunsch-qty-btn" type="button" data-belegte-dec>−</button>
+            <span class="wunsch-tile-count" data-belegte-count>1</span>
+            <button class="wunsch-qty-btn" type="button" data-belegte-inc>+</button>
+          </div>
+        </div>
+      `).join('');
+
+      elements.belegteVariants.onclick = event => {
+        const dec = event.target.closest('[data-belegte-dec]');
+        const inc = event.target.closest('[data-belegte-inc]');
+        if (dec || inc) {
+          event.stopPropagation();
+          const tile = (dec || inc).closest('.wunsch-tile');
+          const countNode = tile.querySelector('[data-belegte-count]');
+          const qtyWrap = tile.querySelector('.wunsch-tile-qty');
+          let count = parseInt(countNode.textContent || '1', 10);
+          if (dec && count <= 1) {
+            tile.classList.remove('is-selected');
+            qtyWrap.hidden = true;
+            countNode.textContent = '1';
+            return;
+          }
+          count = dec ? count - 1 : count + 1;
+          countNode.textContent = String(count);
+          return;
+        }
+        const tile = event.target.closest('.wunsch-tile[data-belegte-bread]');
+        if (!tile) return;
+        tile.classList.toggle('is-selected');
+        const qtyWrap = tile.querySelector('.wunsch-tile-qty');
+        qtyWrap.hidden = !tile.classList.contains('is-selected');
+      };
+
+      elements.belegteAddBtn.onclick = () => {
+        const selected = Array.from(elements.belegteVariants.querySelectorAll('.wunsch-tile.is-selected[data-belegte-bread]'));
+        if (!selected.length) {
+          showToast('Bitte mindestens eine Brötchensorte auswählen.', true);
+          return;
+        }
+        selected.forEach(tile => {
+          const breadName = tile.dataset.belegteBread;
+          const breadPrice = Number(tile.dataset.belegtePrice) || 0;
+          const qty = Math.max(1, parseInt(tile.querySelector('[data-belegte-count]')?.textContent || '1', 10));
+          const price = roundCurrency(group.minPrice + Math.max(0, breadPrice - minBreadPrice));
+          const key = `belegte::${group.id}::${breadName}::${price}`;
+          addCartEntry(key, {
+            id: group.id,
+            name: `Brötchen mit ${group.label} (${breadName})`,
+            price,
+            category: 'Belegte Brötchen',
+            variantLabel: breadName,
+            extras: []
+          }, qty);
+        });
+        showToast('Auswahl wurde dem Warenkorb hinzugefügt.');
+        closeBelegteModal();
+      };
+
+      elements.belegteModal.classList.add('is-visible');
+      elements.belegteModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeBelegteModal() {
+      elements.belegteModal?.classList.remove('is-visible');
+      elements.belegteModal?.setAttribute('aria-hidden', 'true');
+    }
+
+    function createJuiceCard(group) {
+      const card = document.createElement('article');
+      card.className = 'product-card product-card-configurable';
+      card.setAttribute('data-juice-card', group.id);
+      const selectId = `${group.id}-size`;
+      const quantityId = `${group.id}-qty`;
+      const optionsMarkup = group.variants.map((variant, index) => `
+            <option value="${variant.rawName}" data-price="${variant.price}" data-label="${variant.sizeLabel}" ${index === 0 ? 'selected' : ''}>${variant.sizeLabel} (${formatPrice(variant.price)})</option>`).join('');
+
+      card.innerHTML = `
+        <img src="${group.image}" alt="${group.displayName}">
+        <div class="product-card-body">
+          <div class="product-info">
+            <h3>${group.displayName}</h3>
+            <span class="product-category">Frischgepresste Säfte</span>
+          </div>
+          <form class="config-form" data-juice-form="${group.id}" aria-label="${group.displayName}">
+            <div class="field-group">
+              <label for="${selectId}">Größe auswählen</label>
+              <select id="${selectId}" data-juice-select="${group.id}">
+                ${optionsMarkup}
+              </select>
+            </div>
+            <div class="config-actions">
+              <span class="config-price" data-config-price>${formatPrice(group.variants[0].price)}</span>
+              <div class="quantity-field">
+                <label class="sr-only" for="${quantityId}">Menge</label>
+                <input class="quantity-input" id="${quantityId}" type="number" min="1" value="1" data-juice-qty="${group.id}">
+              </div>
+              <button class="btn btn-secondary" type="button" data-juice-add="${group.id}">In den Warenkorb</button>
+            </div>
+          </form>
+        </div>`;
+
+      const select = card.querySelector(`[data-juice-select="${group.id}"]`);
+      const priceNode = card.querySelector('[data-config-price]');
+      const quantityInput = card.querySelector(`[data-juice-qty="${group.id}"]`);
+      const addButton = card.querySelector(`[data-juice-add="${group.id}"]`);
+
+      select?.addEventListener('change', () => {
+        const price = Number(select.selectedOptions[0]?.dataset.price || 0);
+        priceNode.textContent = formatPrice(price);
+      });
+
+      addButton?.addEventListener('click', () => {
+        const option = select?.selectedOptions[0];
+        if (!option) return;
+        const sizeLabel = option.dataset.label || option.textContent;
+        const price = Number(option.dataset.price || 0);
+        const quantity = Math.max(1, parseInt(quantityInput?.value, 10) || 1);
+        const key = `${group.id}::${sizeLabel}`;
+        addCartEntry(key, {
+          id: group.id,
+          name: `${group.displayName} – ${sizeLabel}`,
+          price,
+          category: 'Frischgepresste Säfte',
+          variantLabel: sizeLabel,
+          extras: []
+        }, quantity);
+        showToast(`${group.displayName} (${sizeLabel}) wurde dem Warenkorb hinzugefügt.`);
+        if (quantityInput) quantityInput.value = '1';
+        openCart();
+      });
+
+      return card;
+    }
+
+    function addSimpleProductToCart(productId, quantity) {
+      const product = state.productIndex.get(productId);
+      if (!product) return;
+      const key = product.id;
+      addCartEntry(key, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        category: product.categoryName,
+        extras: []
+      }, quantity);
+      showToast(`${product.name} wurde dem Warenkorb hinzugefügt.`);
+      openCart();
+    }
+
+    function addCartEntry(key, payload, quantity) {
+      const existing = state.cart.find(item => item.key === key);
+      if (existing) {
+        existing.qty += quantity;
+      } else {
+        state.cart.push({
+          key,
+          id: payload.id,
+          name: payload.name,
+          price: payload.price,
+          qty: quantity,
+          category: payload.category || null,
+          variantLabel: payload.variantLabel || null,
+          extras: payload.extras ? [...payload.extras] : []
+        });
+      }
+      renderCart();
+    }
+
+    function changeQuantity(key, delta) {
+      const item = state.cart.find(entry => entry.key === key);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) {
+        state.cart = state.cart.filter(entry => entry.key !== key);
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      if (elements.cartContainer) {
+        elements.cartContainer.innerHTML = '';
+      }
+      if (elements.cartContainer && !state.cart.length) {
+        elements.cartContainer.innerHTML = '<p class="empty-cart">Noch keine Produkte im Warenkorb.</p>';
+      } else if (elements.cartContainer) {
+        state.cart.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'cart-item';
+          const extrasInfo = item.extras && item.extras.length ? `<div class=\"cart-item-meta\">Extras: ${item.extras.map(escapeHtml).join(', ')}</div>` : '';
+          const lineTotals = calculateLineTotals(item);
+          const priceInfo = lineTotals.discount > 0 && lineTotals.rule ? `
+            <div class="cart-price">
+              <span class="cart-unit">${formatPrice(item.price)} pro Stück</span>
+              <div class="cart-deal">
+                <span class="cart-price-strike">${formatPrice(lineTotals.baseTotal)}</span>
+                <span class="cart-price-final">Angebotspreis: ${formatPrice(lineTotals.finalTotal)}</span>
+                <span class="cart-price-note">${escapeHtml(lineTotals.breakdown.join(' + '))}</span>
+              </div>
+            </div>` : `
+            <div class="cart-price">
+              <span class="cart-unit">${formatPrice(item.price)} pro Stück</span>
+              <span class="cart-line-total">Gesamt: ${formatPrice(lineTotals.finalTotal)}</span>
+            </div>`;
+          row.innerHTML = `
+            <div>
+              <h3>${escapeHtml(item.name)}</h3>
+              ${priceInfo}
+              ${extrasInfo}
+            </div>
+            <div class="cart-item-actions">
+              <button class="btn-icon" type="button" aria-label="${escapeHtml(item.name)} entfernen" data-action="decrease" data-key="${item.key}">−</button>
+              <span class="cart-qty">${item.qty}</span>
+              <button class="btn-icon" type="button" aria-label="${escapeHtml(item.name)} erhöhen" data-action="increase" data-key="${item.key}">+</button>
+            </div>`;
+          elements.cartContainer.appendChild(row);
+        });
+      }
+
+      const totals = getTotals();
+      elements.cartSubtotal?.setAttribute('aria-live', 'polite');
+      if (elements.cartSubtotal) {
+        elements.cartSubtotal.textContent = formatPrice(totals.subtotal);
+      }
+      if (elements.cartCount) {
+        elements.cartCount.textContent = state.cart.reduce((sum, item) => sum + item.qty, 0);
+      }
+      persistCartToStorage();
+      updateCartNote(totals);
+    }
+
+    function persistCartToStorage() {
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.cart));
+      } catch {
+        // no-op
+      }
+    }
+
+    function restoreCartFromStorage() {
+      try {
+        const raw = localStorage.getItem(CART_STORAGE_KEY);
+        if (!raw) {
+          renderCart();
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          state.cart = parsed
+            .filter(item => item && item.key && item.name)
+            .map(item => ({
+              key: String(item.key),
+              id: String(item.id || item.key),
+              name: String(item.name || ''),
+              price: Number(item.price) || 0,
+              qty: Math.max(1, Number(item.qty) || 1),
+              category: item.category || null,
+              variantLabel: item.variantLabel || null,
+              extras: Array.isArray(item.extras) ? item.extras : []
+            }));
+        }
+      } catch {
+        state.cart = [];
+      }
+      renderCart();
+    }
+
+    function calculateLineTotals(item) {
+      const quantity = Math.max(0, Number.parseInt(item.qty, 10) || 0);
+      const unitPrice = Number(item.price) || 0;
+      const baseTotal = roundCurrency(unitPrice * quantity);
+      const rule = BULK_DISCOUNT_RULES.find(entry => entry.matcher(item));
+      if (!rule || quantity < rule.bundleSize) {
+        return {
+          baseTotal,
+          finalTotal: baseTotal,
+          discount: 0,
+          bundles: 0,
+          remainder: quantity,
+          rule: rule || null,
+          breakdown: quantity ? [`${quantity}× Einzelpreis`] : []
+        };
+      }
+      const bundles = Math.floor(quantity / rule.bundleSize);
+      const remainder = quantity % rule.bundleSize;
+      const discountedPart = roundCurrency(bundles * rule.bundleTotal);
+      const remainderPart = roundCurrency(unitPrice * remainder);
+      const finalTotal = roundCurrency(discountedPart + remainderPart);
+      const discount = roundCurrency(baseTotal - finalTotal);
+      const breakdown = [];
+      if (bundles > 0) {
+        if (bundles === 1) {
+          breakdown.push(`${rule.bundleSize}er Angebot aktiv`);
+        } else {
+          breakdown.push(`${bundles}× ${rule.bundleSize}er Angebot`);
+        }
+      }
+      if (remainder > 0) {
+        breakdown.push(`${remainder}× Einzelpreis`);
+      }
+      return {
+        baseTotal,
+        finalTotal,
+        discount,
+        bundles,
+        remainder,
+        rule,
+        breakdown
+      };
+    }
+
+    function roundCurrency(value) {
+      return Math.round((Number(value) || 0) * 100) / 100;
+    }
+
+    function escapeHtml(value) {
+      if (!value && value !== 0) return '';
+      return String(value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char] || char);
+    }
+
+    function openCart() {
+      window.location.href = 'checkout.html';
+    }
+
+    function closeCart() {
+      if (!elements.cartPanel) return;
+      elements.cartPanel.classList.remove('is-visible');
+      const isMobile = window.matchMedia('(max-width: 960px)').matches;
+      elements.cartPanel.setAttribute('aria-hidden', isMobile ? 'true' : 'false');
+      document.body.classList.remove('cart-open');
+    }
+
+    function toggleCart() {
+      if (!elements.cartPanel) return;
+      if (elements.cartPanel.classList.contains('is-visible')) {
+        closeCart();
+      } else {
+        openCart();
+      }
+    }
+
+    function openCheckout() {
+      clearAllValidationErrors();
+      if (!state.cart.length) {
+        showToast('Dein Warenkorb ist leer.', true);
+        return;
+      }
+      if (state.fulfillment === 'delivery' && !state.postalCode) {
+        showToast('Bitte bestätige zuerst eine gültige Liefer-PLZ.', true);
+        return;
+      }
+      const totals = getTotals();
+      if (totals.subtotal < MIN_ORDER_VALUE && state.fulfillment === 'delivery') {
+        showToast('Mindestbestellwert 10,00 € noch nicht erreicht.', true);
+        return;
+      }
+      ensureCalendarSelection(state.fulfillment);
+      handleFulfillmentChange(state.fulfillment);
+      elements.checkoutModal?.classList.add('is-visible');
+      elements.checkoutModal?.setAttribute('aria-hidden', 'false');
+      const activeUser = window.SBPlatform?.getCurrentUser?.();
+      if (activeUser) applyUserToCheckout(activeUser);
+      window.SBPlatform?.trackEvent?.('shop_checkout_opened', {
+        mode: state.checkoutAuthMode,
+        email: activeUser?.email || document.getElementById('customer-email')?.value || null,
+        cartItems: state.cart.length,
+        cartValue: getTotals().total
+      });
+    }
+
+    function closeCheckout() {
+      elements.checkoutModal?.classList.remove('is-visible');
+      elements.checkoutModal?.setAttribute('aria-hidden', 'true');
+      clearAllValidationErrors();
+    }
+
+    function placeOrder(event) {
+      event.preventDefault();
+      clearAllValidationErrors();
+      window.SBPlatform?.trackEvent?.('shop_order_submit_attempt', { mode: state.checkoutAuthMode });
+
+      if (state.checkoutAuthMode === 'login' && !window.SBPlatform?.getCurrentUser?.()) {
+        showToast('Bitte zuerst einloggen oder als Gast bestellen.', true);
+        setAuthFeedback('Bitte zuerst einloggen.', false);
+        window.SBPlatform?.trackEvent?.('shop_checkout_dropoff', { step: 'auth-login-missing' });
+        return;
+      }
+
+      if (state.checkoutAuthMode === 'register' && !window.SBPlatform?.getCurrentUser?.()) {
+        showToast('Bitte zuerst registrieren oder als Gast bestellen.', true);
+        setAuthFeedback('Bitte zuerst registrieren.', false);
+        window.SBPlatform?.trackEvent?.('shop_checkout_dropoff', { step: 'auth-register-missing' });
+        return;
+      }
+
+      if (!state.cart.length) {
+        showToast('Dein Warenkorb ist leer.', true);
+        window.SBPlatform?.trackEvent?.('shop_checkout_dropoff', { step: 'empty-cart' });
+        return;
+      }
+      const nameField = document.getElementById('customer-name');
+      const phoneField = document.getElementById('customer-phone');
+      const emailField = document.getElementById('customer-email');
+      const notesField = document.getElementById('customer-notes');
+      const name = nameField?.value.trim() || '';
+      const phone = phoneField?.value.trim() || '';
+      const email = emailField?.value.trim() || '';
+      const notes = notesField?.value.trim() || '';
+      if (!name) {
+        showToast('Bitte gib deinen Namen an.', true);
+        markFieldInvalid(nameField);
+        window.SBPlatform?.trackEvent?.('shop_checkout_dropoff', { step: 'contact-name' });
+        return;
+      }
+      if (!phone) {
+        showToast('Bitte gib deine Telefonnummer an.', true);
+        markFieldInvalid(phoneField);
+        window.SBPlatform?.trackEvent?.('shop_checkout_dropoff', { step: 'contact-phone' });
+        return;
+      }
+      if (!email) {
+        showToast('Bitte gib deine E-Mail-Adresse an.', true);
+        markFieldInvalid(emailField);
+        window.SBPlatform?.trackEvent?.('shop_checkout_dropoff', { step: 'contact-email' });
+        return;
+      }
+      const fulfillment = state.fulfillment;
+      if (fulfillment === 'delivery' && !state.postalCode) {
+        showToast('Bitte bestätige zuerst eine gültige Liefer-PLZ.', true);
+        return;
+      }
+      const totals = getTotals();
+      if (totals.subtotal < MIN_ORDER_VALUE && fulfillment === 'delivery') {
+        showToast('Mindestbestellwert 10,00 € noch nicht erreicht.', true);
+        return;
+      }
+
+      const fulfillmentDetails = { type: fulfillment };
+      let address = '';
+
+      if (fulfillment === 'delivery') {
+        const deliveryDateValue = elements.deliveryDateInput?.value;
+        const deliverySlot = elements.deliverySlotSelect?.value;
+        const street = elements.addressStreet?.value.trim() || '';
+        const number = elements.addressNumber?.value.trim() || '';
+        const zip = elements.addressZip?.value.trim() || '';
+        const city = elements.addressCity?.value.trim() || '';
+        if (!deliveryDateValue) {
+          showToast('Bitte wähle einen Liefertermin.', true);
+          markCalendarInvalid('delivery');
+          return;
+        }
+        const deliveryDateObj = new Date(deliveryDateValue);
+        if (!isDateAllowed(deliveryDateObj, 'delivery')) {
+          showToast('Lieferung ist nur an Sonntagen möglich.', true);
+          markCalendarInvalid('delivery');
+          return;
+        }
+        if (!deliverySlot) {
+          showToast('Bitte wähle ein Lieferzeitfenster.', true);
+          markFieldInvalid(elements.deliverySlotSelect);
+          return;
+        }
+        if (!street) {
+          showToast('Bitte gib deine Straße an.', true);
+          markFieldInvalid(elements.addressStreet);
+          return;
+        }
+        if (!number) {
+          showToast('Bitte gib deine Hausnummer an.', true);
+          markFieldInvalid(elements.addressNumber);
+          return;
+        }
+        if (!zip) {
+          showToast('Bitte gib deine Postleitzahl an.', true);
+          markFieldInvalid(elements.addressZip);
+          return;
+        }
+        if (!/^\d{5}$/.test(zip)) {
+          showToast('Bitte gib eine gültige Postleitzahl an.', true);
+          markFieldInvalid(elements.addressZip);
+          return;
+        }
+        if (!ALLOWED_POSTCODES.includes(zip)) {
+          showToast('Wir liefern leider nicht in diesem Gebiet.', true);
+          markFieldInvalid(elements.addressZip);
+          return;
+        }
+        if (!city) {
+          showToast('Bitte gib deinen Wohnort an.', true);
+          markFieldInvalid(elements.addressCity);
+          return;
+        }
+        address = `${street} ${number}, ${zip} ${city}`;
+        const deliverySlotLabel = elements.deliverySlotSelect?.selectedOptions[0]?.textContent || formatSlot(deliverySlot);
+        fulfillmentDetails.date = deliveryDateValue;
+        fulfillmentDetails.dateLabel = formatDateLong(deliveryDateObj);
+        fulfillmentDetails.slot = deliverySlot;
+        fulfillmentDetails.slotLabel = deliverySlotLabel;
+        fulfillmentDetails.postalCode = state.postalCode;
+        fulfillmentDetails.deliveryFee = DELIVERY_FEE;
+      } else {
+        const pickupDateValue = elements.pickupDateInput?.value;
+        const pickupTime = elements.pickupTimeInput?.value;
+        if (!pickupDateValue) {
+          showToast('Bitte wähle einen Abholtag.', true);
+          markCalendarInvalid('pickup');
+          window.SBPlatform?.trackEvent?.('shop_checkout_dropoff', { step: 'pickup-date', email });
+          return;
+        }
+        const pickupDateObj = new Date(pickupDateValue);
+        if (!isDateAllowed(pickupDateObj, 'pickup')) {
+          showToast('Abholung ist nur Montag bis Samstag möglich (Feiertage ausgenommen).', true);
+          markCalendarInvalid('pickup');
+          return;
+        }
+        if (!pickupTime || !isPickupTimeAllowed(pickupTime)) {
+          showToast('Bitte eine Abholzeit zwischen 07:00 und 15:00 Uhr wählen.', true);
+          markFieldInvalid(elements.pickupTimeInput);
+          window.SBPlatform?.trackEvent?.('shop_checkout_dropoff', { step: 'pickup-time', email });
+          return;
+        }
+        fulfillmentDetails.date = pickupDateValue;
+        fulfillmentDetails.dateLabel = formatDateLong(pickupDateObj);
+        fulfillmentDetails.time = pickupTime;
+        fulfillmentDetails.codeword = generatePickupCode();
+        address = 'Abholung in der Filiale, Lenaustraße 1';
+      }
+
+      const items = state.cart.map(item => {
+        const lineTotals = calculateLineTotals(item);
+        return {
+          id: item.id,
+          name: item.name,
+          qty: item.qty,
+          price: item.price,
+          extras: item.extras || [],
+          variant: item.variantLabel || null,
+          total: lineTotals.finalTotal,
+          discount: lineTotals.discount,
+          breakdown: lineTotals.breakdown
+        };
+      });
+
+      const order = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        customer: {
+          name,
+          address,
+          phone,
+          email,
+          postalCode: state.postalCode
+        },
+        paymentMethod: elements.checkoutForm?.querySelector('input[name="payment"]:checked')?.value || 'Barzahlung',
+        notes,
+        fulfillment: fulfillmentDetails,
+        items,
+        subtotal: totals.subtotal,
+        deliveryFee: totals.deliveryFee,
+        total: totals.total
+      };
+
+      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      existingOrders.push(order);
+      localStorage.setItem('orders', JSON.stringify(existingOrders));
+
+      const currentUser = window.SBPlatform?.getCurrentUser?.();
+      if (currentUser && currentUser.email === email.toLowerCase()) {
+        window.SBPlatform?.updateCurrentUser?.({
+          firstName: currentUser.firstName || name.split(' ')[0] || '',
+          phone: phone || currentUser.phone,
+          lastOrderAt: new Date().toISOString()
+        });
+      }
+
+      window.SBPlatform?.trackEvent?.('shop_order_submitted', {
+        email,
+        total: order.total,
+        items: order.items.length,
+        mode: state.checkoutAuthMode
+      });
+
+      state.cart = [];
+      renderCart();
+      elements.checkoutForm?.reset();
+      restoreFulfillmentPreference();
+      closeCheckout();
+      closeCart();
+      ensureCalendarSelection('delivery');
+      ensureCalendarSelection('pickup');
+      showConfirmation(order);
+      showToast(`Danke ${name}! Deine Bestellung über ${formatPrice(order.total)} ist eingegangen.`);
+    }
+
+    function getTotals() {
+      const subtotal = state.cart.reduce((sum, item) => sum + calculateLineTotals(item).finalTotal, 0);
+      const deliveryFee = state.fulfillment === 'delivery' && state.cart.length ? DELIVERY_FEE : 0;
+      return {
+        subtotal,
+        deliveryFee,
+        total: subtotal + deliveryFee
+      };
+    }
+
+    function showToast(message, isError = false) {
+      if (!elements.toast) return;
+      elements.toast.textContent = message;
+      elements.toast.classList.toggle('is-error', isError);
+      elements.toast.classList.add('is-visible');
+      setTimeout(() => {
+        elements.toast?.classList.remove('is-visible');
+      }, 3500);
+    }
+
+    function showConfirmation(order) {
+      if (!elements.confirmationContent || !elements.confirmationModal) return;
+      elements.confirmationContent.innerHTML = buildConfirmationMarkup(order);
+      elements.confirmationModal.classList.add('is-visible');
+      elements.confirmationModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeConfirmation() {
+      if (!elements.confirmationModal) return;
+      elements.confirmationModal.classList.remove('is-visible');
+      elements.confirmationModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function buildConfirmationMarkup(order) {
+      const itemMarkup = order.items.length ? order.items.map(item => {
+        const extras = item.extras && item.extras.length ? `<div class="confirmation-item-extras">Extras: ${item.extras.map(escapeHtml).join(', ')}</div>` : '';
+        const deal = item.discount > 0 && item.breakdown && item.breakdown.length ? `<div class="confirmation-item-deal">${escapeHtml(item.breakdown.join(' + '))}</div>` : '';
+        return `<li class="confirmation-item"><div><span class="item-title">${item.qty}× ${escapeHtml(item.name)}</span>${extras}${deal}</div><span class="item-price">${formatPrice(item.total)}</span></li>`;
+      }).join('') : '<li class="confirmation-item"><span>Keine Artikel erfasst.</span></li>';
+
+      const fulfillmentInfo = order.fulfillment.type === 'delivery'
+        ? `<ul class="confirmation-summary">
+            <li><span>Lieferdatum</span><span>${escapeHtml(order.fulfillment.dateLabel || '')}</span></li>
+            <li><span>Lieferzeit</span><span>${escapeHtml(order.fulfillment.slotLabel || formatSlot(order.fulfillment.slot))}</span></li>
+            <li><span>Adresse</span><span>${escapeHtml(order.customer.address)}</span></li>
+            <li><span>PLZ</span><span>${escapeHtml(order.fulfillment.postalCode || '')}</span></li>
+          </ul>`
+        : `<ul class="confirmation-summary">
+            <li><span>Abholtag</span><span>${escapeHtml(order.fulfillment.dateLabel || '')}</span></li>
+            <li><span>Abholzeit</span><span>${escapeHtml(formatPickupTime(order.fulfillment.time))}</span></li>
+            <li><span>Abholort</span><span>Simonsbrotkörbchen · Lenaustraße 1</span></li>
+          </ul>`;
+
+      const codewordBlock = order.fulfillment.type === 'pickup' && order.fulfillment.codeword
+        ? `<div class="codeword-card">
+            <p class="codeword-label">Codewort für die Abholung</p>
+            <p class="codeword-value">${escapeHtml(order.fulfillment.codeword)}</p>
+            <p class="codeword-hint">Bitte Screenshot speichern oder das Codewort merken und bei Abholung nennen.</p>
+          </div>`
+        : '';
+
+      const notesBlock = order.notes
+        ? `<section class="confirmation-section">
+            <h3>Hinweis an das Team</h3>
+            <p>${escapeHtml(order.notes)}</p>
+          </section>`
+        : '';
+
+      return `
+        <div class="confirmation-card">
+          <p class="confirmation-intro">Hallo ${escapeHtml(order.customer.name)},</p>
+          <p class="confirmation-text">vielen Dank für deine Bestellung bei Simonsbrotkörbchen. Wir haben deine Angaben übersichtlich zusammengefasst.</p>
+          <section class="confirmation-section">
+            <h3>Bestellübersicht</h3>
+            <ul class="confirmation-list">${itemMarkup}</ul>
+          </section>
+          <section class="confirmation-section">
+            <h3>${order.fulfillment.type === 'delivery' ? 'Lieferdetails' : 'Abholdetails'}</h3>
+            ${fulfillmentInfo}
+            ${codewordBlock}
+          </section>
+          <section class="confirmation-section">
+            <h3>Rechnungsbetrag</h3>
+            <ul class="confirmation-totals">
+              <li><span>Zwischensumme</span><span>${formatPrice(order.subtotal)}</span></li>
+              ${order.deliveryFee ? `<li><span>Liefergebühr</span><span>${formatPrice(order.deliveryFee)}</span></li>` : ''}
+              <li class="confirmation-total"><span>Gesamt</span><span>${formatPrice(order.total)}</span></li>
+            </ul>
+          </section>
+          ${notesBlock}
+          <section class="confirmation-section confirmation-meta">
+            <h3>Kontakt & Zahlung</h3>
+            <ul class="confirmation-summary">
+              <li><span>Zahlungsart</span><span>${escapeHtml(order.paymentMethod)}</span></li>
+              <li><span>Telefon</span><span>${escapeHtml(order.customer.phone)}</span></li>
+              <li><span>E-Mail</span><span>${escapeHtml(order.customer.email)}</span></li>
+            </ul>
+            <p class="confirmation-footnote">Eine Bestätigung kann direkt an <strong>${escapeHtml(order.customer.email)}</strong> gesendet werden. Bitte halte diese Übersicht bereit.</p>
+          </section>
+        </div>`;
+    }
+
+    function formatDateLong(date) {
+      if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+      return date.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    }
+
+    function formatSlot(slot) {
+      if (!slot) return '';
+      const parts = slot.split('-');
+      if (parts.length !== 2) return `${slot}`;
+      return `${parts[0]} – ${parts[1]} Uhr`;
+    }
+
+    function formatPickupTime(value) {
+      if (!value) return '';
+      return `${value} Uhr`;
+    }
+
+    function generatePickupCode() {
+      if (!PICKUP_CODEWORDS.length) return 'Backstube';
+      const base = PICKUP_CODEWORDS[Math.floor(Math.random() * PICKUP_CODEWORDS.length)] || 'Backstube';
+      return base;
+    }
+
+    function formatPrice(value) {
+      return `${numberFormatter.format(value)} €`;
+    }
+
+    function formatVariantLabel(name, type) {
+      if (!name) return '';
+      let result = name.trim();
+      if (type === 'broetchen') {
+        result = result.replace(/belegtes\s+br(?:ö|oe)?tchen\s+mit\s+/i, '');
+      } else if (type === 'baguette') {
+        result = result.replace(/belegtes\s+baguette\s+mit\s+/i, '');
+      }
+      return toTitleCase(result.trim());
+    }
+
+    function formatExtraLabel(name) {
+      if (!name) return '';
+      const normalized = name.replace(/,\s*/g, ', ').replace(/\s+/g, ' ').trim();
+      return toTitleCase(normalized);
+    }
+
+    function toTitleCase(value) {
+      return value.split(' ').map(part => part ? part.charAt(0).toUpperCase() + part.slice(1) : '').join(' ');
+    }
+
+    function handleFulfillmentChange(mode) {
+      state.fulfillment = mode;
+      localStorage.setItem(STORAGE_KEYS.fulfillment, mode);
+      const isDelivery = mode === 'delivery';
+      toggleSection(elements.deliveryFields, !isDelivery);
+      toggleSection(elements.pickupFields, isDelivery);
+      toggleSection(elements.addressSection, !isDelivery);
+      toggleAddressRequirements(isDelivery);
+      clearCalendarError('delivery');
+      clearCalendarError('pickup');
+      if (isDelivery) {
+        clearFieldInvalid(elements.deliverySlotSelect);
+      } else {
+        clearFieldInvalid(elements.pickupTimeInput);
+        [elements.addressStreet, elements.addressNumber, elements.addressZip, elements.addressCity].forEach(field => clearFieldInvalid(field));
+      }
+      if (elements.pickupTimeInput) {
+        if (isDelivery) {
+          elements.pickupTimeInput.value = '';
+          elements.pickupTimeInput.removeAttribute('required');
+        } else {
+          elements.pickupTimeInput.setAttribute('required', 'required');
+        }
+      }
+      ensureCalendarSelection(mode);
+      updateCartNote();
+    }
+
+    function toggleSection(node, shouldHide) {
+      if (!node) return;
+      if (shouldHide) {
+        node.setAttribute('hidden', '');
+      } else {
+        node.removeAttribute('hidden');
+      }
+    }
+
+    function toggleAddressRequirements(isRequired) {
+      const fields = [elements.addressStreet, elements.addressNumber, elements.addressZip, elements.addressCity];
+      fields.forEach(field => {
+        if (!field) return;
+        if (isRequired) {
+          field.setAttribute('required', 'required');
+        } else {
+          field.removeAttribute('required');
+          clearFieldInvalid(field);
+        }
+      });
+      if (!isRequired) {
+        if (elements.addressStreet) elements.addressStreet.value = '';
+        if (elements.addressNumber) elements.addressNumber.value = '';
+        if (elements.addressZip) elements.addressZip.value = '';
+        if (elements.addressCity) elements.addressCity.value = '';
+      }
+    }
+
+    function clearAllValidationErrors() {
+      document.querySelectorAll(`.${CLASS_INVALID_FIELD}`).forEach(node => {
+        node.classList.remove(CLASS_INVALID_FIELD);
+        node.removeAttribute('aria-invalid');
+      });
+      Object.keys(calendars).forEach(mode => clearCalendarError(mode));
+    }
+
+    function markFieldInvalid(field) {
+      if (!field) return;
+      field.classList.add(CLASS_INVALID_FIELD);
+      field.setAttribute('aria-invalid', 'true');
+      if (!field.dataset.invalidListenerAttached) {
+        const handler = () => clearFieldInvalid(field);
+        field.addEventListener('input', handler);
+        field.addEventListener('change', handler);
+        field.dataset.invalidListenerAttached = 'true';
+      }
+      requestAnimationFrame(() => {
+        if (typeof field.scrollIntoView === 'function') {
+          field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        if (typeof field.focus === 'function') {
+          field.focus({ preventScroll: true });
+        }
+      });
+    }
+
+    function clearFieldInvalid(field) {
+      if (!field) return;
+      field.classList.remove(CLASS_INVALID_FIELD);
+      field.removeAttribute('aria-invalid');
+    }
+
+    function markCalendarInvalid(mode) {
+      const calendar = calendars[mode];
+      if (!calendar || !calendar.container) return;
+      calendar.container.classList.add('has-error');
+      requestAnimationFrame(() => {
+        calendar.container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+
+    function clearCalendarError(mode) {
+      const calendar = calendars[mode];
+      if (!calendar || !calendar.container) return;
+      calendar.container.classList.remove('has-error');
+    }
+
+    function initCalendars() {
+      ['delivery', 'pickup'].forEach(mode => {
+        const container = document.querySelector(`[data-calendar="${mode}"]`);
+        if (!container) return;
+        const calendar = {
+          mode,
+          container,
+          grid: container.querySelector(`[data-calendar-grid="${mode}"]`),
+          label: container.querySelector(`[data-calendar-label="${mode}"]`),
+          prev: container.querySelector(`[data-calendar-prev="${mode}"]`),
+          next: container.querySelector(`[data-calendar-next="${mode}"]`),
+          hiddenInput: document.getElementById(`${mode}-date`),
+          minDate: getCalendarMinDate(mode),
+          maxDate: getCalendarMaxDate(mode),
+          currentMonth: null,
+          selected: null
+        };
+        const storedValue = calendar.hiddenInput?.value;
+        if (storedValue) {
+          const parsed = new Date(storedValue);
+          if (!Number.isNaN(parsed.getTime()) && isDateAllowed(parsed, mode)) {
+            calendar.selected = startOfDay(parsed);
+            calendar.currentMonth = startOfMonth(parsed);
+            state.selectedDates[mode] = startOfDay(parsed);
+          }
+        }
+        if (!calendar.currentMonth) {
+          calendar.currentMonth = startOfMonth(calendar.minDate);
+        }
+        calendars[mode] = calendar;
+        calendar.prev?.addEventListener('click', () => shiftCalendar(calendar, -1));
+        calendar.next?.addEventListener('click', () => shiftCalendar(calendar, 1));
+        renderCalendar(calendar);
+        ensureCalendarSelection(mode);
+      });
+    }
+
+    function ensureCalendarSelection(mode) {
+      const calendar = calendars[mode];
+      if (!calendar) return;
+      const value = calendar.hiddenInput?.value;
+      if (value) {
+        const parsed = new Date(value);
+        if (!Number.isNaN(parsed.getTime()) && parsed >= calendar.minDate && parsed <= calendar.maxDate && isDateAllowed(parsed, mode)) {
+          calendar.selected = startOfDay(parsed);
+          state.selectedDates[mode] = startOfDay(parsed);
+          calendar.currentMonth = startOfMonth(parsed);
+          renderCalendar(calendar);
+          return;
+        }
+      }
+      selectFirstAvailableDate(calendar);
+    }
+
+    function selectFirstAvailableDate(calendar) {
+      let date = new Date(calendar.minDate);
+      while (date <= calendar.maxDate) {
+        if (isDateAllowed(date, calendar.mode)) {
+          setCalendarSelection(calendar, date);
+          return;
+        }
+        date = addDays(date, 1);
+      }
+      setCalendarSelection(calendar, null);
+    }
+
+    function shiftCalendar(calendar, step) {
+      const target = startOfMonth(addMonths(calendar.currentMonth, step));
+      const minMonth = startOfMonth(calendar.minDate);
+      const maxMonth = startOfMonth(calendar.maxDate);
+      if (target < minMonth || target > maxMonth) return;
+      calendar.currentMonth = target;
+      renderCalendar(calendar);
+    }
+
+    function renderCalendar(calendar) {
+      if (!calendar.grid) return;
+      const month = startOfMonth(calendar.currentMonth);
+      calendar.currentMonth = month;
+      if (calendar.label) {
+        calendar.label.textContent = month.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+      }
+      if (calendar.prev) {
+        calendar.prev.disabled = startOfMonth(month) <= startOfMonth(calendar.minDate);
+      }
+      if (calendar.next) {
+        calendar.next.disabled = startOfMonth(month) >= startOfMonth(calendar.maxDate);
+      }
+      calendar.grid.innerHTML = '';
+      const weekdays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+      weekdays.forEach(name => {
+        const head = document.createElement('div');
+        head.className = 'calendar-cell calendar-cell-head';
+        head.textContent = name;
+        calendar.grid.appendChild(head);
+      });
+      const firstDay = new Date(month);
+      const offset = (firstDay.getDay() + 6) % 7;
+      for (let i = 0; i < offset; i += 1) {
+        const empty = document.createElement('div');
+        empty.className = 'calendar-cell is-empty';
+        calendar.grid.appendChild(empty);
+      }
+      const today = startOfDay(new Date());
+      const totalDays = getDaysInMonth(month);
+      for (let day = 1; day <= totalDays; day += 1) {
+        const current = startOfDay(new Date(month.getFullYear(), month.getMonth(), day));
+        const holiday = isNRWHoliday(current);
+        const allowed = current >= calendar.minDate && current <= calendar.maxDate && isDateAllowed(current, calendar.mode, holiday);
+        const selected = calendar.selected && isSameDate(current, calendar.selected);
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.dataset.date = formatDateValue(current);
+        cell.className = 'calendar-cell calendar-day';
+        if (holiday) cell.classList.add('is-holiday');
+        if (allowed) {
+          cell.classList.add('is-allowed');
+        } else {
+          cell.classList.add('is-blocked');
+        }
+        if (selected) {
+          cell.classList.add('is-selected');
+        }
+        if (isSameDate(current, today)) {
+          cell.classList.add('is-today');
+        }
+        if (!allowed) {
+          cell.disabled = true;
+        }
+        cell.innerHTML = `<span class="calendar-day-number">${String(day).padStart(2, '0')}</span>`;
+        if (holiday && !(calendar.mode === 'delivery' && current.getDay() === 0)) {
+          cell.innerHTML += '<span class="calendar-day-note">Feiertag</span>';
+        }
+        cell.addEventListener('click', () => setCalendarSelection(calendar, current));
+        calendar.grid.appendChild(cell);
+      }
+    }
+
+    function setCalendarSelection(calendar, date) {
+      if (!calendar.hiddenInput) return;
+      if (!date) {
+        calendar.hiddenInput.value = '';
+        calendar.selected = null;
+        state.selectedDates[calendar.mode] = null;
+        renderCalendar(calendar);
+        return;
+      }
+      const normalized = startOfDay(date);
+      calendar.hiddenInput.value = formatDateValue(normalized);
+      calendar.selected = normalized;
+      state.selectedDates[calendar.mode] = normalized;
+      calendar.currentMonth = startOfMonth(normalized);
+      clearCalendarError(calendar.mode);
+      renderCalendar(calendar);
+    }
+
+    function getCalendarMinDate(mode) {
+      const today = startOfDay(new Date());
+      if (mode === 'delivery') {
+        return findNextWeekday(today, 0, true);
+      }
+      return findNextPickupDay(today);
+    }
+
+    function getCalendarMaxDate(mode) {
+      const base = getCalendarMinDate(mode);
+      return addDays(base, mode === 'delivery' ? 90 : 60);
+    }
+
+    function findNextWeekday(start, weekday, skipToday = false) {
+      const date = new Date(start);
+      if (skipToday || date.getDay() !== weekday) {
+        do {
+          date.setDate(date.getDate() + 1);
+        } while (date.getDay() !== weekday);
+      }
+      return startOfDay(date);
+    }
+
+    function findNextPickupDay(start) {
+      let date = startOfDay(start);
+      let safety = 0;
+      while (safety < 200) {
+        const holiday = isNRWHoliday(date);
+        if (isDateAllowed(date, 'pickup', holiday)) {
+          return date;
+        }
+        date = addDays(date, 1);
+        safety += 1;
+      }
+      return date;
+    }
+
+    function addDays(date, amount) {
+      const copy = new Date(date);
+      copy.setDate(copy.getDate() + amount);
+      return copy;
+    }
+
+    function addMonths(date, amount) {
+      const copy = new Date(date);
+      copy.setMonth(copy.getMonth() + amount);
+      return copy;
+    }
+
+    function getDaysInMonth(date) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      return new Date(year, month + 1, 0).getDate();
+    }
+
+    function startOfDay(date) {
+      const copy = new Date(date);
+      copy.setHours(0, 0, 0, 0);
+      return copy;
+    }
+
+    function startOfMonth(date) {
+      return startOfDay(new Date(date.getFullYear(), date.getMonth(), 1));
+    }
+
+    function isSameDate(a, b) {
+      return a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    }
+
+    function isDateAllowed(date, mode, holidayOverride = null) {
+      const weekday = date.getDay();
+      const isHoliday = holidayOverride !== null ? holidayOverride : isNRWHoliday(date);
+      if (mode === 'delivery') {
+        return weekday === 0; // Sonntag
+      }
+      if (weekday === 0) {
+        return false;
+      }
+      if (isHoliday && weekday !== 0) {
+        return false;
+      }
+      return weekday >= 1 && weekday <= 6;
+    }
+
+    function isNRWHoliday(date) {
+      const year = date.getFullYear();
+      if (!holidayCache.has(year)) {
+        holidayCache.set(year, buildNRWHolidays(year));
+      }
+      const yearSet = holidayCache.get(year);
+      const key = formatDateValue(date);
+      if (yearSet.has(key)) {
+        return true;
+      }
+      // handle edge cases for dates close to year boundaries
+      const previousYear = year - 1;
+      if (!holidayCache.has(previousYear)) {
+        holidayCache.set(previousYear, buildNRWHolidays(previousYear));
+      }
+      if (holidayCache.get(previousYear).has(key)) {
+        return true;
+      }
+      const nextYear = year + 1;
+      if (!holidayCache.has(nextYear)) {
+        holidayCache.set(nextYear, buildNRWHolidays(nextYear));
+      }
+      return holidayCache.get(nextYear).has(key);
+    }
+
+    function buildNRWHolidays(year) {
+      const dates = new Set();
+      const push = (month, day) => {
+        const yyyy = year;
+        const mm = String(month).padStart(2, '0');
+        const dd = String(day).padStart(2, '0');
+        dates.add(`${yyyy}-${mm}-${dd}`);
+      };
+
+      push(1, 1); // Neujahr
+      push(5, 1); // Tag der Arbeit
+      push(10, 3); // Tag der deutschen Einheit
+      push(11, 1); // Allerheiligen
+      push(12, 25); // Weihnachten
+      push(12, 26); // Zweiter Weihnachtsfeiertag
+
+      const easter = calculateEasterSunday(year);
+      const goodFriday = addDays(easter, -2);
+      const easterMonday = addDays(easter, 1);
+      const ascension = addDays(easter, 39);
+      const pentecostMonday = addDays(easter, 50);
+      const corpusChristi = addDays(easter, 60);
+
+      [goodFriday, easterMonday, ascension, pentecostMonday, corpusChristi].forEach(date => {
+        push(date.getMonth() + 1, date.getDate());
+      });
+
+      return dates;
+    }
+
+    function calculateEasterSunday(year) {
+      const a = year % 19;
+      const b = Math.floor(year / 100);
+      const c = year % 100;
+      const d = Math.floor(b / 4);
+      const e = b % 4;
+      const f = Math.floor((b + 8) / 25);
+      const g = Math.floor((b - f + 1) / 3);
+      const h = (19 * a + b - d - g + 15) % 30;
+      const i = Math.floor(c / 4);
+      const k = c % 4;
+      const l = (32 + 2 * e + 2 * i - h - k) % 7;
+      const m = Math.floor((a + 11 * h + 22 * l) / 451);
+      const month = Math.floor((h + l - 7 * m + 114) / 31);
+      const day = ((h + l - 7 * m + 114) % 31) + 1;
+      return startOfDay(new Date(year, month - 1, day));
+    }
+
+    function formatDateValue(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function initPostalGate() {
+      state.postalCode = null;
+      elements.postalModal?.classList.add('is-hidden');
+    }
+
+    function applyPostalCode(code, silent = false) {
+      state.postalCode = code;
+      localStorage.setItem(STORAGE_KEYS.postal, code);
+      elements.postalModal?.classList.add('is-hidden');
+      if (!silent) {
+        showToast(`Liefergebiet ${code} bestätigt.`);
+      }
+    }
+
+    function setPostalError(message) {
+      if (!elements.postalError) return;
+      elements.postalError.textContent = message;
+    }
+
+    function handleZipValidation() {
+      if (state.fulfillment !== 'delivery') return;
+      const field = elements.addressZip;
+      if (!field) return;
+      const value = (field.value || '').trim();
+      if (!value) return;
+      if (!/^\d{5}$/.test(value)) {
+        markFieldInvalid(field);
+        showToast('Bitte gib eine gültige Postleitzahl an.', true);
+        return;
+      }
+      if (!ALLOWED_POSTCODES.includes(value)) {
+        markFieldInvalid(field);
+        showToast('Wir liefern leider nicht in diesem Gebiet.', true);
+        return;
+      }
+      clearFieldInvalid(field);
+    }
+
+    function restoreFulfillmentPreference() {
+      state.fulfillment = 'pickup';
+      localStorage.setItem(STORAGE_KEYS.fulfillment, 'pickup');
+      elements.fulfillmentRadios?.forEach(radio => {
+        radio.checked = radio.value === state.fulfillment;
+      });
+      handleFulfillmentChange(state.fulfillment);
+      ensureCalendarSelection('pickup');
+    }
+
+    function isAllowedPickupDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return false;
+      return isDateAllowed(date, 'pickup');
+    }
+
+    function isPickupTimeAllowed(value) {
+      if (!value) return false;
+      const [hour, minute] = value.split(':').map(Number);
+      if (Number.isNaN(hour) || Number.isNaN(minute)) return false;
+      const minutes = hour * 60 + minute;
+      const min = 7 * 60;
+      const max = 15 * 60;
+      return minutes >= min && minutes <= max;
+    }
+
+    function updateCartNote(totals = getTotals()) {
+      if (!elements.cartNote) return;
+      const isDelivery = state.fulfillment === 'delivery';
+      if (!isDelivery) {
+        elements.cartNote.textContent = 'Vorbestellung zur Abholung in der Filiale.';
+        elements.cartNote.classList.remove('cart-note-warning');
+        return;
+      }
+      const remaining = Math.max(0, MIN_ORDER_VALUE - totals.subtotal);
+      if (remaining > 0) {
+        elements.cartNote.textContent = `Es fehlen noch ${formatPrice(remaining)} zum Mindestbestellwert von ${formatPrice(MIN_ORDER_VALUE)}.`;
+        elements.cartNote.classList.add('cart-note-warning');
+        return;
+      }
+      elements.cartNote.classList.remove('cart-note-warning');
+      elements.cartNote.textContent = `Liefergebühr von ${formatPrice(DELIVERY_FEE)} wird im Checkout ergänzt.`;
+    }
+
+    function applyPreloadedSet() {
+      if (preloadedSetApplied) return;
+      const raw = localStorage.getItem(PRELOAD_STORAGE_KEY);
+      if (!raw) return;
+      preloadedSetApplied = true;
+      localStorage.removeItem(PRELOAD_STORAGE_KEY);
+      let payload;
+      try {
+        payload = JSON.parse(raw);
+      } catch (error) {
+        console.warn('Vorbelegtes Set konnte nicht gelesen werden:', error);
+        return;
+      }
+      if (!payload || !Array.isArray(payload.items)) return;
+      let added = 0;
+      payload.items.forEach(entry => {
+        const name = entry?.name;
+        const quantity = Math.max(1, Number(entry?.qty) || 1);
+        if (!name) return;
+        const product = findProductByName(name);
+        if (!product) return;
+        addCartEntry(product.id, {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          category: product.categoryName,
+          extras: []
+        }, quantity);
+        added += 1;
+      });
+      if (added > 0) {
+        if (payload.title) {
+          showToast(`${payload.title} wurde dem Warenkorb hinzugefügt.`);
+        }
+        if (payload.openCart) {
+          openCart();
+        }
+      }
+    }
+
+    function findProductByName(name) {
+      if (!name) return null;
+      const normalized = name.trim().toLocaleLowerCase('de-DE');
+      return state.products.find(product => product.name.trim().toLocaleLowerCase('de-DE') === normalized) || null;
+    }
+  </script>
+</body>
+</html>

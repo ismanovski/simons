@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerichtswunsch – Simonsbrotkörbchen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header" data-header>
+    <div class="container header-layout">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+        <span class="brand-copy">
+          <span class="brand-title">Simonsbrotkörbchen</span>
+          <span class="brand-subtitle">Mittagstisch mitgestalten</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
+        <span class="sr-only">Menü öffnen</span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <nav class="site-nav" id="primary-navigation" data-nav>
+        <a class="nav-link" href="index.html">Startseite</a>
+        <a class="nav-link" href="jetzt-bestellen.html">Jetzt Bestellen</a>
+        <a class="nav-link" href="reservierung.html">Mittagstisch</a>
+        <a class="nav-link is-active" href="gerichtswunsch.html">Gerichtswunsch</a>
+        <a class="nav-link" href="contact.html">Kontakt</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section section-muted" id="wunschzettel">
+      <div class="container">
+        <div class="section-header">
+          <span class="eyebrow">Mittagstisch mitgestalten</span>
+          <h1>Dein Gerichtswunsch</h1>
+          <p>Was würdest du gerne auf dem Mittagstisch sehen? Schick uns deinen Wunsch – wenn genug Stimmen zusammenkommen, nehmen wir es ins Programm.</p>
+        </div>
+
+        <div class="wunschzettel-layout">
+          <div class="wunschzettel-form-col">
+            <form class="wunschzettel-form" id="wunschzettel-form" novalidate>
+              <div class="form-grid form-grid-2">
+                <label for="wz-firstname">Vorname
+                  <input type="text" id="wz-firstname" name="firstname" autocomplete="given-name" required>
+                </label>
+                <label for="wz-lastname">Nachname (optional)
+                  <input type="text" id="wz-lastname" name="lastname" autocomplete="family-name">
+                </label>
+              </div>
+              <label for="wz-wish">Dein Gerichtswunsch
+                <input type="text" id="wz-wish" name="wish" placeholder="z. B. Pasta Bolognese, Käsespätzle, …" required>
+              </label>
+              <label for="wz-message">Kurze Nachricht (optional)
+                <textarea id="wz-message" name="message" rows="2" placeholder="Warum magst du dieses Gericht? Besondere Erinnerung?"></textarea>
+              </label>
+              <div class="lunch-actions">
+                <button class="btn btn-secondary" type="submit">Wunsch einreichen</button>
+              </div>
+              <p class="lunch-feedback" id="wz-feedback" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <div class="wunschzettel-stats-col">
+            <div class="wunschzettel-counter">
+              <span class="wz-count" id="wz-count">0</span>
+              <span class="wz-count-label">Gerichtswünsche bereits eingereicht</span>
+            </div>
+            <div class="wunschzettel-list-preview">
+              <h4>Aktuelle Wünsche</h4>
+              <ul class="wz-preview-list" id="wz-preview-list">
+                <li class="wz-empty">Noch keine Wünsche vorhanden. Sei der Erste!</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="abstimmung-section" hidden>
+      <div class="container">
+        <div class="section-header">
+          <span class="eyebrow">Eure Stimme zählt</span>
+          <h2 id="vote-title">Aktuelle Abstimmung</h2>
+          <p id="vote-subtitle">Welches Gericht soll als nächstes auf den Mittagstisch? Stimme jetzt ab!</p>
+        </div>
+        <div class="vote-layout">
+          <div class="vote-options" id="vote-options" role="group" aria-label="Abstimmungsoptionen"></div>
+          <div class="vote-results" id="vote-results"></div>
+        </div>
+        <p class="vote-end-note" id="vote-end-note"></p>
+        <p class="lunch-feedback" id="vote-feedback" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a class="brand brand-footer" href="index.html">
+            <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+            <span class="brand-copy">
+              <span class="brand-title">Simonsbrotkörbchen</span>
+              <span class="brand-subtitle">Traditionell gebacken. Modern vorbestellt.</span>
+            </span>
+          </a>
+          <p class="footer-text">Vorbestellung und Abholung in Düsseldorf – regional, frisch und mit viel Liebe zum Detail.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer Navigation">
+          <h4 class="footer-heading">Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Startseite</a></li>
+            <li><a href="jetzt-bestellen.html">Jetzt Bestellen</a></li>
+            <li><a href="reservierung.html">Mittagstisch</a></li>
+            <li><a href="gerichtswunsch.html">Gerichtswunsch</a></li>
+          </ul>
+        </nav>
+        <div class="footer-hours">
+          <h4 class="footer-heading">Öffnungszeiten</h4>
+          <ul class="footer-links">
+            <li>Mo – Fr: 06:30 – 17:00 Uhr</li>
+            <li>Sa: 07:00 – 14:00 Uhr</li>
+            <li>So: geschlossen</li>
+            <li>Mittagstisch: 11:00 – 15:00 Uhr</li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4 class="footer-heading">Kontakt</h4>
+          <ul class="footer-links">
+            <li>Lenaustraße 1<br>40472 Düsseldorf</li>
+            <li>0211 · 000000</li>
+            <li><a href="mailto:info@simonsbrotkoerbchen.de">info@simons&shy;brotkoerbchen.de</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Simonsbrotkörbchen</span>
+        <div class="footer-bottom-links">
+          <a href="impressum.html">Impressum</a>
+          <a href="agb.html">AGB</a>
+          <a href="admin.html">Admin</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/site-core.js"></script>
+  <script>
+    (function(){
+      const navToggle = document.querySelector('[data-nav-toggle]');
+      const nav = document.querySelector('[data-nav]');
+      if (navToggle && nav) {
+        navToggle.addEventListener('click', () => {
+          const isOpen = nav.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          document.body.classList.toggle('nav-open', isOpen);
+        });
+      }
+    })();
+
+    (function(){
+      const WZ_KEY = 'sb_wunschzettel';
+
+      function loadWishes() {
+        return JSON.parse(localStorage.getItem(WZ_KEY) || '[]');
+      }
+
+      function saveWishes(list) {
+        localStorage.setItem(WZ_KEY, JSON.stringify(list));
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      function renderWishStats() {
+        const list = loadWishes();
+        const counter = document.getElementById('wz-count');
+        if (counter) counter.textContent = String(list.length);
+
+        const preview = document.getElementById('wz-preview-list');
+        if (!preview) return;
+        preview.innerHTML = '';
+        if (!list.length) {
+          const li = document.createElement('li');
+          li.className = 'wz-empty';
+          li.textContent = 'Noch keine Wünsche vorhanden. Sei der Erste!';
+          preview.appendChild(li);
+          return;
+        }
+
+        const counts = {};
+        list.forEach(entry => {
+          const key = entry.wish.trim().toLowerCase();
+          counts[key] = (counts[key] || 0) + 1;
+        });
+
+        Object.entries(counts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .forEach(([wish, count]) => {
+            const li = document.createElement('li');
+            li.className = 'wz-preview-item';
+            li.innerHTML = `<span class="wz-wish-name">${escapeHtml(wish)}</span><span class="wz-wish-count">${count}×</span>`;
+            preview.appendChild(li);
+          });
+      }
+
+      const form     = document.getElementById('wunschzettel-form');
+      const feedback = document.getElementById('wz-feedback');
+
+      form?.addEventListener('submit', event => {
+        event.preventDefault();
+        if (feedback) { feedback.textContent = ''; feedback.className = 'lunch-feedback'; }
+
+        const data      = new FormData(form);
+        const firstname = data.get('firstname')?.toString().trim() || '';
+        const lastname  = data.get('lastname')?.toString().trim() || '';
+        const wish      = data.get('wish')?.toString().trim() || '';
+        const message   = data.get('message')?.toString().trim() || '';
+
+        if (!firstname || !wish) {
+          if (feedback) feedback.textContent = 'Bitte gib deinen Vornamen und deinen Gerichtswunsch ein.';
+          return;
+        }
+
+        const existing = loadWishes();
+        existing.push({
+          id: `WUNSCH-${Date.now()}`,
+          createdAt: new Date().toISOString(),
+          firstname,
+          lastname,
+          wish,
+          message
+        });
+        saveWishes(existing);
+
+        form.reset();
+        renderWishStats();
+        if (feedback) {
+          feedback.classList.add('feedback-success');
+          feedback.textContent = `✓ Danke, ${firstname}! Dein Wunsch „${wish}" wurde eingereicht.`;
+        }
+      });
+
+      renderWishStats();
+    })();
+
+    (function(){
+      const VOTES_KEY    = 'sb_votes';
+      const CAST_PREFIX  = 'sb_vote_cast_';
+
+      function loadVotes() {
+        return JSON.parse(localStorage.getItem(VOTES_KEY) || '[]');
+      }
+
+      function renderVote() {
+        const votes      = loadVotes();
+        const activeVote = votes.find(v => v.active);
+        const section    = document.getElementById('abstimmung-section');
+        if (!section) return;
+
+        if (!activeVote) {
+          section.hidden = true;
+          return;
+        }
+
+        section.hidden = false;
+        const title    = document.getElementById('vote-title');
+        const subtitle = document.getElementById('vote-subtitle');
+        const endNote  = document.getElementById('vote-end-note');
+        const feedback = document.getElementById('vote-feedback');
+
+        if (title) title.textContent = activeVote.title || 'Aktuelle Abstimmung';
+        if (subtitle) subtitle.textContent = 'Welches Gericht soll als nächstes auf den Mittagstisch? Stimme jetzt ab!';
+        if (endNote && activeVote.endsAt) {
+          const d = new Date(activeVote.endsAt);
+          endNote.textContent = `Abstimmung läuft bis: ${d.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}`;
+        }
+
+        const alreadyVoted = sessionStorage.getItem(`${CAST_PREFIX}${activeVote.id}`);
+        const optionsEl    = document.getElementById('vote-options');
+        const resultsEl    = document.getElementById('vote-results');
+        if (!optionsEl || !resultsEl) return;
+
+        const dishes = activeVote.dishes || [];
+        const voteData = activeVote.votes || {};
+        const totalVotes = Object.values(voteData).reduce((s, n) => s + n, 0);
+
+        optionsEl.innerHTML = '';
+        dishes.forEach(dish => {
+          const btn = document.createElement('button');
+          btn.className = `vote-option-btn${alreadyVoted ? ' voted' : ''}`;
+          btn.type = 'button';
+          btn.disabled = !!alreadyVoted;
+          btn.dataset.dish = dish;
+          btn.innerHTML = `<span class="vote-dish-name">${dish}</span><span class="vote-dish-votes">${voteData[dish] || 0} Stimmen</span>`;
+          optionsEl.appendChild(btn);
+        });
+
+        resultsEl.innerHTML = '';
+        if (totalVotes > 0) {
+          [...dishes]
+            .sort((a, b) => (voteData[b] || 0) - (voteData[a] || 0))
+            .forEach(dish => {
+              const count = voteData[dish] || 0;
+              const percent = Math.round((count / totalVotes) * 100);
+              const bar = document.createElement('div');
+              bar.className = 'vote-bar-row';
+              bar.innerHTML = `
+                <span class="vote-bar-label">${dish}</span>
+                <div class="vote-bar-track"><div class="vote-bar-fill" style="width:${percent}%"></div></div>
+                <span class="vote-bar-pct">${percent}&thinsp;%</span>`;
+              resultsEl.appendChild(bar);
+            });
+        }
+
+        if (alreadyVoted && feedback) {
+          feedback.classList.add('feedback-success');
+          feedback.textContent = '✓ Du hast bereits abgestimmt. Ergebnisse werden live aktualisiert.';
+        }
+      }
+
+      document.getElementById('vote-options')?.addEventListener('click', event => {
+        const btn = event.target.closest('.vote-option-btn');
+        if (!btn || btn.disabled) return;
+
+        const votes = JSON.parse(localStorage.getItem(VOTES_KEY) || '[]');
+        const activeIdx = votes.findIndex(v => v.active);
+        if (activeIdx === -1) return;
+
+        const vote = votes[activeIdx];
+        const dish = btn.dataset.dish;
+        if (!vote.votes) vote.votes = {};
+        vote.votes[dish] = (vote.votes[dish] || 0) + 1;
+        votes[activeIdx] = vote;
+        localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
+        sessionStorage.setItem(`${CAST_PREFIX}${vote.id}`, '1');
+
+        const feedback = document.getElementById('vote-feedback');
+        if (feedback) {
+          feedback.classList.add('feedback-success');
+          feedback.textContent = `✓ Deine Stimme für „${dish}" wurde gezählt!`;
+        }
+
+        renderVote();
+      });
+
+      renderVote();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simonsbrotkörbchen – Kontakt & Standort</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header" data-header>
+    <div class="container header-layout">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+        <span class="brand-copy">
+          <span class="brand-title">Simonsbrotkörbchen</span>
+          <span class="brand-subtitle">Vorbestellung &amp; Abholung in Düsseldorf</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
+        <span class="sr-only">Menü öffnen</span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <nav class="site-nav" id="primary-navigation" data-nav>
+        <a class="nav-link" href="index.html">Startseite</a>
+        <a class="nav-link" href="jetzt-bestellen.html">Jetzt Bestellen</a>
+        <a class="nav-link" href="gallery.html">Galerie</a>
+        <a class="nav-link is-active" href="contact.html">Kontakt</a>
+        <a class="nav-link" href="impressum.html">Impressum</a>
+        <a class="btn btn-primary nav-cta" href="jetzt-bestellen.html">Jetzt vorbestellen</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero hero-contact">
+      <div class="container hero-content">
+        <div class="hero-copy">
+          <span class="eyebrow">Kontakt</span>
+          <h1>Wir freuen uns auf deine Nachricht.</h1>
+          <p>Ob Vorbestellung, Sonderwunsch oder Feedback – unser Team ist täglich für dich erreichbar. Am schnellsten erreichst du uns telefonisch am Vormittag.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container contact-grid">
+        <div class="info-card">
+          <h2>Standort & Öffnungszeiten</h2>
+          <ul class="info-list">
+            <li>
+              <strong>Adresse</strong>
+              <span>Lenaustraße 1<br>40472 Düsseldorf</span>
+            </li>
+            <li>
+              <strong>Telefon</strong>
+              <a href="tel:+49211000000">0211 · 000000</a>
+            </li>
+            <li>
+              <strong>E-Mail</strong>
+              <a href="mailto:info@simonsbrotkoerbchen.de">info@simonsbrotkoerbchen.de</a>
+            </li>
+            <li>
+              <strong>Servicezeiten</strong>
+              <span>Mo – Fr · 06:30 – 17:00 Uhr, Sa · 07:00 – 14:00 Uhr</span>
+            </li>
+          </ul>
+        </div>
+        <div class="contact-card">
+          <h2>Nachricht senden</h2>
+          <form class="form" aria-label="Kontaktformular">
+            <label> Name
+              <input type="text" name="name" placeholder="Dein Name" required>
+            </label>
+            <label> E-Mail
+              <input type="email" name="email" placeholder="deine@mailadresse.de" required>
+            </label>
+            <label> Anliegen
+              <select name="topic" required>
+                <option value="">Bitte auswählen</option>
+                <option>Fragen zur Bestellung</option>
+                <option>Firmen- &amp; Eventvorbestellung</option>
+                <option>Feedback &amp; Lob</option>
+              </select>
+            </label>
+            <label> Nachricht
+              <textarea name="message" rows="4" placeholder="Wie können wir helfen?" required></textarea>
+            </label>
+            <button class="btn btn-primary" type="submit">Nachricht senden</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-map">
+      <div class="container">
+        <div class="section-header">
+          <span class="eyebrow">So findest du uns</span>
+          <h2>Direkt gegenüber der Polizeiwache Mörsenbroich.</h2>
+        </div>
+        <div class="map-wrapper">
+          <iframe title="Standort Simonsbrotkörbchen" src="https://www.google.com/maps?q=Lenaustra%C3%9Fe%201%2C%2040472%20D%C3%BCsseldorf&output=embed" loading="lazy"></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a class="brand brand-footer" href="index.html">
+            <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+            <span class="brand-copy">
+              <span class="brand-title">Simonsbrotkörbchen</span>
+              <span class="brand-subtitle">Traditionell gebacken. Modern vorbestellt.</span>
+            </span>
+          </a>
+          <p class="footer-text">Vorbestellung und Abholung in Düsseldorf – regional, frisch und mit viel Liebe zum Detail.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer Navigation">
+          <h4 class="footer-heading">Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Startseite</a></li>
+            <li><a href="jetzt-bestellen.html">Jetzt Bestellen</a></li>
+            <li><a href="gallery.html">Galerie</a></li>
+            <li><a href="contact.html">Kontakt</a></li>
+          </ul>
+        </nav>
+        <div class="footer-hours">
+          <h4 class="footer-heading">Öffnungszeiten</h4>
+          <ul class="footer-links">
+            <li>Mo – Fr: 06:30 – 17:00 Uhr</li>
+            <li>Sa: 07:00 – 14:00 Uhr</li>
+            <li>So: geschlossen</li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4 class="footer-heading">Kontakt</h4>
+          <ul class="footer-links">
+            <li>Lenaustraße 1<br>40472 Düsseldorf</li>
+            <li>0211 · 000000</li>
+            <li><a href="mailto:info@simonsbrotkoerbchen.de">info@simons­brotkoerbchen.de</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Simonsbrotkörbchen</span>
+        <div class="footer-bottom-links">
+          <a href="impressum.html">Impressum</a>
+          <a href="agb.html">AGB</a>
+          <a href="admin.html">Admin</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/site-core.js"></script>
+  <script>
+    (function(){
+      const navToggle = document.querySelector('[data-nav-toggle]');
+      const nav = document.querySelector('[data-nav]');
+      if (navToggle && nav) {
+        navToggle.addEventListener('click', () => {
+          const isOpen = nav.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          document.body.classList.toggle('nav-open', isOpen);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

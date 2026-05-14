@@ -1,0 +1,120 @@
+Kategorie;Anordnung/reihenfolge;text;priceSellNet;priceSell
+7;1;1 Liter Frischgepresseter Orangensaft;6,07;6,5
+7;2;1 Liter Frischgepresseter Apfelsaft;6,07;6,5
+7;3;kl. MAI Saft;2,62;2,80
+7;4;kl. MAI, Zitrone Orange;2,80;3,00
+7;5;kl. Limette Gurke Orange;2,34;2,50
+7;6;kl. Ananas Limette Orange;2,80;3,00
+7;7;kl. Wassermelone Apfel Zitrone;2,71;2,90
+7;8;kl. O-Saft;2,52;2,70
+7;9;kl. Apfel Saft;2,71;2,90
+7;10;kl. Karotten Saft;2,34;2,50
+7;11;kl. Ananas Saft;2,99;3,20
+7;3;gr. MAI Saft;3,27;3,50
+7;4;gr. MAI.Zitrone Orange;3,64;3,90
+7;5;gr. Limette Gurke Orange;3,27;3,50
+7;6;gr. Ananas Limeette Orange;3,64;3,90
+7;7;gr. Waserm.Apfel Zitrone;3,36;3,60
+7;8;gr. O-Saft;3,18;3,40
+7;9;gr. Apfel Saft;3,36;3,60
+7;10;gr. Karotten Saft;3,08;3,30
+7;11;gr. Ananas Saft;4,21;4,50
+7;12;RedBull - Wassermelone Zitrone;3,53;4,20
+7;13;RedBull - Apfel Limette;4,02;4,30
+7;14;RedBull - Orange Zitrone;4,11;4,40
+7;15;RedBull - Ananas.Limette;4,49;4,80
+3;1;Roggenbeck;3,64;3,90
+3;2;Wallnussbrot;3,97;4,25
+3;3;Oma's bestes;4,21;4,50
+3;4;Schweizer;3,55;3,80
+3;5;Kürbisbrot;4,02;4,30
+3;6;MK Brot;4,02;4,30
+3;7;Dinkelvollkorn;4,21;4,50
+3;8;Teebrot;3,69;3,95
+3;9;Baguettestange;3,55;3,80
+1;1;Brötchen;0,42;0,45
+1;8;Lauge;0,93;1,00
+1;7;Mehrkorn;0,93;1,00
+1;6;Roggen;0,93;1,00
+1;4;Kartoffel;1,03;1,10
+1;6;Dinkelbrötchen;1,12;1,20
+1;7;Käsebrötchen;1,12;1,20
+1;5;Wellenreiter;1,21;1,30
+1;9;laugenecke;1,40;1,50
+1;2;Mohnbrötchen;0,70;0,75
+1;3;Sesambrötchen;0,70;0,75
+4;1;Croissant;1,50;1,60
+4;2;Schokocroissant;1,78;1,90
+4;3;Käsecroissant;1,96;2,10
+4;4;Nutella Croissant;2,34;2,50
+4;5;Mürbchen;1,12;1,20
+4;6;Schweineohr;2,34;2,50
+4;7;Berliner;1,40;1,50
+4;8;Quarkbällchen;0,65;0,70
+5;1;Obststreusel;2,62;2,80
+5;2;Apfelkuchen;2,99;3,20
+5;3;Käsekuchen;2,80;3,00
+6;1;wasser 0,5;1,68;1,80
+6;2;wasser 1,0l;1,87;2,00
+6;3;Fuzetea;2,34;2,50
+6;4;Cola;1,96;2,10
+6;5;Cola-Zero;1,96;2,10
+6;6;Sprite;1,96;2,10
+6;7;Fanta;1,96;2,10
+6;8;Lift;1,96;2,10
+6;9;o-saft;1,87;2,00
+6;10;RedBull;2,34;2,50
+6;11;Capri Sonne;1,12;1,20
+6;12;kakao/vanillemilch;1,87;2,00
+2;1;Belegtes Brötchen mit Käse;2,52;2,70
+2;1;Belegtes Brötchen mit Salami;2,52;2,70
+2;1;Belegtes Brötchen mit Fleischwurst;2,52;2,70
+2;1;Belegtes Brötchen mit Schinken;2,52;2,70
+2;1;Belegtes Brötchen mit Ei;2,52;2,70
+2;1;Belegtes Brötchen mit Leberwurst;2,52;2,70
+2;1;Belegtes Brötchen mit Frischkäse;2,52;2,70
+2;1;Belegtes Brötchen mit Rohrschinken;2,80;3,00
+2;1;Belegtes Brötchen mit Brie;2,80;3,00
+2;1;Belegtes Brötchen mit Putenbrust;2,80;3,00
+2;1;Belegtes Brötchen mit Mett;2,80;3,00
+2;1;Belegtes Brötchen mit Frikadelle;3,46;3,70
+2;1;Belegtes Brötchen mit Thunfisch;3,27;3,50
+2;1;Belegtes Brötchen mit Lachs;3,64;3,90
+2;1;Belegtes Brötchen mit Schnitzel;3,93;4,20
+2;1;Belegtes Brötchen mit Mozzarella;3,08;3,30
+2;1;Belegtes Brötchen mit Rührei;3,08;3,30
+2;2;Belegtes Baguette mit Käse;3,74;4,00
+2;2;Belegtes Baguette mit Salami;3,74;4,00
+2;2;Belegtes Baguette mit Fleischwurst;3,74;4,00
+2;2;Belegtes Baguette mit Schinken;3,74;4,00
+2;2;Belegtes Baguette mit Ei;3,74;4,00
+2;2;Belegtes Baguette mit Leberwurst;3,74;4,00
+2;2;Belegtes Baguette mit Mett;3,74;4,00
+2;2;Belegtes Baguette mit Frischkäse;3,74;4,00
+2;2;Belegtes Baguette mit Rohrschinken;4,11;4,40
+2;2;Belegtes Baguette mit Brie;4,11;4,40
+2;2;Belegtes Baguette mit Pute;4,11;4,40
+2;2;Belegtes Baguette mit Frikadelle;4,21;4,50
+2;2;Belegtes Baguette mit Thunfisch;4,21;4,50
+2;2;Belegtes Baguette mit Mozzarella;4,21;4,50
+2;2;Belegtes Baguette mit Rührei;4,21;4,50
+2;2;Belegtes Baguette mit Lachs;4,95;5,30
+2;2;Belegtes Baguette mit Schnitzel;4,95;5,30
+2;1&2;Mohn aufschlag;0,28;0,30
+2;1&2;Sesam aufschlag;0,28;0,30
+2;1&2;Körneraufschlag ;0,47;0,50
+2;1&2;Lauge aufschlag;0,75;0,80
+2;1&2;Dinkel aufschlag;0,75;0,80
+2;1&2;baguettekörner aufschlag;0,28;0,30
+2;1&2;Extra Remo,ketchup,senf;0,28;0,30
+2;1&2;extra Ei;0,65;0,70
+8;1;Eier;0,56;0,60
+8;3;Butter;3,64;3,90
+8;4;Margarine;2,71;2,90
+8;5;Zucker;3,64;3,90
+8;6;Mehl;2,24;2,40
+8;7;Milch;2,52;2,70
+8;8;Trockenhefe;0,37;0,4
+8;9;Gemahlenerkaffe Auslesse;9,25;9,90
+8;10;Tomaten;0,47;0,50
+8;11;Gurke;2,34;2,50

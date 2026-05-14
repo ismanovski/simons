@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Simonsbrotkörbchen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+  <header class="site-header admin-header" data-header>
+    <div class="container header-layout">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+        <span class="brand-copy">
+          <span class="brand-title">Simonsbrotkörbchen</span>
+          <span class="brand-subtitle">Adminbereich</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
+        <span class="sr-only">Menü öffnen</span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <nav class="site-nav" id="primary-navigation" data-nav>
+        <a class="nav-link" href="index.html">Zur Website</a>
+        <button class="btn btn-outline" type="button">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section admin-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="eyebrow">Bestellübersicht</span>
+        <h1>Offene Bestellungen &amp; Abholstatus</h1>
+        <p>Verwalte eingehende Vorbestellungen und Mittagstisch-Reservierungen, markiere Abholungen als erledigt und erstelle Ausdrucke für dein Team.</p>
+      </div>
+
+      <div class="admin-panel">
+        <div class="tab-bar" role="tablist">
+          <button class="chip is-active" role="tab" aria-selected="true" data-tab-target="pending">Offene Bestellungen</button>
+          <button class="chip" role="tab" aria-selected="false" data-tab-target="sent">Abgeschlossene Bestellungen</button>
+          <button class="chip" role="tab" aria-selected="false" data-tab-target="lunch-settings">Wochenplan &amp; Bestände</button>
+          <button class="chip" role="tab" aria-selected="false" data-tab-target="lunch-pending">Mittagstisch-Reservierungen</button>
+          <button class="chip" role="tab" aria-selected="false" data-tab-target="lunch-done">Abgeholte Mittagstisch-Reservierungen</button>
+          <button class="chip" role="tab" aria-selected="false" data-tab-target="wunschzettel">Wunschzettel</button>
+          <button class="chip" role="tab" aria-selected="false" data-tab-target="abstimmung">Abstimmung</button>
+          <button class="chip" role="tab" aria-selected="false" data-tab-target="newsletter">Newsletter</button>
+          <button class="chip" role="tab" aria-selected="false" data-tab-target="analyse">Analyse</button>
+        </div>
+
+        <div class="admin-filters" aria-label="Filter für Mittagstisch-Reservierungen">
+          <label for="lunch-filter-search">Suche</label>
+          <input type="text" id="lunch-filter-search" placeholder="ID, Name, E-Mail, Telefon, Gericht">
+
+          <label for="lunch-filter-day">Wochentag</label>
+          <select id="lunch-filter-day">
+            <option value="">Alle Tage</option>
+            <option value="Montag">Montag</option>
+            <option value="Dienstag">Dienstag</option>
+            <option value="Mittwoch">Mittwoch</option>
+            <option value="Donnerstag">Donnerstag</option>
+            <option value="Freitag">Freitag</option>
+          </select>
+
+          <label for="lunch-filter-date">Abholdatum</label>
+          <input type="date" id="lunch-filter-date">
+
+          <button class="btn btn-secondary" type="button" id="lunch-filter-reset">Filter zurücksetzen</button>
+        </div>
+
+        <div class="tab-panel is-active" id="pending" role="tabpanel">
+          <div class="table-wrapper">
+            <table class="data-table" id="pending-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Datum / Uhrzeit</th>
+                  <th>Kunde</th>
+                  <th>Gesamtbetrag (€)</th>
+                  <th>Zahlungsart</th>
+                  <th>Aktionen</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="sent" role="tabpanel" hidden>
+          <div class="table-wrapper">
+            <table class="data-table" id="sent-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Datum / Uhrzeit</th>
+                  <th>Kunde</th>
+                  <th>Gesamtbetrag (€)</th>
+                  <th>Zahlungsart</th>
+                  <th>Aktionen</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="lunch-settings" role="tabpanel" hidden>
+          <div class="admin-lunch-settings">
+            <h3>Wochenplan &amp; Bestände</h3>
+            <p class="checkout-hint">Spalte A = Gericht, Spalte B = Verfügbarkeit, Spalte C = Preis. Leer bei Verfügbarkeit = unbegrenzt.</p>
+            <div class="table-wrapper">
+              <table class="data-table admin-lunch-settings-table" id="lunch-settings-table">
+                <thead>
+                  <tr>
+                    <th>Tag</th>
+                    <th>Gericht</th>
+                    <th>Verfügbarkeit</th>
+                    <th>Preis</th>
+                  </tr>
+                </thead>
+                <tbody id="lunch-settings-body"></tbody>
+              </table>
+            </div>
+            <div class="table-actions" style="margin-top:.7rem">
+              <button class="btn btn-secondary" type="button" id="lunch-settings-reset">Auf Standard zurücksetzen</button>
+              <button class="btn btn-primary" type="button" id="lunch-settings-save">Speichern</button>
+            </div>
+            <p class="lunch-feedback" id="lunch-settings-feedback" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="lunch-pending" role="tabpanel" hidden>
+          <div class="table-wrapper">
+            <table class="data-table" id="lunch-pending-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Reserviert am</th>
+                  <th>Kunde</th>
+                  <th>Mittagstisch</th>
+                  <th>Vertrag</th>
+                  <th>Aktionen</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="lunch-done" role="tabpanel" hidden>
+          <div class="table-wrapper">
+            <table class="data-table" id="lunch-done-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Reserviert am</th>
+                  <th>Kunde</th>
+                  <th>Mittagstisch</th>
+                  <th>Vertrag</th>
+                  <th>Aktionen</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="wunschzettel" role="tabpanel" hidden>
+          <div class="admin-wz-layout">
+            <div>
+              <h3 style="margin-bottom:1rem">Eingegangene Wunschzettel</h3>
+              <div class="table-wrapper">
+                <table class="data-table" id="wz-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Eingereicht am</th>
+                      <th>Name</th>
+                      <th>Gerichtswunsch</th>
+                      <th>Nachricht</th>
+                      <th>Aktionen</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="abstimmung" role="tabpanel" hidden>
+          <div class="admin-vote-layout">
+            <div class="admin-vote-create">
+              <h3>Neue Abstimmung erstellen</h3>
+              <form id="vote-create-form" class="vote-create-form">
+                <label for="vote-title-input">Titel der Abstimmung
+                  <input type="text" id="vote-title-input" placeholder="z. B. Abstimmung KW 24" required>
+                </label>
+                <label for="vote-ends">Läuft bis
+                  <input type="date" id="vote-ends" required>
+                </label>
+                <label>Gerichte zur Auswahl (je eine Zeile)
+                  <textarea id="vote-dishes" rows="5" placeholder="Pasta Bolognese&#10;Käsespätzle&#10;Schnitzel" required></textarea>
+                </label>
+                <button class="btn btn-primary" type="submit">Abstimmung starten</button>
+                <p class="lunch-feedback" id="vote-create-feedback" aria-live="polite"></p>
+              </form>
+            </div>
+            <div class="admin-vote-list">
+              <h3>Aktive &amp; vergangene Abstimmungen</h3>
+              <div id="admin-votes-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="newsletter" role="tabpanel" hidden>
+          <div class="admin-newsletter-layout">
+            <div class="admin-newsletter-editor">
+              <h3>Newsletter erstellen</h3>
+              <form id="newsletter-form" class="newsletter-form" novalidate>
+                <label for="newsletter-segment">Empfängergruppe</label>
+                <select id="newsletter-segment" required>
+                  <option value="all">Alle registrierten Kunden</option>
+                  <option value="newsletter">Nur Newsletter-Abonnenten</option>
+                  <option value="active7">Aktive Kunden (letzte 7 Tage)</option>
+                  <option value="inactive14">Inaktive Kunden (&gt;14 Tage)</option>
+                  <option value="orderAbandoners">Abbrecher Vorbestellung</option>
+                  <option value="reservationAbandoners">Abbrecher Reservierung</option>
+                </select>
+
+                <label for="newsletter-subject">Betreff</label>
+                <input type="text" id="newsletter-subject" placeholder="z. B. Frische Angebote für diese Woche" required>
+
+                <label for="newsletter-greeting">Grußformel</label>
+                <select id="newsletter-greeting">
+                  <option value="Hallo {{firstName}},">Hallo {{firstName}},</option>
+                  <option value="Guten Tag {{firstName}} {{lastName}},">Guten Tag {{firstName}} {{lastName}},</option>
+                  <option value="Liebe Kundin, lieber Kunde,">Liebe Kundin, lieber Kunde,</option>
+                </select>
+
+                <label for="newsletter-block">Textbaustein</label>
+                <select id="newsletter-block">
+                  <option value="">Bitte wählen</option>
+                  <option value="wir haben diese Woche neue Mittagsgerichte für dich vorbereitet.">Mittagstisch-Update</option>
+                  <option value="dein Lieblingssortiment ist frisch verfügbar – jetzt bequem vorbestellen.">Vorbestellung</option>
+                  <option value="als Dankeschön für deine Treue haben wir ein kleines Extra für dich.">Dankeschön</option>
+                  <option value="wir vermissen dich – schau gerne wieder vorbei, es lohnt sich.">Reaktivierung</option>
+                </select>
+
+                <label for="newsletter-body">Nachricht</label>
+                <textarea id="newsletter-body" rows="7" placeholder="Eigener Newsletter-Text ..." required></textarea>
+
+                <label for="newsletter-image">Bild-URL (optional)</label>
+                <input type="url" id="newsletter-image" placeholder="https://...">
+
+                <label for="newsletter-signature">Signatur</label>
+                <textarea id="newsletter-signature" rows="3">Herzliche Grüße
+Dein Team von Simonsbrotkörbchen</textarea>
+
+                <div class="table-actions">
+                  <button class="btn btn-secondary" type="button" id="newsletter-preview-btn">Vorschau aktualisieren</button>
+                  <button class="btn btn-primary" type="submit">Newsletter versenden</button>
+                </div>
+                <p class="lunch-feedback" id="newsletter-feedback" aria-live="polite"></p>
+              </form>
+            </div>
+
+            <div class="admin-newsletter-preview">
+              <h3>Vorschau</h3>
+              <div id="newsletter-preview" class="newsletter-preview-card"></div>
+              <h4 style="margin-top:1rem">Versandhistorie</h4>
+              <div id="newsletter-history"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="analyse" role="tabpanel" hidden>
+          <div class="admin-analytics-layout">
+            <div class="analytics-kpis" id="analytics-kpis"></div>
+            <div class="analytics-charts">
+              <div class="analytics-card">
+                <h3>Schritt-Abbrüche (Vorbestellung)</h3>
+                <div id="analytics-order-dropoff" class="analytics-bars"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Schritt-Abbrüche (Reservierung)</h3>
+                <div id="analytics-res-dropoff" class="analytics-bars"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Seiten mit längster Verweildauer (Sekunden)</h3>
+                <div id="analytics-time-pages" class="analytics-bars"></div>
+              </div>
+              <div class="analytics-card">
+                <h3>Besuche pro Seite</h3>
+                <div id="analytics-visits-pages" class="analytics-bars"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer admin-footer">
+    <div class="container footer-bottom">
+      <span>© 2026 Simonsbrotkörbchen · Adminbereich</span>
+      <div class="footer-bottom-links">
+        <a href="index.html">Zur Website</a>
+        <a href="shop.html">Vorbestellung öffnen</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/site-core.js"></script>
+  <script>
+    (function(){
+      const navToggle = document.querySelector('[data-nav-toggle]');
+      const nav = document.querySelector('[data-nav]');
+      if (navToggle && nav) {
+        navToggle.addEventListener('click', () => {
+          const isOpen = nav.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          document.body.classList.toggle('nav-open', isOpen);
+        });
+      }
+    })();
+
+    let orders = JSON.parse(localStorage.getItem('orders')) || [];
+    let sentOrders = JSON.parse(localStorage.getItem('sentOrders')) || [];
+    let lunchReservations = JSON.parse(localStorage.getItem('sb_lunch_reservations')) || [];
+    let lunchReservationsDone = JSON.parse(localStorage.getItem('sb_lunch_reservations_done')) || [];
+    const LUNCH_PLAN_KEY = 'sb_lunch_weekplan';
+    const LUNCH_STOCK_KEY = 'sb_lunch_stock';
+    const LUNCH_WEEKDAYS = [
+      { day: 'Montag', weekday: 1 },
+      { day: 'Dienstag', weekday: 2 },
+      { day: 'Mittwoch', weekday: 3 },
+      { day: 'Donnerstag', weekday: 4 },
+      { day: 'Freitag', weekday: 5 }
+    ];
+    const DEFAULT_LUNCH_PLAN = {
+      Montag:    { dish: 'Nudelgulasch',               price: 7.90, weekday: 1 },
+      Dienstag:  { dish: 'Hähnchen mit Reis',          price: 8.90, weekday: 2 },
+      Mittwoch:  { dish: 'Linsensuppe',                price: 6.90, weekday: 3 },
+      Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4 },
+      Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5 }
+    };
+
+    const tabButtons = document.querySelectorAll('[data-tab-target]');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+    const lunchFilterSearch = document.getElementById('lunch-filter-search');
+    const lunchFilterDay = document.getElementById('lunch-filter-day');
+    const lunchFilterDate = document.getElementById('lunch-filter-date');
+    const lunchFilterReset = document.getElementById('lunch-filter-reset');
+
+    function toDateFromISO(value) {
+      if (!value) return null;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        const [year, month, day] = value.split('-').map(Number);
+        if (!Number.isNaN(year) && !Number.isNaN(month) && !Number.isNaN(day)) {
+          return new Date(year, month - 1, day);
+        }
+      }
+      const parsed = new Date(value);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function formatDateGerman(value, options = { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }) {
+      const date = toDateFromISO(value);
+      return date ? date.toLocaleDateString('de-DE', options) : value || '';
+    }
+
+    function formatFulfillmentSummary(fulfillment) {
+      if (!fulfillment) return '–';
+      if (fulfillment.type === 'delivery') {
+        const dateLabel = fulfillment.date ? formatDateGerman(fulfillment.date, { weekday: 'short', day: '2-digit', month: '2-digit' }) : 'Sonntag';
+        const slot = fulfillment.slot ? fulfillment.slot.replace('-', '–') + ' Uhr' : '';
+        return `Lieferung: ${dateLabel}${slot ? ' · ' + slot : ''}`;
+      }
+      if (fulfillment.type === 'pickup') {
+        const dateLabel = fulfillment.date ? formatDateGerman(fulfillment.date, { weekday: 'short', day: '2-digit', month: '2-digit' }) : '';
+        const timeLabel = fulfillment.time ? ` · ${fulfillment.time} Uhr` : '';
+        return (`Abholung: ${dateLabel}${timeLabel}`).trim();
+      }
+      return '–';
+    }
+
+    function formatFulfillmentDetails(fulfillment) {
+      if (!fulfillment) return '';
+      if (fulfillment.type === 'delivery') {
+        const lines = [];
+        if (fulfillment.date) lines.push(`Lieferung am: ${formatDateGerman(fulfillment.date)}`);
+        if (fulfillment.slot) lines.push(`Zeitfenster: ${fulfillment.slot.replace('-', '–')} Uhr`);
+        if (typeof fulfillment.deliveryFee === 'number') lines.push(`Liefergebühr: ${fulfillment.deliveryFee.toFixed(2)} €`);
+        return lines.join('\n');
+      }
+      if (fulfillment.type === 'pickup') {
+        const lines = [];
+        if (fulfillment.date) lines.push(`Abholung am: ${formatDateGerman(fulfillment.date)}`);
+        if (fulfillment.time) lines.push(`Abholzeit: ${fulfillment.time} Uhr`);
+        return lines.join('\n');
+      }
+      return '';
+    }
+
+    function loadLunchPlan() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(LUNCH_PLAN_KEY) || 'null');
+        return stored && typeof stored === 'object'
+          ? { ...DEFAULT_LUNCH_PLAN, ...stored }
+          : { ...DEFAULT_LUNCH_PLAN };
+      } catch {
+        return { ...DEFAULT_LUNCH_PLAN };
+      }
+    }
+
+    function saveLunchPlan(plan) {
+      localStorage.setItem(LUNCH_PLAN_KEY, JSON.stringify(plan));
+    }
+
+    function normalizeLunchPlan(plan) {
+      const next = {};
+      LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
+        const item = plan?.[day] || DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday };
+        next[day] = {
+          dish: String(item.dish || '').trim(),
+          price: Number(item.price) || 0,
+          weekday
+        };
+      });
+      return next;
+    }
+
+    function renderLunchPlanManager() {
+      const container = document.getElementById('lunch-plan-fields');
+      if (!container) return;
+      const plan = loadLunchPlan();
+      container.innerHTML = LUNCH_WEEKDAYS.map(({ day }) => {
+        const item = plan[day] || DEFAULT_LUNCH_PLAN[day];
+        return `
+          <div class="admin-lunch-plan-row">
+            <strong>${day}</strong>
+            <label>
+              Gericht
+              <input type="text" data-plan-dish="${day}" value="${escapeHtml(item.dish || '')}" placeholder="z. B. Börek mit Salat">
+            </label>
+            <label>
+              Preis
+              <input type="number" data-plan-price="${day}" min="0" step="0.05" value="${Number(item.price || 0).toFixed(2)}">
+            </label>
+          </div>`;
+      }).join('');
+    }
+
+    function showTab(targetId) {
+      tabButtons.forEach(button => {
+        const isActive = button.dataset.tabTarget === targetId;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      tabPanels.forEach(panel => {
+        const isActive = panel.id === targetId;
+        panel.classList.toggle('is-active', isActive);
+        panel.toggleAttribute('hidden', !isActive);
+      });
+
+      if (targetId === 'analyse') {
+        renderAnalytics();
+      }
+      if (targetId === 'newsletter') {
+        renderNewsletterPreview();
+        renderNewsletterHistory();
+      }
+    }
+
+    tabButtons.forEach(button => button.addEventListener('click', () => {
+      showTab(button.dataset.tabTarget);
+    }));
+
+    function renderTables() {
+      const pendingBody = document.querySelector('#pending-table tbody');
+      pendingBody.innerHTML = '';
+      if (!orders.length) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="6" class="empty-row">Aktuell liegen keine offenen Bestellungen vor.</td>';
+        pendingBody.appendChild(row);
+      } else {
+        orders.forEach(order => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${order.id}</td>
+            <td>${new Date(order.date).toLocaleString('de-DE')}</td>
+            <td>
+              <strong>${order.customer.name}</strong><br>
+              <small>${order.customer.address || '–'}</small>
+              ${order.customer.postalCode ? `<br><small>PLZ: ${order.customer.postalCode}</small>` : ''}
+            </td>
+            <td>${order.total.toFixed(2)}</td>
+            <td>${order.paymentMethod}<br><small>${formatFulfillmentSummary(order.fulfillment)}</small></td>
+            <td class="table-actions">
+              <button class="btn btn-secondary" data-action="print" data-id="${order.id}">Drucken</button>
+              <button class="btn btn-primary" data-action="sent" data-id="${order.id}">Als versendet markieren</button>
+            </td>`;
+          pendingBody.appendChild(tr);
+        });
+      }
+
+      const sentBody = document.querySelector('#sent-table tbody');
+      sentBody.innerHTML = '';
+      if (!sentOrders.length) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="6" class="empty-row">Noch keine versendeten Bestellungen.</td>';
+        sentBody.appendChild(row);
+      } else {
+        sentOrders.forEach(order => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${order.id}</td>
+            <td>${new Date(order.date).toLocaleString('de-DE')}</td>
+            <td>
+              <strong>${order.customer.name}</strong><br>
+              <small>${order.customer.address || '–'}</small>
+              ${order.customer.postalCode ? `<br><small>PLZ: ${order.customer.postalCode}</small>` : ''}
+            </td>
+            <td>${order.total.toFixed(2)}</td>
+            <td>${order.paymentMethod}<br><small>${formatFulfillmentSummary(order.fulfillment)}</small></td>
+            <td class="table-actions">
+              <button class="btn btn-secondary" data-action="print" data-id="${order.id}" data-sent="true">Drucken</button>
+            </td>`;
+          sentBody.appendChild(tr);
+        });
+      }
+
+      const filteredLunchPending = getFilteredLunchList(lunchReservations);
+      const filteredLunchDone = getFilteredLunchList(lunchReservationsDone);
+
+      const lunchPendingBody = document.querySelector('#lunch-pending-table tbody');
+      lunchPendingBody.innerHTML = '';
+      if (!filteredLunchPending.length) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="6" class="empty-row">Keine offenen Mittagstisch-Reservierungen für den aktuellen Filter.</td>';
+        lunchPendingBody.appendChild(row);
+      } else {
+        filteredLunchPending.forEach(reservation => {
+          const tr = document.createElement('tr');
+          const contractText = reservation.contract?.concluded
+            ? 'Kaufvertrag abgeschlossen'
+            : 'unvollständig';
+          tr.innerHTML = `
+            <td>${escapeHtml(reservation.id || '')}</td>
+            <td>${new Date(reservation.createdAt || Date.now()).toLocaleString('de-DE')}</td>
+            <td>
+              <strong>${escapeHtml(reservation.customer?.name || '')}</strong><br>
+              <small>${escapeHtml(reservation.customer?.phone || '–')}</small><br>
+              <small>${escapeHtml(reservation.customer?.email || '–')}</small>
+            </td>
+            <td>
+              <strong>${escapeHtml(reservation.reservation?.dish || '')}</strong><br>
+              <small>${escapeHtml(reservation.reservation?.day || '')}, ${escapeHtml(formatDateGerman(reservation.reservation?.pickupDate, { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }))}</small><br>
+              <small>${escapeHtml(reservation.reservation?.pickupTime || '')} Uhr · ${escapeHtml(String(reservation.reservation?.quantity || 1))}× · ${(reservation.reservation?.total || 0).toFixed(2)} €</small><br>
+              <small>Abholcode: <strong>${escapeHtml(reservation.pickupCode || '–')}</strong></small>
+            </td>
+            <td><small>${escapeHtml(contractText)}</small></td>
+            <td class="table-actions">
+              <button class="btn btn-secondary" data-action="lunch-print" data-id="${escapeHtml(reservation.id || '')}">Drucken</button>
+              <button class="btn btn-primary" data-action="lunch-done" data-id="${escapeHtml(reservation.id || '')}">Als abgeholt markieren</button>
+            </td>`;
+          lunchPendingBody.appendChild(tr);
+        });
+      }
+
+      const lunchDoneBody = document.querySelector('#lunch-done-table tbody');
+      lunchDoneBody.innerHTML = '';
+      if (!filteredLunchDone.length) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="6" class="empty-row">Keine abgeholten Mittagstisch-Reservierungen für den aktuellen Filter.</td>';
+        lunchDoneBody.appendChild(row);
+      } else {
+        filteredLunchDone.forEach(reservation => {
+          const tr = document.createElement('tr');
+          const contractText = reservation.contract?.concluded
+            ? 'Kaufvertrag abgeschlossen'
+            : 'unvollständig';
+          tr.innerHTML = `
+            <td>${escapeHtml(reservation.id || '')}</td>
+            <td>${new Date(reservation.createdAt || Date.now()).toLocaleString('de-DE')}</td>
+            <td>
+              <strong>${escapeHtml(reservation.customer?.name || '')}</strong><br>
+              <small>${escapeHtml(reservation.customer?.phone || '–')}</small><br>
+              <small>${escapeHtml(reservation.customer?.email || '–')}</small>
+            </td>
+            <td>
+              <strong>${escapeHtml(reservation.reservation?.dish || '')}</strong><br>
+              <small>${escapeHtml(reservation.reservation?.day || '')}, ${escapeHtml(formatDateGerman(reservation.reservation?.pickupDate, { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }))}</small><br>
+              <small>${escapeHtml(reservation.reservation?.pickupTime || '')} Uhr · ${escapeHtml(String(reservation.reservation?.quantity || 1))}× · ${(reservation.reservation?.total || 0).toFixed(2)} €</small><br>
+              <small>Abholcode: <strong>${escapeHtml(reservation.pickupCode || '–')}</strong></small>
+            </td>
+            <td><small>${escapeHtml(contractText)}</small></td>
+            <td class="table-actions">
+              <button class="btn btn-secondary" data-action="lunch-print" data-id="${escapeHtml(reservation.id || '')}" data-lunch-done="true">Drucken</button>
+            </td>`;
+          lunchDoneBody.appendChild(tr);
+        });
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getFilteredLunchList(source) {
+      const query = (lunchFilterSearch?.value || '').trim().toLocaleLowerCase('de-DE');
+      const day = (lunchFilterDay?.value || '').trim();
+      const date = (lunchFilterDate?.value || '').trim();
+
+      return source.filter(entry => {
+        const reservation = entry.reservation || {};
+        const customer = entry.customer || {};
+        if (day && reservation.day !== day) return false;
+        if (date && reservation.pickupDate !== date) return false;
+        if (!query) return true;
+
+        const haystack = [
+          entry.id,
+          customer.name,
+          customer.email,
+          customer.phone,
+          reservation.dish,
+          reservation.day,
+          reservation.pickupDate
+        ].join(' ').toLocaleLowerCase('de-DE');
+
+        return haystack.includes(query);
+      });
+    }
+
+    function printOrder(id, inSent = false) {
+      const list = inSent ? sentOrders : orders;
+      const order = list.find(item => String(item.id) === String(id));
+      if (!order) return;
+      let content = `Bestellung ${order.id}\n`; 
+      content += `Datum: ${new Date(order.date).toLocaleString('de-DE')}\n`;
+      content += `Kunde: ${order.customer.name}\n`;
+      content += `Adresse: ${order.customer.address}\n`;
+      if (order.customer.postalCode) content += `PLZ: ${order.customer.postalCode}\n`;
+      if (order.customer.phone) content += `Telefon: ${order.customer.phone}\n`;
+      if (order.customer.email) content += `E-Mail: ${order.customer.email}\n`;
+      if (order.pickupCode) content += `Abholcode: ${order.pickupCode}\n`;
+      content += `Zahlungsart: ${order.paymentMethod}\n`;
+      const fulfillmentSummary = formatFulfillmentSummary(order.fulfillment);
+      if (fulfillmentSummary && fulfillmentSummary !== '–') content += `${fulfillmentSummary}\n`;
+      const fulfillmentDetails = formatFulfillmentDetails(order.fulfillment);
+      if (fulfillmentDetails) content += `${fulfillmentDetails}\n`;
+      if (order.notes) content += `Hinweis: ${order.notes}\n`;
+      content += `\nArtikel:\n`;
+      order.items.forEach(item => {
+        content += `${item.qty} × ${item.name} — ${item.price.toFixed(2)} €\n`;
+        if (item.extras && item.extras.length) {
+          content += `    Extras: ${item.extras.join(', ')}\n`;
+        }
+      });
+      if (typeof order.deliveryFee === 'number' && order.deliveryFee > 0) {
+        content += `\nLiefergebühr: ${order.deliveryFee.toFixed(2)} €`;
+      }
+      content += `\nGesamt: ${order.total.toFixed(2)} €`;
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) return;
+      printWindow.document.write(`<pre>${content}</pre>`);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    function markSent(id) {
+      const index = orders.findIndex(order => String(order.id) === String(id));
+      if (index === -1) return;
+      const [moved] = orders.splice(index, 1);
+      sentOrders.push(moved);
+      localStorage.setItem('orders', JSON.stringify(orders));
+      localStorage.setItem('sentOrders', JSON.stringify(sentOrders));
+      renderTables();
+      showTab('pending');
+    }
+
+    function printLunchReservation(id, inDone = false) {
+      const source = inDone ? lunchReservationsDone : lunchReservations;
+      const reservation = source.find(item => String(item.id) === String(id));
+      if (!reservation) return;
+
+      const lunch = reservation.reservation || {};
+      const customer = reservation.customer || {};
+      let content = `Mittagstisch-Reservierung ${reservation.id}\n`;
+      content += `Reserviert am: ${new Date(reservation.createdAt || Date.now()).toLocaleString('de-DE')}\n`;
+      content += `Status: ${reservation.status || (inDone ? 'abgeholt' : 'reserviert')}\n`;
+      content += `\nKunde:\n`;
+      content += `Name: ${customer.name || ''}\n`;
+      content += `Telefon: ${customer.phone || ''}\n`;
+      content += `E-Mail: ${customer.email || ''}\n`;
+      content += `\nReservierung:\n`;
+      content += `Tag: ${lunch.day || ''}\n`;
+      content += `Datum: ${formatDateGerman(lunch.pickupDate)}\n`;
+      content += `Abholzeit: ${lunch.pickupTime || ''} Uhr\n`;
+      content += `Gericht: ${lunch.dish || ''}\n`;
+      content += `Menge: ${lunch.quantity || 1}\n`;
+      content += `Einzelpreis: ${typeof lunch.unitPrice === 'number' ? lunch.unitPrice.toFixed(2) : '0.00'} €\n`;
+      content += `Gesamt: ${typeof lunch.total === 'number' ? lunch.total.toFixed(2) : '0.00'} €\n`;
+      content += `Abholort: ${lunch.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf'}\n`;
+      if (reservation.pickupCode) content += `Abholcode: ${reservation.pickupCode}\n`;
+      if (lunch.notes) content += `Hinweis: ${lunch.notes}\n`;
+      content += `\nVertrag:\n`;
+      content += `${reservation.contract?.text || 'Mit Reservierung wurde ein Kaufvertrag abgeschlossen.'}`;
+
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) return;
+      printWindow.document.write(`<pre>${content}</pre>`);
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    function markLunchDone(id) {
+      const index = lunchReservations.findIndex(entry => String(entry.id) === String(id));
+      if (index === -1) return;
+      const [moved] = lunchReservations.splice(index, 1);
+      moved.status = 'abgeholt';
+      moved.completedAt = new Date().toISOString();
+      lunchReservationsDone.push(moved);
+      localStorage.setItem('sb_lunch_reservations', JSON.stringify(lunchReservations));
+      localStorage.setItem('sb_lunch_reservations_done', JSON.stringify(lunchReservationsDone));
+      renderTables();
+      showTab('lunch-pending');
+    }
+
+    document.addEventListener('click', (event) => {
+      const actionButton = event.target.closest('[data-action]');
+      if (!actionButton) return;
+      const idRaw = actionButton.dataset.id;
+      const action = actionButton.dataset.action;
+      if (action === 'print') {
+        const inSent = actionButton.dataset.sent === 'true';
+        printOrder(idRaw, inSent);
+      }
+      if (action === 'sent') {
+        markSent(idRaw);
+      }
+      if (action === 'lunch-print') {
+        const inDone = actionButton.dataset.lunchDone === 'true';
+        printLunchReservation(idRaw, inDone);
+      }
+      if (action === 'lunch-done') {
+        markLunchDone(idRaw);
+      }
+    });
+
+    [lunchFilterSearch, lunchFilterDay, lunchFilterDate].forEach(control => {
+      control?.addEventListener('input', renderTables);
+      control?.addEventListener('change', renderTables);
+    });
+
+    lunchFilterReset?.addEventListener('click', () => {
+      if (lunchFilterSearch) lunchFilterSearch.value = '';
+      if (lunchFilterDay) lunchFilterDay.value = '';
+      if (lunchFilterDate) lunchFilterDate.value = '';
+      renderTables();
+    });
+
+    function loadLunchStock() {
+      try {
+        return JSON.parse(localStorage.getItem(LUNCH_STOCK_KEY) || '{}') || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function normalizeStockKey(value) {
+      return String(value || '')
+        .trim()
+        .toLocaleLowerCase('de-DE')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-');
+    }
+
+    function getStockValue(stock, dish) {
+      const exact = Number(stock[dish]);
+      if (Number.isFinite(exact)) return exact;
+      const normalized = Number(stock[normalizeStockKey(dish)]);
+      if (Number.isFinite(normalized)) return normalized;
+      return NaN;
+    }
+
+    function saveLunchStock(stock) {
+      localStorage.setItem(LUNCH_STOCK_KEY, JSON.stringify(stock || {}));
+    }
+
+    function renderLunchSettingsManager() {
+      const body = document.getElementById('lunch-settings-body');
+      if (!body) return;
+      const plan = loadLunchPlan();
+      const stock = loadLunchStock();
+      body.innerHTML = LUNCH_WEEKDAYS.map(({ day, weekday }) => {
+        const item = plan[day] || DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday };
+        const currentStock = getStockValue(stock, item.dish);
+        const availability = Number.isFinite(currentStock) ? currentStock : '';
+        return `
+          <tr>
+            <td><strong>${escapeHtml(day)}</strong></td>
+            <td>
+              <input type="text" data-plan-dish="${escapeHtml(day)}" value="${escapeHtml(item.dish || '')}" placeholder="Gerichtname">
+            </td>
+            <td>
+              <input type="number" data-plan-stock="${escapeHtml(day)}" min="0" step="1" value="${availability}" placeholder="unbegrenzt">
+            </td>
+            <td>
+              <input type="number" data-plan-price="${escapeHtml(day)}" min="0" step="0.05" value="${Number(item.price || 0).toFixed(2)}">
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function renderLunchStockManager() {
+      const container = document.getElementById('lunch-stock-fields');
+      if (!container) return;
+      const stock = loadLunchStock();
+      container.innerHTML = LUNCH_DISHES.map((dish, idx) => `
+        <label for="stock-${idx}">${escapeHtml(dish)}
+          <input id="stock-${idx}" data-stock-dish="${escapeHtml(dish)}" type="number" min="0" step="1" value="${Number.isFinite(getStockValue(stock, dish)) ? Number(getStockValue(stock, dish)) : ''}" placeholder="unbegrenzt">
+        </label>
+      `).join('');
+    }
+
+    document.getElementById('lunch-stock-save')?.addEventListener('click', () => {
+      const inputs = Array.from(document.querySelectorAll('[data-stock-dish]'));
+      const next = {};
+      inputs.forEach(input => {
+        const dish = input.dataset.stockDish;
+        const raw = (input.value || '').trim();
+        if (raw === '') return;
+        const n = Math.max(0, Math.floor(Number(raw)));
+        if (Number.isFinite(n)) next[normalizeStockKey(dish)] = n;
+      });
+      saveLunchStock(next);
+      const feedback = document.getElementById('lunch-stock-feedback');
+      if (feedback) {
+        feedback.className = 'lunch-feedback feedback-success';
+        feedback.textContent = 'Bestände gespeichert.';
+      }
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(next) }));
+    });
+
+    document.getElementById('lunch-stock-reset')?.addEventListener('click', () => {
+      saveLunchStock({});
+      renderLunchStockManager();
+      const feedback = document.getElementById('lunch-stock-feedback');
+      if (feedback) {
+        feedback.className = 'lunch-feedback feedback-success';
+        feedback.textContent = 'Alle Gerichte auf unbegrenzt gesetzt.';
+      }
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify({}) }));
+    });
+
+    document.getElementById('lunch-settings-save')?.addEventListener('click', () => {
+      const plan = {};
+      const stock = {};
+      LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
+        const dishInput = document.querySelector(`[data-plan-dish="${day}"]`);
+        const stockInput = document.querySelector(`[data-plan-stock="${day}"]`);
+        const priceInput = document.querySelector(`[data-plan-price="${day}"]`);
+        const dish = (dishInput?.value || '').trim();
+        const price = Number(priceInput?.value || 0);
+        const availabilityRaw = (stockInput?.value || '').trim();
+        plan[day] = { dish, price, weekday };
+        if (availabilityRaw !== '') {
+          const n = Math.max(0, Math.floor(Number(availabilityRaw)));
+          if (Number.isFinite(n)) {
+            stock[normalizeStockKey(dish)] = n;
+          }
+        }
+      });
+      saveLunchPlan(normalizeLunchPlan(plan));
+      saveLunchStock(stock);
+      renderLunchSettingsManager();
+      const feedback = document.getElementById('lunch-settings-feedback');
+      if (feedback) {
+        feedback.className = 'lunch-feedback feedback-success';
+        feedback.textContent = 'Wochenplan und Bestände gespeichert.';
+      }
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
+    });
+
+    document.getElementById('lunch-settings-reset')?.addEventListener('click', () => {
+      saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
+      saveLunchStock({});
+      renderLunchSettingsManager();
+      const feedback = document.getElementById('lunch-settings-feedback');
+      if (feedback) {
+        feedback.className = 'lunch-feedback feedback-success';
+        feedback.textContent = 'Wochenplan und Bestände auf Standard zurückgesetzt.';
+      }
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify({}) }));
+    });
+
+    document.getElementById('lunch-plan-save')?.addEventListener('click', () => {
+      const plan = {};
+      LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
+        const dishInput = document.querySelector(`[data-plan-dish="${day}"]`);
+        const priceInput = document.querySelector(`[data-plan-price="${day}"]`);
+        plan[day] = {
+          dish: (dishInput?.value || '').trim(),
+          price: Number(priceInput?.value || 0),
+          weekday
+        };
+      });
+      saveLunchPlan(normalizeLunchPlan(plan));
+      renderLunchPlanManager();
+      const feedback = document.getElementById('lunch-plan-feedback');
+      if (feedback) {
+        feedback.className = 'lunch-feedback feedback-success';
+        feedback.textContent = 'Wochenplan gespeichert.';
+      }
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
+    });
+
+    document.getElementById('lunch-plan-reset')?.addEventListener('click', () => {
+      saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
+      renderLunchPlanManager();
+      const feedback = document.getElementById('lunch-plan-feedback');
+      if (feedback) {
+        feedback.className = 'lunch-feedback feedback-success';
+        feedback.textContent = 'Wochenplan auf Standard zurückgesetzt.';
+      }
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
+    });
+
+    renderTables();
+    renderLunchSettingsManager();
+    showTab('pending');
+
+    /* ===== Wunschzettel ===== */
+    const WZ_KEY = 'sb_wunschzettel';
+
+    function renderWunschzettel() {
+      const list = JSON.parse(localStorage.getItem(WZ_KEY) || '[]');
+      const tbody = document.querySelector('#wz-table tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      if (!list.length) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="6" class="empty-row">Noch keine Wunschzettel eingereicht.</td>';
+        tbody.appendChild(row);
+        return;
+      }
+      list.forEach((entry, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(entry.id || '')}</td>
+          <td>${new Date(entry.createdAt || Date.now()).toLocaleString('de-DE')}</td>
+          <td><strong>${escapeHtml(entry.firstname || '')} ${escapeHtml(entry.lastname || '')}</strong></td>
+          <td><strong>${escapeHtml(entry.wish || '')}</strong></td>
+          <td>${escapeHtml(entry.message || '–')}</td>
+          <td class="table-actions">
+            <button class="btn btn-secondary" type="button" data-action="wz-delete" data-idx="${idx}">Löschen</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.addEventListener('click', (event) => {
+      const btn = event.target.closest('[data-action="wz-delete"]');
+      if (!btn) return;
+      const idx = Number(btn.dataset.idx);
+      const list = JSON.parse(localStorage.getItem(WZ_KEY) || '[]');
+      list.splice(idx, 1);
+      localStorage.setItem(WZ_KEY, JSON.stringify(list));
+      renderWunschzettel();
+    });
+
+    renderWunschzettel();
+
+    /* ===== Abstimmung Admin ===== */
+    const VOTES_KEY = 'sb_votes';
+
+    function loadVotesAdmin() {
+      return JSON.parse(localStorage.getItem(VOTES_KEY) || '[]');
+    }
+    function saveVotesAdmin(v) {
+      localStorage.setItem(VOTES_KEY, JSON.stringify(v));
+    }
+
+    function renderAdminVotes() {
+      const container = document.getElementById('admin-votes-list');
+      if (!container) return;
+      const votes = loadVotesAdmin();
+      if (!votes.length) {
+        container.innerHTML = '<p style="color:var(--clr-text-muted);font-size:0.9rem">Noch keine Abstimmungen erstellt.</p>';
+        return;
+      }
+      container.innerHTML = '';
+      votes.forEach((vote, idx) => {
+        const totalVotes = Object.values(vote.votes || {}).reduce((s, n) => s + n, 0);
+        const div = document.createElement('div');
+        div.className = 'admin-vote-card';
+        const dishes = (vote.dishes || []).map(d => {
+          const count = (vote.votes || {})[d] || 0;
+          const pct = totalVotes ? Math.round(count / totalVotes * 100) : 0;
+          return `<li>${escapeHtml(d)}: <strong>${count} Stimmen</strong> (${pct}%)</li>`;
+        }).join('');
+        div.innerHTML = `
+          <div class="admin-vote-card-header">
+            <div>
+              <strong>${escapeHtml(vote.title || '')}</strong>
+              <span class="vote-status-badge ${vote.active ? 'badge-active' : 'badge-ended'}">${vote.active ? 'Aktiv' : 'Beendet'}</span>
+            </div>
+            <div class="table-actions">
+              ${vote.active
+                ? `<button class="btn btn-secondary" type="button" data-action="vote-end" data-idx="${idx}">Beenden</button>`
+                : `<button class="btn btn-primary" type="button" data-action="vote-activate" data-idx="${idx}">Wieder aktivieren</button>`
+              }
+              <button class="btn btn-outline" type="button" data-action="vote-delete" data-idx="${idx}">Löschen</button>
+            </div>
+          </div>
+          <ul style="margin-top:0.75rem;font-size:0.88rem;display:grid;gap:0.3rem">${dishes}</ul>
+          <p style="font-size:0.8rem;color:var(--clr-text-muted);margin-top:0.5rem">Gesamt: ${totalVotes} Stimmen · Endet: ${vote.endsAt || '–'}</p>`;
+        container.appendChild(div);
+      });
+    }
+
+    document.getElementById('vote-create-form')?.addEventListener('submit', event => {
+      event.preventDefault();
+      const title    = document.getElementById('vote-title-input')?.value.trim();
+      const endsAt   = document.getElementById('vote-ends')?.value;
+      const dishesRaw = document.getElementById('vote-dishes')?.value.trim();
+      const feedback  = document.getElementById('vote-create-feedback');
+
+      if (!title || !endsAt || !dishesRaw) {
+        if (feedback) feedback.textContent = 'Bitte alle Felder ausfüllen.';
+        return;
+      }
+      const dishes = dishesRaw.split('\n').map(s => s.trim()).filter(Boolean);
+      if (dishes.length < 2) {
+        if (feedback) feedback.textContent = 'Bitte mindestens 2 Gerichte eintragen.';
+        return;
+      }
+
+      const votes = loadVotesAdmin();
+      // Deactivate any currently active vote
+      votes.forEach(v => { v.active = false; });
+      votes.push({
+        id: `VOTE-${Date.now()}`,
+        createdAt: new Date().toISOString(),
+        title, dishes, endsAt,
+        active: true,
+        votes: {}
+      });
+      saveVotesAdmin(votes);
+      event.target.reset();
+      if (feedback) { feedback.classList.add('feedback-success'); feedback.textContent = '✓ Abstimmung gestartet!'; }
+      renderAdminVotes();
+    });
+
+    document.addEventListener('click', event => {
+      const btn = event.target.closest('[data-action="vote-end"],[data-action="vote-activate"],[data-action="vote-delete"]');
+      if (!btn) return;
+      const idx    = Number(btn.dataset.idx);
+      const action = btn.dataset.action;
+      const votes  = loadVotesAdmin();
+      if (action === 'vote-end')      { votes[idx].active = false; }
+      if (action === 'vote-activate') { votes.forEach(v => { v.active = false; }); votes[idx].active = true; }
+      if (action === 'vote-delete')   { votes.splice(idx, 1); }
+      saveVotesAdmin(votes);
+      renderAdminVotes();
+    });
+
+    /* ===== Newsletter ===== */
+    const NEWSLETTER_HISTORY_KEY = 'sb_newsletter_history';
+
+    function getNewsletterHistory() {
+      return JSON.parse(localStorage.getItem(NEWSLETTER_HISTORY_KEY) || '[]');
+    }
+
+    function saveNewsletterHistory(history) {
+      localStorage.setItem(NEWSLETTER_HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function fillTemplate(text, user) {
+      return String(text || '')
+        .replaceAll('{{firstName}}', user?.firstName || 'Kundin/Kunde')
+        .replaceAll('{{lastName}}', user?.lastName || '');
+    }
+
+    function getNewsletterFormData() {
+      return {
+        segment: document.getElementById('newsletter-segment')?.value || 'all',
+        subject: document.getElementById('newsletter-subject')?.value.trim() || '',
+        greeting: document.getElementById('newsletter-greeting')?.value || 'Hallo {{firstName}},',
+        block: document.getElementById('newsletter-block')?.value || '',
+        body: document.getElementById('newsletter-body')?.value.trim() || '',
+        image: document.getElementById('newsletter-image')?.value.trim() || '',
+        signature: document.getElementById('newsletter-signature')?.value.trim() || ''
+      };
+    }
+
+    function renderNewsletterPreview() {
+      const preview = document.getElementById('newsletter-preview');
+      if (!preview) return;
+      const data = getNewsletterFormData();
+      const sample = { firstName: 'Max', lastName: 'Mustermann' };
+      const greeting = fillTemplate(data.greeting, sample);
+      const body = [data.block, data.body].filter(Boolean).join('\n\n');
+
+      preview.innerHTML = `
+        <div class="newsletter-mail">
+          <p><strong>Betreff:</strong> ${escapeHtml(data.subject || '—')}</p>
+          <hr>
+          <p>${escapeHtml(greeting)}</p>
+          <p style="white-space:pre-line">${escapeHtml(body || '—')}</p>
+          ${data.image ? `<p><img src="${escapeHtml(data.image)}" alt="Newsletter Bild" style="max-width:100%;border-radius:10px"></p>` : ''}
+          <p style="white-space:pre-line">${escapeHtml(data.signature || '')}</p>
+        </div>`;
+    }
+
+    function renderNewsletterHistory() {
+      const el = document.getElementById('newsletter-history');
+      if (!el) return;
+      const history = getNewsletterHistory().slice().reverse();
+      if (!history.length) {
+        el.innerHTML = '<p style="font-size:0.9rem;color:var(--clr-text-muted)">Noch kein Newsletter versendet.</p>';
+        return;
+      }
+      el.innerHTML = history.map(item => `
+        <div class="admin-vote-card">
+          <strong>${escapeHtml(item.subject)}</strong>
+          <p style="margin:0.35rem 0 0">Segment: ${escapeHtml(item.segment)} · Empfänger: ${item.recipientCount}</p>
+          <small>${new Date(item.sentAt).toLocaleString('de-DE')}</small>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('newsletter-preview-btn')?.addEventListener('click', renderNewsletterPreview);
+
+    document.getElementById('newsletter-block')?.addEventListener('change', event => {
+      const body = document.getElementById('newsletter-body');
+      const value = event.target.value || '';
+      if (!body || !value) return;
+      if (!body.value.trim()) body.value = value;
+      else body.value = `${value}\n\n${body.value.trim()}`;
+      renderNewsletterPreview();
+    });
+
+    document.getElementById('newsletter-form')?.addEventListener('submit', event => {
+      event.preventDefault();
+      const feedback = document.getElementById('newsletter-feedback');
+      if (feedback) {
+        feedback.textContent = '';
+        feedback.classList.remove('feedback-success');
+      }
+
+      const data = getNewsletterFormData();
+      if (!data.subject || !data.body) {
+        if (feedback) feedback.textContent = 'Bitte Betreff und Nachricht ausfüllen.';
+        return;
+      }
+
+      const recipients = window.SBPlatform?.getAudience?.(data.segment) || [];
+      const personalized = recipients.map(user => ({
+        email: user.email,
+        subject: data.subject,
+        greeting: fillTemplate(data.greeting, user),
+        body: [data.block, data.body].filter(Boolean).join('\n\n'),
+        signature: data.signature,
+        image: data.image
+      }));
+
+      const history = getNewsletterHistory();
+      history.push({
+        id: `NEWS-${Date.now()}`,
+        sentAt: new Date().toISOString(),
+        segment: data.segment,
+        subject: data.subject,
+        recipientCount: personalized.length,
+        payload: personalized
+      });
+      saveNewsletterHistory(history);
+      window.SBPlatform?.trackEvent?.('newsletter_sent', {
+        segment: data.segment,
+        recipientCount: personalized.length,
+        subject: data.subject
+      });
+
+      if (feedback) {
+        feedback.classList.add('feedback-success');
+        feedback.textContent = `Newsletter versendet: ${personalized.length} Empfänger.`;
+      }
+      renderNewsletterPreview();
+      renderNewsletterHistory();
+    });
+
+    /* ===== Analyse ===== */
+    function computeAnalytics() {
+      const data = window.SBPlatform?.getAnalytics?.() || { visits: [], events: [] };
+      const visits = data.visits || [];
+      const events = data.events || [];
+      const allOrders = (JSON.parse(localStorage.getItem('orders') || '[]').length + JSON.parse(localStorage.getItem('sentOrders') || '[]').length);
+      const allReservations = (JSON.parse(localStorage.getItem('sb_lunch_reservations') || '[]').length + JSON.parse(localStorage.getItem('sb_lunch_reservations_done') || '[]').length);
+
+      const checkoutStarts = events.filter(e => e.type === 'shop_checkout_opened').length;
+      const checkoutDone = events.filter(e => e.type === 'shop_order_submitted').length;
+      const reservationStarts = events.filter(e => e.type === 'reservation_started').length;
+      const reservationDone = events.filter(e => e.type === 'reservation_submitted').length;
+
+      const orderDropEvents = events.filter(e => e.type === 'shop_checkout_dropoff');
+      const reservationDropEvents = events.filter(e => e.type === 'reservation_dropoff');
+
+      const toMap = (arr, key) => arr.reduce((acc, item) => {
+        const k = item?.payload?.[key] || 'unbekannt';
+        acc[k] = (acc[k] || 0) + 1;
+        return acc;
+      }, {});
+
+      const timeByPage = visits.reduce((acc, visit) => {
+        acc[visit.page] = (acc[visit.page] || 0) + Number(visit.durationSec || 0);
+        return acc;
+      }, {});
+
+      const visitByPage = visits.reduce((acc, visit) => {
+        acc[visit.page] = (acc[visit.page] || 0) + 1;
+        return acc;
+      }, {});
+
+      return {
+        totalVisits: visits.length,
+        totalOrders: allOrders,
+        totalReservations: allReservations,
+        checkoutStarts,
+        checkoutDone,
+        reservationStarts,
+        reservationDone,
+        orderAbortRate: checkoutStarts ? ((checkoutStarts - checkoutDone) / checkoutStarts) * 100 : 0,
+        reservationAbortRate: reservationStarts ? ((reservationStarts - reservationDone) / reservationStarts) * 100 : 0,
+        orderDropMap: toMap(orderDropEvents, 'step'),
+        reservationDropMap: toMap(reservationDropEvents, 'step'),
+        timeByPage,
+        visitByPage
+      };
+    }
+
+    function renderBars(targetId, sourceMap) {
+      const container = document.getElementById(targetId);
+      if (!container) return;
+      const entries = Object.entries(sourceMap || {}).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      if (!entries.length) {
+        container.innerHTML = '<p style="font-size:0.9rem;color:var(--clr-text-muted)">Keine Daten vorhanden.</p>';
+        return;
+      }
+      const max = Math.max(...entries.map(([, value]) => value), 1);
+      container.innerHTML = entries.map(([label, value]) => {
+        const width = Math.max(4, Math.round((value / max) * 100));
+        return `
+          <div class="analytics-bar-row">
+            <span class="analytics-bar-label">${escapeHtml(label)}</span>
+            <div class="analytics-bar-track"><span class="analytics-bar-fill" style="width:${width}%"></span></div>
+            <span class="analytics-bar-value">${value}</span>
+          </div>`;
+      }).join('');
+    }
+
+    function renderAnalytics() {
+      const kpi = document.getElementById('analytics-kpis');
+      if (!kpi) return;
+      const a = computeAnalytics();
+      const orderConversion = a.totalVisits ? (a.totalOrders / a.totalVisits) * 100 : 0;
+      const reservationConversion = a.totalVisits ? (a.totalReservations / a.totalVisits) * 100 : 0;
+      kpi.innerHTML = `
+        <article class="analytics-kpi"><h4>Besuche</h4><p>${a.totalVisits}</p></article>
+        <article class="analytics-kpi"><h4>Vorbestellungen</h4><p>${a.totalOrders}</p></article>
+        <article class="analytics-kpi"><h4>Reservierungen</h4><p>${a.totalReservations}</p></article>
+        <article class="analytics-kpi"><h4>Conversion Vorbestellung</h4><p>${orderConversion.toFixed(1)}%</p></article>
+        <article class="analytics-kpi"><h4>Conversion Reservierung</h4><p>${reservationConversion.toFixed(1)}%</p></article>
+        <article class="analytics-kpi"><h4>Abbruch Vorbestellung</h4><p>${Math.max(0, a.orderAbortRate).toFixed(1)}%</p></article>
+        <article class="analytics-kpi"><h4>Abbruch Reservierung</h4><p>${Math.max(0, a.reservationAbortRate).toFixed(1)}%</p></article>
+      `;
+
+      renderBars('analytics-order-dropoff', a.orderDropMap);
+      renderBars('analytics-res-dropoff', a.reservationDropMap);
+      renderBars('analytics-time-pages', a.timeByPage);
+      renderBars('analytics-visits-pages', a.visitByPage);
+    }
+
+    renderAdminVotes();
+    renderNewsletterPreview();
+    renderNewsletterHistory();
+    renderAnalytics();
+  </script>
+</body>
+</html>

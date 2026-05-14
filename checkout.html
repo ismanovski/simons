@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout – Simonsbrotkörbchen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header" data-header>
+    <div class="container header-layout">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+        <span class="brand-copy">
+          <span class="brand-title">Simonsbrotkörbchen</span>
+          <span class="brand-subtitle">Checkout</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
+        <span class="sr-only">Menü öffnen</span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <nav class="site-nav" id="primary-navigation" data-nav>
+        <a class="nav-link" href="index.html">Startseite</a>
+        <a class="nav-link" href="jetzt-bestellen.html">Jetzt Bestellen</a>
+        <a class="nav-link" href="shop.html">Weiter einkaufen</a>
+        <a class="nav-link is-active" href="checkout.html">Warenkorb</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="container checkout-page-layout">
+        <div class="checkout-page-main">
+          <div class="checkout-page-card" id="step-fulfillment">
+            <h1>Lieferart</h1>
+            <div class="checkout-mode-switch">
+              <button class="chip is-active" type="button" data-mode="pickup">Abholen</button>
+              <button class="chip" type="button" data-mode="delivery">Liefern lassen</button>
+            </div>
+
+            <form id="checkout-contact-form" novalidate>
+              <div data-mode-panel="pickup">
+                <div class="form-grid form-grid-2">
+                  <label>Vorname
+                    <input type="text" id="pickup-firstname" required>
+                  </label>
+                  <label>Nachname
+                    <input type="text" id="pickup-lastname" required>
+                  </label>
+                </div>
+                <div class="form-grid form-grid-2">
+                  <label>E-Mail
+                    <input type="email" id="pickup-email" required>
+                  </label>
+                  <label>Telefon (optional)
+                    <input type="tel" id="pickup-phone">
+                  </label>
+                </div>
+                <div class="form-grid form-grid-2">
+                  <label>Datum der Abholung
+                    <input type="date" id="pickup-date" required>
+                  </label>
+                  <label>Uhrzeit der Abholung (06:00–15:30)
+                    <input type="time" id="pickup-time" min="06:00" max="15:30" required>
+                  </label>
+                </div>
+              </div>
+
+              <div data-mode-panel="delivery" hidden>
+                <div class="form-grid form-grid-2">
+                  <label>Vorname
+                    <input type="text" id="delivery-firstname" required>
+                  </label>
+                  <label>Nachname
+                    <input type="text" id="delivery-lastname" required>
+                  </label>
+                </div>
+
+                <div class="bundeswehr-box">
+                  <button class="btn btn-secondary" type="button" id="bw-toggle-btn">Mitarbeiter der Bundeswehr (Mörsenbroicher Weg)</button>
+                  <div id="bw-code-panel" hidden>
+                    <label>Code eingeben
+                      <input type="text" id="bw-code-input" placeholder="FRÜHSTÜCKSWEHR" autocomplete="off" maxlength="20">
+                    </label>
+                    <button class="btn btn-outline" type="button" id="bw-code-verify">Code prüfen</button>
+                    <p class="checkout-hint" id="bw-code-feedback"></p>
+                  </div>
+                </div>
+
+                <div id="delivery-address-fields">
+                  <div class="form-grid form-grid-2">
+                    <label>Straße
+                      <input type="text" id="delivery-street" required>
+                    </label>
+                    <label>Hausnummer
+                      <input type="text" id="delivery-number" required>
+                    </label>
+                  </div>
+                  <div class="form-grid form-grid-2">
+                    <label>Postleitzahl
+                      <input type="text" id="delivery-zip" pattern="[0-9]{5}" required>
+                    </label>
+                    <label>Stadt
+                      <input type="text" id="delivery-city" required>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-grid form-grid-2">
+                  <label>E-Mail
+                    <input type="email" id="delivery-email" required>
+                  </label>
+                  <label>Telefon
+                    <input type="tel" id="delivery-phone" required>
+                  </label>
+                </div>
+                <div class="form-grid form-grid-2">
+                  <label>Datum der Lieferung
+                    <input type="date" id="delivery-date" required>
+                  </label>
+                  <label id="delivery-time-label">Uhrzeit der Lieferung
+                    <input type="time" id="delivery-time" min="08:00" max="15:30" required>
+                  </label>
+                </div>
+              </div>
+
+              <div class="checkout-actions-row">
+                <a class="btn btn-ghost" href="shop.html">← Weiter einkaufen</a>
+                <button class="btn btn-primary" type="submit">Weiter</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="checkout-page-card" id="step-payment" hidden>
+            <h2>Bezahlung</h2>
+            <form id="checkout-payment-form" novalidate>
+              <fieldset class="fieldset">
+                <legend>Zahlungsart</legend>
+                <label class="radio">
+                  <input type="radio" name="payment" value="Vor Ort" checked> Vor Ort bezahlen
+                </label>
+                <label class="radio">
+                  <input type="radio" name="payment" value="PayPal"> PayPal
+                </label>
+              </fieldset>
+
+              <div id="paypal-config-hint" class="checkout-hint" hidden>
+                PayPal ist noch nicht verbunden. Hinterlege in checkout.html die Werte in PAYPAL_CONFIG.
+              </div>
+              <div id="paypal-button-container" hidden></div>
+
+              <div class="checkout-actions-row">
+                <button class="btn btn-secondary" type="button" id="back-to-contact">Zurück</button>
+                <button class="btn btn-primary" type="submit" id="submit-order-btn">Bestellung abschicken</button>
+              </div>
+            </form>
+            <p class="checkout-hint" id="checkout-status"></p>
+          </div>
+        </div>
+
+        <aside class="checkout-receipt" aria-live="polite">
+          <h2>Kassenbon</h2>
+          <div id="receipt-items"></div>
+          <div class="receipt-line"><span>Zwischensumme</span><strong id="receipt-subtotal">0,00 €</strong></div>
+          <div class="receipt-line"><span>Liefergebühr</span><strong id="receipt-delivery">0,00 €</strong></div>
+          <div class="receipt-line receipt-total"><span>Gesamt</span><strong id="receipt-total">0,00 €</strong></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="approval-modal" aria-hidden="true" role="dialog" aria-labelledby="approval-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="approval-title">Hinweis zur Bundeswehr-Lieferung</h3>
+        <button class="btn-icon" type="button" id="approval-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Bitte rufen Sie uns an unter <strong>0211-60166103</strong>, um uns mitzuteilen, dass Sie noch eine Bestellung aufgeben möchten.</p>
+        <p>Sie können trotzdem bestellen. Die Bestellung wird dann auf "Warten auf Genehmigung" gesetzt.</p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" id="approval-cancel">Zurück</button>
+          <button class="btn btn-primary" type="button" id="approval-continue">Trotzdem bestellen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="checkout-toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/site-core.js"></script>
+  <script>
+    (function(){
+      const navToggle = document.querySelector('[data-nav-toggle]');
+      const nav = document.querySelector('[data-nav]');
+      if (navToggle && nav) {
+        navToggle.addEventListener('click', () => {
+          const isOpen = nav.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          document.body.classList.toggle('nav-open', isOpen);
+        });
+      }
+    })();
+
+    const CART_STORAGE_KEY = 'sb_shop_cart_v1';
+    const ORDERS_KEY = 'orders';
+    const SENT_ORDERS_KEY = 'sentOrders';
+    const BREAKFAST_SEQUENCE_KEY = 'sb_breakfast_sequence';
+    const PICKUP_CODE_INDEX_KEY = 'sb_pickup_code_index';
+    const BUNDESWEHR_CODE = 'FRÜHSTÜCKSWEHR';
+    const DELIVERY_FEE = 2.90;
+    const MIN_DELIVERY_VALUE = 15;
+    const numberFormatter = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Nur diese Werte hinterlegen, um PayPal zu aktivieren
+    const PAYPAL_CONFIG = {
+      clientId: '',
+      currency: 'EUR'
+    };
+
+    const PICKUP_CODES = [
+      'SpiderMan','BudSpencer','TerenceHill','Manitou','RockyBalboa','DonCorleone','Batman','Joker','Deadpool','IronMan',
+      'Hulk','Thor','Loki','Wolverine','Superman','Flash','Shrek','HomerSimpson','MrBean','CharlieChaplin',
+      'IndianaJones','Zorro','Gladiator','Matrix','Neo','Rambo','Tarzan','KingKong','Godzilla','Mufasa',
+      'Scarface','Django','Sherlock','Gandalf','Frodo','Gollum','HarryPotter','Hagrid','Dumbledore','Yoda',
+      'DarthVader','ObiWan','HanSolo','Chewbacca','Pikachu','Mario','Luigi','Sonic','PacMan','Kratos',
+      'Ronaldo','Messi','Zidane','Ronaldinho','Ibrahimovic','Poldi','Kloppo','Beckenbauer','Maradona','Heidi',
+      'Einstein','Napoleon','Caesar','Bismarck','Mozart','Beethoven','Kleopatra','Achilles','Spartacus','Leonardo',
+      'Stromberg','HausmeisterKrause','Pastewka','Bully','Kalkofe','Elton','Raab','Wickie','Tabaluga','Werner',
+      'LuckyLuke','Asterix','Obelix','Popeye','Aladin','Simba','Pinocchio','Spongebob','PatrickStar','Thaddäus',
+      'Terminator','Robocop','Blade','JohnWick','Maximus','Hannibal','Pumba','AlCapone','HannibalSmith','Magnum'
+    ];
+
+    const state = {
+      mode: 'pickup',
+      cart: [],
+      subtotal: 0,
+      isBundeswehr: false,
+      bundeswehrVerified: false,
+      paypalReady: false,
+      paypalApproved: false,
+      pendingOrderPayload: null
+    };
+
+    const el = {
+      modeButtons: document.querySelectorAll('[data-mode]'),
+      modePanels: document.querySelectorAll('[data-mode-panel]'),
+      contactForm: document.getElementById('checkout-contact-form'),
+      paymentForm: document.getElementById('checkout-payment-form'),
+      stepFulfillment: document.getElementById('step-fulfillment'),
+      stepPayment: document.getElementById('step-payment'),
+      backToContact: document.getElementById('back-to-contact'),
+      receiptItems: document.getElementById('receipt-items'),
+      receiptSubtotal: document.getElementById('receipt-subtotal'),
+      receiptDelivery: document.getElementById('receipt-delivery'),
+      receiptTotal: document.getElementById('receipt-total'),
+      deliveryAddressFields: document.getElementById('delivery-address-fields'),
+      bwToggleBtn: document.getElementById('bw-toggle-btn'),
+      bwCodePanel: document.getElementById('bw-code-panel'),
+      bwCodeInput: document.getElementById('bw-code-input'),
+      bwCodeVerify: document.getElementById('bw-code-verify'),
+      bwCodeFeedback: document.getElementById('bw-code-feedback'),
+      deliveryTime: document.getElementById('delivery-time'),
+      deliveryTimeLabel: document.getElementById('delivery-time-label'),
+      checkoutStatus: document.getElementById('checkout-status'),
+      paypalHint: document.getElementById('paypal-config-hint'),
+      paypalContainer: document.getElementById('paypal-button-container'),
+      approvalModal: document.getElementById('approval-modal'),
+      approvalClose: document.getElementById('approval-close'),
+      approvalCancel: document.getElementById('approval-cancel'),
+      approvalContinue: document.getElementById('approval-continue'),
+      toast: document.getElementById('checkout-toast')
+    };
+
+    function formatPrice(value) {
+      return `${numberFormatter.format(value || 0)} €`;
+    }
+
+    function ensureBreakfastSequence() {
+      const current = Number(localStorage.getItem(BREAKFAST_SEQUENCE_KEY) || '0');
+      if (current > 0) return;
+      const open = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+      const sent = JSON.parse(localStorage.getItem(SENT_ORDERS_KEY) || '[]');
+      const max = [...open, ...sent].reduce((acc, order) => {
+        const raw = String(order?.internalNumber || order?.id || '');
+        const match = raw.match(/^F(\d{4,})$/i);
+        if (!match) return acc;
+        const n = Number(match[1]);
+        return Number.isFinite(n) ? Math.max(acc, n) : acc;
+      }, 0);
+      localStorage.setItem(BREAKFAST_SEQUENCE_KEY, String(max));
+    }
+
+    function getNextBreakfastNumber() {
+      ensureBreakfastSequence();
+      const current = Number(localStorage.getItem(BREAKFAST_SEQUENCE_KEY) || '0');
+      const next = current + 1;
+      localStorage.setItem(BREAKFAST_SEQUENCE_KEY, String(next));
+      return `F${String(next).padStart(4, '0')}`;
+    }
+
+    function getNextPickupCode() {
+      const current = Number(localStorage.getItem(PICKUP_CODE_INDEX_KEY) || '0');
+      const code = PICKUP_CODES[current % PICKUP_CODES.length];
+      localStorage.setItem(PICKUP_CODE_INDEX_KEY, String(current + 1));
+      return code;
+    }
+
+    function showToast(message, isError = false) {
+      if (!el.toast) return;
+      el.toast.textContent = message;
+      el.toast.classList.toggle('is-error', isError);
+      el.toast.classList.add('is-visible');
+      setTimeout(() => el.toast.classList.remove('is-visible'), 3200);
+    }
+
+    function loadCart() {
+      try {
+        const raw = localStorage.getItem(CART_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        state.cart = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        state.cart = [];
+      }
+      renderReceipt();
+    }
+
+    function getDeliveryFee() {
+      if (state.mode !== 'delivery' || !state.cart.length) return 0;
+      if (state.isBundeswehr && state.bundeswehrVerified) return 0;
+      return DELIVERY_FEE;
+    }
+
+    function renderReceipt() {
+      if (!el.receiptItems) return;
+      if (!state.cart.length) {
+        el.receiptItems.innerHTML = '<p class="checkout-hint">Dein Warenkorb ist leer.</p>';
+      } else {
+        el.receiptItems.innerHTML = state.cart.map(item => {
+          const total = (Number(item.price) || 0) * (Number(item.qty) || 1);
+          return `<div class="receipt-item"><span>${item.qty}× ${item.name}</span><strong>${formatPrice(total)}</strong></div>`;
+        }).join('');
+      }
+      state.subtotal = state.cart.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.qty) || 1)), 0);
+      const fee = getDeliveryFee();
+      el.receiptSubtotal.textContent = formatPrice(state.subtotal);
+      el.receiptDelivery.textContent = formatPrice(fee);
+      el.receiptTotal.textContent = formatPrice(state.subtotal + fee);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      el.modeButtons.forEach(btn => btn.classList.toggle('is-active', btn.dataset.mode === mode));
+      el.modePanels.forEach(panel => {
+        panel.hidden = panel.dataset.modePanel !== mode;
+      });
+      renderReceipt();
+    }
+
+    function setBundeswehrActive(active) {
+      state.isBundeswehr = active;
+      if (!active) state.bundeswehrVerified = false;
+      el.deliveryAddressFields.hidden = active && state.bundeswehrVerified;
+      ['delivery-street', 'delivery-number', 'delivery-zip', 'delivery-city'].forEach(id => {
+        const field = document.getElementById(id);
+        if (!field) return;
+        field.required = !(active && state.bundeswehrVerified);
+      });
+      if (active && state.bundeswehrVerified) {
+        el.deliveryTime.value = '08:40';
+        el.deliveryTime.readOnly = true;
+        el.deliveryTime.min = '08:40';
+        el.deliveryTime.max = '09:00';
+        el.deliveryTimeLabel.querySelector('input').title = 'Bei Bundeswehr-Lieferung fest: 08:40–09:00';
+      } else {
+        el.deliveryTime.readOnly = false;
+        el.deliveryTime.min = '08:00';
+        el.deliveryTime.max = '15:30';
+      }
+      renderReceipt();
+    }
+
+    function normalizeUppercaseInput(event) {
+      const target = event.target;
+      target.value = (target.value || '').toLocaleUpperCase('de-DE');
+    }
+
+    function validateContactStep() {
+      if (!state.cart.length) {
+        showToast('Dein Warenkorb ist leer.', true);
+        return null;
+      }
+
+      if (state.mode === 'pickup') {
+        const data = {
+          firstName: document.getElementById('pickup-firstname').value.trim(),
+          lastName: document.getElementById('pickup-lastname').value.trim(),
+          email: document.getElementById('pickup-email').value.trim(),
+          phone: document.getElementById('pickup-phone').value.trim(),
+          date: document.getElementById('pickup-date').value,
+          time: document.getElementById('pickup-time').value
+        };
+        if (!data.firstName || !data.lastName || !data.email || !data.date || !data.time) {
+          showToast('Bitte alle Pflichtfelder ausfüllen.', true);
+          return null;
+        }
+        return data;
+      }
+
+      const data = {
+        firstName: document.getElementById('delivery-firstname').value.trim(),
+        lastName: document.getElementById('delivery-lastname').value.trim(),
+        email: document.getElementById('delivery-email').value.trim(),
+        phone: document.getElementById('delivery-phone').value.trim(),
+        date: document.getElementById('delivery-date').value,
+        time: document.getElementById('delivery-time').value,
+        street: document.getElementById('delivery-street').value.trim(),
+        number: document.getElementById('delivery-number').value.trim(),
+        zip: document.getElementById('delivery-zip').value.trim(),
+        city: document.getElementById('delivery-city').value.trim()
+      };
+
+      if (!data.firstName || !data.lastName || !data.email || !data.phone || !data.date || !data.time) {
+        showToast('Bitte alle Pflichtfelder ausfüllen.', true);
+        return null;
+      }
+
+      if (!(state.isBundeswehr && state.bundeswehrVerified)) {
+        if (!data.street || !data.number || !data.zip || !data.city) {
+          showToast('Bitte vollständige Lieferadresse angeben.', true);
+          return null;
+        }
+      }
+
+      const totalWithRules = state.subtotal + getDeliveryFee();
+      if (!(state.isBundeswehr && state.bundeswehrVerified) && totalWithRules < MIN_DELIVERY_VALUE) {
+        showToast(`Mindestbestellwert für Lieferung: ${formatPrice(MIN_DELIVERY_VALUE)}.`, true);
+        return null;
+      }
+
+      return data;
+    }
+
+    function openApprovalModal() {
+      el.approvalModal.classList.add('is-visible');
+      el.approvalModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeApprovalModal() {
+      el.approvalModal.classList.remove('is-visible');
+      el.approvalModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function needsBundeswehrApproval(contactData) {
+      if (!(state.isBundeswehr && state.bundeswehrVerified)) return false;
+      const selected = new Date(contactData.date);
+      const now = new Date();
+      const isSameDay = selected.toDateString() === now.toDateString();
+      const minutesNow = now.getHours() * 60 + now.getMinutes();
+      return isSameDay && minutesNow > (8 * 60 + 30);
+    }
+
+    function buildOrderPayload(contactData) {
+      const paymentMethod = el.paymentForm.querySelector('input[name="payment"]:checked')?.value || 'Vor Ort';
+      const deliveryFee = getDeliveryFee();
+      const total = state.subtotal + deliveryFee;
+      const isApprovalPending = needsBundeswehrApproval(contactData);
+      const internalNumber = getNextBreakfastNumber();
+      const pickupCode = getNextPickupCode();
+
+      return {
+        id: internalNumber,
+        internalNumber,
+        pickupCode,
+        date: new Date().toISOString(),
+        status: isApprovalPending ? 'wartet auf genehmigung' : 'offen',
+        approvalRequired: isApprovalPending,
+        customer: {
+          name: `${contactData.firstName} ${contactData.lastName}`.trim(),
+          email: contactData.email,
+          phone: contactData.phone,
+          address: state.mode === 'delivery'
+            ? (state.isBundeswehr && state.bundeswehrVerified
+              ? 'Mörsenbroicher Weg (Bundeswehr)'
+              : `${contactData.street} ${contactData.number}, ${contactData.zip} ${contactData.city}`)
+            : 'Abholung in der Filiale, Lenaustraße 1'
+        },
+        fulfillment: {
+          type: state.mode,
+          date: contactData.date,
+          time: state.mode === 'delivery' && state.isBundeswehr && state.bundeswehrVerified ? '08:40-09:00' : contactData.time,
+          bundeswehr: state.isBundeswehr && state.bundeswehrVerified
+        },
+        paymentMethod,
+        paymentStatus: paymentMethod === 'PayPal' ? (state.paypalApproved ? 'bezahlt' : 'ausstehend') : 'offen',
+        emailConfirmation: 'ausstehend (SMTP/Provider einrichten)',
+        items: state.cart.map(item => ({
+          id: item.id,
+          name: item.name,
+          qty: item.qty,
+          price: item.price,
+          extras: item.extras || []
+        })),
+        subtotal: state.subtotal,
+        deliveryFee,
+        total
+      };
+    }
+
+    function submitOrder(payload) {
+      const existing = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
+      existing.push(payload);
+      localStorage.setItem(ORDERS_KEY, JSON.stringify(existing));
+      localStorage.removeItem(CART_STORAGE_KEY);
+      state.cart = [];
+      renderReceipt();
+      el.checkoutStatus.textContent = payload.approvalRequired
+        ? `Bestellung gespeichert: Warten auf Genehmigung der Bestellung. Abholcode: ${payload.pickupCode}`
+        : `Bestellung gespeichert. Abholcode: ${payload.pickupCode}. Bestellbestätigung per Mail ist vorbereitet (Mail-Provider konfigurieren).`;
+      showToast('Bestellung erfolgreich gespeichert.');
+    }
+
+    function setupPaypal() {
+      const paymentRadios = Array.from(document.querySelectorAll('input[name="payment"]'));
+      const hasConfig = !!PAYPAL_CONFIG.clientId;
+
+      function refreshPaypalVisibility() {
+        const selected = document.querySelector('input[name="payment"]:checked')?.value;
+        const isPaypal = selected === 'PayPal';
+        el.paypalContainer.hidden = !isPaypal;
+        el.paypalHint.hidden = !isPaypal || hasConfig;
+      }
+
+      paymentRadios.forEach(radio => radio.addEventListener('change', refreshPaypalVisibility));
+      refreshPaypalVisibility();
+
+      if (!hasConfig) return;
+
+      const script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(PAYPAL_CONFIG.clientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}`;
+      script.onload = () => {
+        if (!window.paypal) return;
+        state.paypalReady = true;
+        window.paypal.Buttons({
+          createOrder: (_, actions) => actions.order.create({
+            purchase_units: [{ amount: { value: (state.subtotal + getDeliveryFee()).toFixed(2) } }]
+          }),
+          onApprove: (_, actions) => actions.order.capture().then(() => {
+            state.paypalApproved = true;
+            showToast('PayPal-Zahlung bestätigt.');
+          })
+        }).render('#paypal-button-container');
+      };
+      document.head.appendChild(script);
+    }
+
+    el.modeButtons.forEach(btn => btn.addEventListener('click', () => setMode(btn.dataset.mode)));
+
+    el.bwToggleBtn.addEventListener('click', () => {
+      el.bwCodePanel.hidden = !el.bwCodePanel.hidden;
+      if (el.bwCodePanel.hidden) {
+        state.isBundeswehr = false;
+        state.bundeswehrVerified = false;
+        setBundeswehrActive(false);
+        el.bwCodeFeedback.textContent = '';
+      } else {
+        state.isBundeswehr = true;
+      }
+    });
+
+    el.bwCodeInput.addEventListener('input', normalizeUppercaseInput);
+
+    el.bwCodeVerify.addEventListener('click', () => {
+      const code = (el.bwCodeInput.value || '').toLocaleUpperCase('de-DE').trim();
+      if (code !== BUNDESWEHR_CODE) {
+        state.bundeswehrVerified = false;
+        setBundeswehrActive(false);
+        el.bwCodeFeedback.textContent = 'Code ungültig';
+        el.bwCodeFeedback.classList.remove('feedback-success');
+        return;
+      }
+      state.bundeswehrVerified = true;
+      setBundeswehrActive(true);
+      el.bwCodeFeedback.textContent = 'Code erfolgreich aktiviert';
+      el.bwCodeFeedback.classList.add('feedback-success');
+      showToast('Bundeswehr-Modus aktiviert.');
+    });
+
+    el.contactForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = validateContactStep();
+      if (!data) return;
+      state.pendingOrderPayload = data;
+      el.stepFulfillment.hidden = true;
+      el.stepPayment.hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    el.backToContact.addEventListener('click', () => {
+      el.stepPayment.hidden = true;
+      el.stepFulfillment.hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    el.paymentForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!state.pendingOrderPayload) {
+        showToast('Bitte zuerst Kontaktdaten ausfüllen.', true);
+        return;
+      }
+
+      const payload = buildOrderPayload(state.pendingOrderPayload);
+      if (payload.approvalRequired) {
+        openApprovalModal();
+        el.approvalContinue.onclick = () => {
+          closeApprovalModal();
+          submitOrder(payload);
+        };
+        return;
+      }
+      submitOrder(payload);
+    });
+
+    [el.approvalClose, el.approvalCancel].forEach(btn => {
+      btn.addEventListener('click', closeApprovalModal);
+    });
+    el.approvalModal.addEventListener('click', (event) => {
+      if (event.target === el.approvalModal) closeApprovalModal();
+    });
+
+    loadCart();
+    setMode('pickup');
+    setupPaypal();
+  </script>
+</body>
+</html>

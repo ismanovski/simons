@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mittagessen reservieren – Simonsbrotkörbchen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header" data-header>
+    <div class="container header-layout">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+        <span class="brand-copy">
+          <span class="brand-title">Simonsbrotkörbchen</span>
+          <span class="brand-subtitle">Vorbestellung &amp; Abholung in Düsseldorf</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
+        <span class="sr-only">Menü öffnen</span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <nav class="site-nav" id="primary-navigation" data-nav>
+        <a class="nav-link" href="index.html">Startseite</a>
+        <a class="nav-link" href="jetzt-bestellen.html">Jetzt Bestellen</a>
+        <a class="nav-link" href="gerichtswunsch.html">Gerichtswunsch</a>
+        <a class="nav-link" href="gallery.html">Galerie</a>
+        <a class="nav-link" href="contact.html">Kontakt</a>
+        <a class="btn btn-primary nav-cta" href="jetzt-bestellen.html">Jetzt bestellen</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Reservierungsformular -->
+    <section class="section" id="reservierung-form">
+      <div class="container checkout-page-layout" id="lunch-checkout-layout">
+        <div class="checkout-page-main">
+          <div class="checkout-page-card">
+            <p class="checkout-hint">Reservierungen sind nur für die aktuelle Woche möglich.</p>
+
+            <form class="lunch-form" id="lunch-reservation-form" novalidate>
+              <div id="lunch-step-1">
+                <h2>Schritt 1 · Wochenplan & Auswahl</h2>
+
+                <div id="lunch-bw-box">
+                  <button class="btn" type="button" id="lunch-bw-toggle-btn" aria-pressed="false">
+                    <img src="bundeswehr_logo.png" alt="Bundeswehr" class="bundeswehr-inline-logo">
+                    Bundeswehr Mitarbeiter vom Mörsenbroicher Weg? Jetzt Vorteile sichern!
+                  </button>
+                  <div id="lunch-bw-code-panel" hidden>
+                    <label for="lunch-bw-code-input">Code eingeben
+                      <input type="text" id="lunch-bw-code-input" placeholder="FRÜHSTÜCKSWEHR" autocomplete="off" maxlength="24">
+                    </label>
+                    <button class="btn btn-outline" type="button" id="lunch-bw-code-verify">Code prüfen</button>
+                  </div>
+                  <p class="checkout-hint" id="lunch-bw-code-feedback"></p>
+                </div>
+
+                <fieldset class="fieldset">
+                  <legend>Bestellart</legend>
+                  <label class="radio">
+                    <input type="radio" name="fulfillment" value="pickup" checked>
+                    Abholen
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="fulfillment" value="delivery">
+                    Liefern lassen
+                  </label>
+                </fieldset>
+
+                <div class="lunch-weekplan-picker" id="lunch-weekplan-chooser"></div>
+
+                <label for="lunch-day" class="sr-only">Wochentag
+                  <select id="lunch-day" name="day" required>
+                    <option value="">Bitte wählen</option>
+                    <option value="Montag">Montag</option>
+                    <option value="Dienstag">Dienstag</option>
+                    <option value="Mittwoch">Mittwoch</option>
+                    <option value="Donnerstag">Donnerstag</option>
+                    <option value="Freitag">Freitag</option>
+                  </select>
+                </label>
+
+                <div class="form-grid form-grid-3 lunch-day-grid">
+                  <label for="lunch-dish">Gericht
+                    <input type="text" id="lunch-dish" name="dish" readonly required placeholder="Wird automatisch gefüllt">
+                  </label>
+                  <label for="lunch-date"><span id="lunch-date-field-label">Abholdatum</span>
+                    <input type="date" id="lunch-date" name="pickupDate" readonly required>
+                  </label>
+                  <label for="lunch-time"><span id="lunch-time-field-label">Abholzeit</span>
+                    <select id="lunch-time" name="pickupTime" required></select>
+                  </label>
+                </div>
+                <p id="lunch-date-label" class="checkout-hint" aria-live="polite"></p>
+
+                <div class="form-grid form-grid-2 lunch-time-qty-grid">
+                  <div class="form-group">
+                    <label for="lunch-qty">Menge
+                      <input type="number" id="lunch-qty" name="quantity" min="1" max="20" value="1" required>
+                    </label>
+                    <span class="checkout-hint" id="lunch-stock-hint" aria-live="polite"></span>
+                  </div>
+                  <div class="price-display" id="price-display" aria-live="polite">
+                    <span class="price-display-label">Gesamtpreis</span>
+                    <span class="price-display-value" id="lunch-price-value">–</span>
+                  </div>
+                </div>
+
+                <div class="checkout-actions-row">
+                  <a class="btn btn-ghost" href="jetzt-bestellen.html">← Zurück zu Jetzt Bestellen</a>
+                  <button class="btn btn-primary" type="button" id="lunch-to-step-2">Weiter zu Schritt 2</button>
+                </div>
+              </div>
+
+              <div id="lunch-step-2" hidden>
+                <h2>Schritt 2 · Kontaktdaten & Reservierung</h2>
+
+                <div class="form-grid form-grid-2">
+                  <label for="lunch-firstname">Vorname
+                    <input type="text" id="lunch-firstname" name="firstname" autocomplete="given-name" required>
+                  </label>
+                  <label for="lunch-lastname">Nachname
+                    <input type="text" id="lunch-lastname" name="lastname" autocomplete="family-name" required>
+                  </label>
+                </div>
+
+                <div class="form-grid form-grid-2">
+                  <label for="lunch-phone">Telefon
+                    <input type="tel" id="lunch-phone" name="phone" autocomplete="tel" required>
+                  </label>
+                  <label for="lunch-email">E-Mail
+                    <input type="email" id="lunch-email" name="email" autocomplete="email" required>
+                  </label>
+                </div>
+
+                <div class="form-grid form-grid-2" id="lunch-delivery-fields" hidden>
+                  <label for="lunch-delivery-street">Straße
+                    <input type="text" id="lunch-delivery-street" name="deliveryStreet" autocomplete="address-line1">
+                  </label>
+                  <label for="lunch-delivery-number">Hausnummer
+                    <input type="text" id="lunch-delivery-number" name="deliveryNumber" autocomplete="address-line2">
+                  </label>
+                  <label for="lunch-delivery-zip">Postleitzahl
+                    <input type="text" id="lunch-delivery-zip" name="deliveryZip" inputmode="numeric" pattern="[0-9]{5}">
+                  </label>
+                  <label for="lunch-delivery-city">Stadt
+                    <input type="text" id="lunch-delivery-city" name="deliveryCity" autocomplete="address-level2">
+                  </label>
+                </div>
+
+                <label for="lunch-notes">Hinweis (optional)
+                  <textarea id="lunch-notes" name="notes" rows="2" placeholder="z. B. Abholung durch Kollegin, Allergie-Hinweise …"></textarea>
+                </label>
+
+                <fieldset class="fieldset lunch-payment-fieldset">
+                  <legend>Zahlungsart</legend>
+                  <label class="radio">
+                    <input type="radio" name="paymentMethod" value="Vor Ort" checked>
+                    Vor Ort bezahlen
+                  </label>
+                  <label class="radio radio-paypal">
+                    <input type="radio" name="paymentMethod" value="PayPal">
+                    <span>PayPal</span>
+                    <img src="paypal_logo.png" alt="PayPal" class="paypal-inline-logo">
+                  </label>
+                </fieldset>
+
+                <label class="contract-check" for="lunch-terms">
+                  <input type="checkbox" id="lunch-terms" name="terms" required>
+                  Ich akzeptiere die <a href="agb.html" target="_blank" rel="noopener noreferrer">AGB</a>.
+                </label>
+
+                <label class="contract-check" for="lunch-contract">
+                  <input type="checkbox" id="lunch-contract" name="contract" required>
+                  Ich bestätige: Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.
+                </label>
+
+                <div class="checkout-actions-row">
+                  <button class="btn btn-secondary" type="button" id="lunch-back-to-step-1">Zurück</button>
+                  <button class="btn btn-primary" type="submit">Zahlungspflichtig reservieren</button>
+                </div>
+              </div>
+              <p class="lunch-feedback" id="lunch-feedback" aria-live="polite"></p>
+            </form>
+          </div>
+        </div>
+
+        <aside class="checkout-receipt" id="lunch-receipt-panel" aria-live="polite" hidden>
+          <h2>Kassenbon</h2>
+          <p class="checkout-hint checkout-hint-warning" id="lunch-bw-receipt-note" hidden>Bundeswehr Vorteile aktiviert</p>
+          <div class="receipt-line"><span>Bestellart</span><strong id="lunch-receipt-fulfillment">Abholung</strong></div>
+          <div class="receipt-line"><span>Liefergebühr</span><strong id="lunch-receipt-delivery-fee">2,90 €</strong></div>
+          <div class="receipt-line"><span>Mindestbestellwert</span><strong id="lunch-receipt-min-order">25,00 €</strong></div>
+          <div class="receipt-line"><span>Wochentag</span><strong id="lunch-receipt-day">–</strong></div>
+          <div class="receipt-line"><span>Gericht</span><strong id="lunch-receipt-dish">–</strong></div>
+          <div class="receipt-line"><span>Datum</span><strong id="lunch-receipt-date">–</strong></div>
+          <div class="receipt-line"><span>Menge</span><strong id="lunch-receipt-qty">1</strong></div>
+          <div class="receipt-line receipt-total"><span>Gesamt</span><strong id="lunch-receipt-total">–</strong></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section section-muted">
+      <div class="container section-header">
+        <span class="eyebrow">Mittagstisch mitgestalten</span>
+        <h2>Gerichtswunsch & Abstimmung</h2>
+        <p>Deinen Gerichtswunsch und die aktuelle Abstimmung findest du jetzt auf einer eigenen Seite.</p>
+        <a class="btn btn-secondary" href="gerichtswunsch.html">Zur Gerichtswunsch-Seite</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a class="brand brand-footer" href="index.html">
+            <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+            <span class="brand-copy">
+              <span class="brand-title">Simonsbrotkörbchen</span>
+              <span class="brand-subtitle">Traditionell gebacken. Modern vorbestellt.</span>
+            </span>
+          </a>
+          <p class="footer-text">Vorbestellung und Abholung in Düsseldorf – regional, frisch und mit viel Liebe zum Detail.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer Navigation">
+          <h4 class="footer-heading">Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="index.html">Startseite</a></li>
+            <li><a href="jetzt-bestellen.html">Jetzt Bestellen</a></li>
+            <li><a href="gallery.html">Galerie</a></li>
+            <li><a href="contact.html">Kontakt</a></li>
+          </ul>
+        </nav>
+        <div class="footer-hours">
+          <h4 class="footer-heading">Öffnungszeiten</h4>
+          <ul class="footer-links">
+            <li>Mo – Fr: 06:30 – 17:00 Uhr</li>
+            <li>Sa: 07:00 – 14:00 Uhr</li>
+            <li>So: geschlossen</li>
+            <li>Mittagstisch: 11:00 – 15:00 Uhr</li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4 class="footer-heading">Kontakt</h4>
+          <ul class="footer-links">
+            <li>Lenaustraße 1<br>40472 Düsseldorf</li>
+            <li>0211 · 000000</li>
+            <li><a href="mailto:info@simonsbrotkoerbchen.de">info@simons&shy;brotkoerbchen.de</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Simonsbrotkörbchen</span>
+        <div class="footer-bottom-links">
+          <a href="impressum.html">Impressum</a>
+          <a href="agb.html">AGB</a>
+          <a href="admin.html">Admin</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bestätigungs-Modal -->
+  <div class="modal" id="lunch-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="lunch-confirm-title">
+    <div class="modal-dialog modal-dialog-confirmation" style="width:min(100%,520px);text-align:center;">
+      <div class="modal-header" style="justify-content:flex-end;padding:1rem 1.25rem 0;">
+        <button id="lunch-confirm-close" aria-label="Schließen" style="background:none;border:none;cursor:pointer;font-size:1.6rem;line-height:1;color:var(--clr-text-muted);">&#x2715;</button>
+      </div>
+      <div class="modal-body confirmation-body" style="gap:1.25rem;align-items:center;padding-top:0.5rem;">
+        <p id="lunch-confirm-msg" style="font-size:1.05rem;line-height:1.6;margin:0;"></p>
+
+        <!-- Abholung: Abholcode groß -->
+        <div id="lunch-confirm-pickup-block" hidden>
+          <p style="font-size:0.85rem;color:var(--clr-text-muted);margin:0 0 0.35rem;">Dein Abholcode</p>
+          <div id="lunch-confirm-code" style="font-size:3.2rem;font-weight:800;letter-spacing:0.1em;color:var(--clr-primary);line-height:1.1;"></div>
+        </div>
+
+        <!-- Lieferung: Lieferzeit + Drucken/PDF -->
+        <div id="lunch-confirm-delivery-block" hidden>
+          <p style="font-size:0.85rem;color:var(--clr-text-muted);margin:0 0 0.35rem;">Deine Lieferzeit</p>
+          <div id="lunch-confirm-delivery-time" style="font-size:3.2rem;font-weight:800;color:var(--clr-primary);line-height:1.1;"></div>
+          <div style="margin-top:1.5rem;display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;">
+            <button id="lunch-confirm-print" class="btn btn-secondary" style="display:flex;align-items:center;gap:0.5rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Drucken
+            </button>
+            <button id="lunch-confirm-pdf" class="btn btn-secondary" style="display:flex;align-items:center;gap:0.5rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              PDF speichern
+            </button>
+          </div>
+        </div>
+
+        <p style="font-size:0.8rem;color:var(--clr-text-muted);margin:0.5rem 0 0;">Du wirst nach dem Schließen zur Startseite weitergeleitet.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/site-core.js"></script>
+  <script>
+    (function(){
+      const navToggle = document.querySelector('[data-nav-toggle]');
+      const nav = document.querySelector('[data-nav]');
+      if (navToggle && nav) {
+        navToggle.addEventListener('click', () => {
+          const isOpen = nav.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          document.body.classList.toggle('nav-open', isOpen);
+        });
+      }
+    })();
+
+    /* ===== Reservierungsformular ===== */
+    (function(){
+      const LUNCH_STORAGE_KEY = 'sb_lunch_reservations';
+      const LUNCH_DONE_STORAGE_KEY = 'sb_lunch_reservations_done';
+      const LUNCH_SEQUENCE_KEY = 'sb_lunch_sequence';
+      const LUNCH_PLAN_KEY = 'sb_lunch_weekplan';
+      const LUNCH_STOCK_KEY = 'sb_lunch_stock';
+      const PICKUP_CODE_INDEX_KEY = 'sb_pickup_code_index';
+      const BUNDESWEHR_CODE = 'FRÜHSTÜCKSWEHR';
+      const DELIVERY_FEE = 2.90;
+      const DELIVERY_MIN_ORDER = 25;
+      const LUNCH_WEEKDAYS = [
+        { day: 'Montag', weekday: 1 },
+        { day: 'Dienstag', weekday: 2 },
+        { day: 'Mittwoch', weekday: 3 },
+        { day: 'Donnerstag', weekday: 4 },
+        { day: 'Freitag', weekday: 5 }
+      ];
+      const DEFAULT_LUNCH_PLAN = {
+        Montag:    { dish: 'Nudelgulasch',               price: 7.90, weekday: 1 },
+        Dienstag:  { dish: 'Hähnchen mit Reis',          price: 8.90, weekday: 2 },
+        Mittwoch:  { dish: 'Linsensuppe',                price: 6.90, weekday: 3 },
+        Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4 },
+        Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5 }
+      };
+      const PICKUP_CODES = [
+        'SpiderMan','BudSpencer','TerenceHill','Manitou','RockyBalboa','DonCorleone','Batman','Joker','Deadpool','IronMan',
+        'Hulk','Thor','Loki','Wolverine','Superman','Flash','Shrek','HomerSimpson','MrBean','CharlieChaplin',
+        'IndianaJones','Zorro','Gladiator','Matrix','Neo','Rambo','Tarzan','KingKong','Godzilla','Mufasa',
+        'Scarface','Django','Sherlock','Gandalf','Frodo','Gollum','HarryPotter','Hagrid','Dumbledore','Yoda',
+        'DarthVader','ObiWan','HanSolo','Chewbacca','Pikachu','Mario','Luigi','Sonic','PacMan','Kratos',
+        'Ronaldo','Messi','Zidane','Ronaldinho','Ibrahimovic','Poldi','Kloppo','Beckenbauer','Maradona','Heidi',
+        'Einstein','Napoleon','Caesar','Bismarck','Mozart','Beethoven','Kleopatra','Achilles','Spartacus','Leonardo',
+        'Stromberg','HausmeisterKrause','Pastewka','Bully','Kalkofe','Elton','Raab','Wickie','Tabaluga','Werner',
+        'LuckyLuke','Asterix','Obelix','Popeye','Aladin','Simba','Pinocchio','Spongebob','PatrickStar','Thaddäus',
+        'Terminator','Robocop','Blade','JohnWick','Maximus','Hannibal','Pumba','AlCapone','HannibalSmith','Magnum'
+      ];
+      let LUNCH_MENU = loadLunchPlan();
+
+      const form        = document.getElementById('lunch-reservation-form');
+      const dayField    = document.getElementById('lunch-day');
+      const dishField   = document.getElementById('lunch-dish');
+      const qtyField    = document.getElementById('lunch-qty');
+      const timeField   = document.getElementById('lunch-time');
+      const dateField   = document.getElementById('lunch-date');
+      const dateLabel   = document.getElementById('lunch-date-label');
+      const priceValue  = document.getElementById('lunch-price-value');
+      const stockHint   = document.getElementById('lunch-stock-hint');
+      const feedback    = document.getElementById('lunch-feedback');
+      const step1Panel  = document.getElementById('lunch-step-1');
+      const step2Panel  = document.getElementById('lunch-step-2');
+      const step1NextBtn = document.getElementById('lunch-to-step-2');
+      const step2BackBtn = document.getElementById('lunch-back-to-step-1');
+      const weekplanChooser = document.getElementById('lunch-weekplan-chooser');
+      const receiptPanel = document.getElementById('lunch-receipt-panel');
+      const lunchLayout = document.getElementById('lunch-checkout-layout');
+      const submitBtn   = form?.querySelector('button[type="submit"]');
+      const deliveryFields = document.getElementById('lunch-delivery-fields');
+      const bundeswehrBox = document.getElementById('lunch-bw-box');
+      const bwToggleBtn = document.getElementById('lunch-bw-toggle-btn');
+      const bwCodePanel = document.getElementById('lunch-bw-code-panel');
+      const bwCodeInput = document.getElementById('lunch-bw-code-input');
+      const bwCodeVerify = document.getElementById('lunch-bw-code-verify');
+      const bwCodeFeedback = document.getElementById('lunch-bw-code-feedback');
+      const fulfillmentRadios = form?.querySelectorAll('input[name="fulfillment"]') || [];
+      const deliveryStreet = document.getElementById('lunch-delivery-street');
+      const deliveryNumber = document.getElementById('lunch-delivery-number');
+      const deliveryZip = document.getElementById('lunch-delivery-zip');
+      const deliveryCity = document.getElementById('lunch-delivery-city');
+      const receiptFulfillment = document.getElementById('lunch-receipt-fulfillment');
+      const receiptDay = document.getElementById('lunch-receipt-day');
+      const receiptDish = document.getElementById('lunch-receipt-dish');
+      const receiptDate = document.getElementById('lunch-receipt-date');
+      const receiptQty = document.getElementById('lunch-receipt-qty');
+      const receiptTotal = document.getElementById('lunch-receipt-total');
+      const receiptDeliveryFee = document.getElementById('lunch-receipt-delivery-fee');
+      const receiptMinOrder = document.getElementById('lunch-receipt-min-order');
+      const receiptBwNote = document.getElementById('lunch-bw-receipt-note');
+      const fmt         = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      let bundeswehrVerified = false;
+
+      function setDeliveryFieldsReadonly(readonly) {
+        [deliveryStreet, deliveryNumber, deliveryZip, deliveryCity].forEach(field => {
+          if (!field) return;
+          field.readOnly = !!readonly;
+        });
+      }
+
+      function resetBundeswehrState() {
+        bundeswehrVerified = false;
+        if (bwToggleBtn) bwToggleBtn.setAttribute('aria-pressed', 'false');
+        if (bwCodePanel) bwCodePanel.hidden = true;
+        if (bwCodeInput) bwCodeInput.value = '';
+        if (bwCodeFeedback) {
+          bwCodeFeedback.classList.remove('checkout-hint-warning', 'feedback-success');
+          bwCodeFeedback.textContent = 'Aktiviere die Kachel, um Bundeswehr-Vorteile zu nutzen.';
+        }
+        setDeliveryFieldsReadonly(false);
+        renderPickupTimeOptions();
+      }
+
+      function renderPickupTimeOptions() {
+        if (!timeField) return;
+        const mode = form?.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
+        const previous = timeField.value;
+        const options = bundeswehrVerified && mode === 'delivery'
+          ? ['12:00', '13:00']
+          : ['11:00','11:15','11:30','11:45','12:00','12:15','12:30','12:45','13:00','13:15','13:30','13:45','14:00','14:15','14:30','14:45','15:00','15:15','15:30'];
+        timeField.innerHTML = `<option value="">Bitte wählen</option>${options.map(value => `<option value="${value}">${value} Uhr</option>`).join('')}`;
+        if (options.includes(previous)) {
+          timeField.value = previous;
+        }
+      }
+
+      function loadLunchPlan() {
+        try {
+          const stored = JSON.parse(localStorage.getItem(LUNCH_PLAN_KEY) || 'null');
+          return stored && typeof stored === 'object'
+            ? { ...DEFAULT_LUNCH_PLAN, ...stored }
+            : { ...DEFAULT_LUNCH_PLAN };
+        } catch {
+          return { ...DEFAULT_LUNCH_PLAN };
+        }
+      }
+
+      function refreshLunchPlan() {
+        LUNCH_MENU = loadLunchPlan();
+        disablePastDayOptions();
+        renderLunchPlanUI();
+        updateForm();
+      }
+
+      function renderLunchPlanUI() {
+        const sidebar = document.getElementById('res-wochenplan-list');
+        const stock = loadLunchStock();
+        const todayWeekday = getTodayWeekday();
+        if (weekplanChooser) {
+          weekplanChooser.innerHTML = LUNCH_WEEKDAYS.map(({ day, weekday }) => {
+            const item = LUNCH_MENU[day];
+            const available = item?.dish ? getStockValue(stock, item.dish) : NaN;
+            const soldOut = item && item.dish && Number.isFinite(available) && available <= 0;
+            const disabled = weekday < todayWeekday || !item?.dish || soldOut;
+            const status = soldOut ? 'Ausverkauft' : (disabled ? 'Nicht verfügbar' : 'Auswählen');
+            return `
+              <button type="button" class="lunch-weekplan-option${dayField?.value === day ? ' is-active' : ''}" data-lunch-day="${escapeHtml(day)}"${disabled ? ' disabled' : ''}>
+                <strong>${escapeHtml(day)}</strong>
+                <span>${escapeHtml(item?.dish || 'Ausverkauft')}</span>
+                <em>${item?.dish ? formatPrice(item.price) : '–'}</em>
+                <small>${status}</small>
+              </button>
+            `;
+          }).join('');
+        }
+        if (sidebar) {
+          sidebar.innerHTML = LUNCH_WEEKDAYS.map(({ day }) => {
+            const item = LUNCH_MENU[day];
+            const available = item?.dish ? getStockValue(stock, item.dish) : NaN;
+            const soldOut = item && item.dish && Number.isFinite(available) && available <= 0;
+            return item && item.dish
+              ? `<li><span class="res-wochentag">${escapeHtml(day.slice(0, 2))}</span><span class="res-dish-name">${escapeHtml(item.dish)}${soldOut ? ' · Ausverkauft' : ''}</span><span class="res-dish-price">${soldOut ? '–' : formatPrice(item.price)}</span></li>`
+              : `<li><span class="res-wochentag">${escapeHtml(day.slice(0, 2))}</span><span class="res-dish-name">Ausverkauft</span><span class="res-dish-price">–</span></li>`;
+          }).join('');
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function formatPrice(value) {
+        return `${fmt.format(Number(value) || 0)} €`;
+      }
+
+      function normalizeStockKey(value) {
+        return String(value || '')
+          .trim()
+          .toLocaleLowerCase('de-DE')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-');
+      }
+
+      function getStockValue(stock, dish) {
+        const normalized = normalizeStockKey(dish);
+        const exact = Number(stock[dish]);
+        if (Number.isFinite(exact)) return exact;
+        const normalizedValue = Number(stock[normalized]);
+        if (Number.isFinite(normalizedValue)) return normalizedValue;
+        return NaN;
+      }
+
+      function setStockValue(stock, dish, value) {
+        const normalized = normalizeStockKey(dish);
+        stock[normalized] = value;
+      }
+
+      function handleFulfillmentChange() {
+        const mode = form?.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
+        const isDelivery = mode === 'delivery';
+        if (deliveryFields) deliveryFields.hidden = !isDelivery;
+        if (bundeswehrBox) bundeswehrBox.hidden = false;
+        if (!isDelivery) {
+          setDeliveryFieldsReadonly(false);
+        }
+        [deliveryStreet, deliveryNumber, deliveryZip, deliveryCity].forEach(field => {
+          if (!field) return;
+          if (isDelivery) field.setAttribute('required', 'required');
+          else {
+            field.removeAttribute('required');
+            field.value = '';
+          }
+        });
+        renderPickupTimeOptions();
+        const dateLabelEl = document.getElementById('lunch-date-field-label');
+        const timeLabelEl = document.getElementById('lunch-time-field-label');
+        if (dateLabelEl) dateLabelEl.textContent = isDelivery ? 'Lieferdatum' : 'Abholdatum';
+        if (timeLabelEl) timeLabelEl.textContent = isDelivery ? 'Lieferzeit' : 'Abholzeit';
+      }
+
+      function getTodayWeekday() {
+        const js = new Date().getDay();
+        return js === 0 ? 7 : js; // Mo=1 ... So=7
+      }
+
+      function getSameWeekDate(targetWeekday) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayWeekday = getTodayWeekday();
+        if (targetWeekday < todayWeekday || targetWeekday > 5) return null;
+        const date = new Date(today);
+        date.setDate(date.getDate() + (targetWeekday - todayWeekday));
+        return date;
+      }
+
+      function disablePastDayOptions() {
+        const todayWeekday = getTodayWeekday();
+        const stock = loadLunchStock();
+        Array.from(dayField?.options || []).forEach(option => {
+          if (!option.value || !LUNCH_MENU[option.value]) return;
+          const target = LUNCH_MENU[option.value].weekday;
+          const menu = LUNCH_MENU[option.value];
+          const available = menu?.dish ? getStockValue(stock, menu.dish) : NaN;
+          option.disabled = target < todayWeekday || !menu.dish || (Number.isFinite(available) && available <= 0);
+        });
+      }
+
+      function loadLunchStock() {
+        try {
+          return JSON.parse(localStorage.getItem(LUNCH_STOCK_KEY) || '{}') || {};
+        } catch {
+          return {};
+        }
+      }
+
+      function saveLunchStock(stock) {
+        localStorage.setItem(LUNCH_STOCK_KEY, JSON.stringify(stock || {}));
+      }
+
+      function ensureLunchSequence() {
+        const existing = Number(localStorage.getItem(LUNCH_SEQUENCE_KEY) || '0');
+        if (existing > 0) return;
+        const pending = JSON.parse(localStorage.getItem(LUNCH_STORAGE_KEY) || '[]');
+        const done = JSON.parse(localStorage.getItem(LUNCH_DONE_STORAGE_KEY) || '[]');
+        const all = [...pending, ...done];
+        const maxSeq = all.reduce((max, entry) => {
+          const raw = String(entry?.internalNumber || entry?.id || '');
+          const match = raw.match(/^M(\d{4,})$/i);
+          if (!match) return max;
+          const num = Number(match[1]);
+          return Number.isFinite(num) ? Math.max(max, num) : max;
+        }, 0);
+        localStorage.setItem(LUNCH_SEQUENCE_KEY, String(maxSeq));
+      }
+
+      function getNextLunchNumber() {
+        ensureLunchSequence();
+        const current = Number(localStorage.getItem(LUNCH_SEQUENCE_KEY) || '0');
+        const next = current + 1;
+        localStorage.setItem(LUNCH_SEQUENCE_KEY, String(next));
+        return `M${String(next).padStart(4, '0')}`;
+      }
+
+      function getNextPickupCode() {
+        const current = Number(localStorage.getItem(PICKUP_CODE_INDEX_KEY) || '0');
+        const code = PICKUP_CODES[current % PICKUP_CODES.length];
+        localStorage.setItem(PICKUP_CODE_INDEX_KEY, String(current + 1));
+        return code;
+      }
+
+      function toISODate(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
+
+      function showStep(step) {
+        if (step1Panel) step1Panel.hidden = step !== 1;
+        if (step2Panel) step2Panel.hidden = step !== 2;
+        if (receiptPanel) receiptPanel.hidden = step !== 2;
+        if (lunchLayout) lunchLayout.classList.toggle('is-step-1', step === 1);
+      }
+
+      function updateForm() {
+        const selected = dayField?.value;
+        const menu     = selected ? LUNCH_MENU[selected] : null;
+        const mode = form?.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
+        const stock = loadLunchStock();
+        let qty      = Math.max(1, Number.parseInt(qtyField?.value || '1', 10) || 1);
+
+        // Dish
+        if (dishField) dishField.value = menu && menu.dish ? menu.dish : '';
+
+        // Auto-date (readonly)
+        if (dateField) {
+          if (menu && menu.dish) {
+            const sameWeek = getSameWeekDate(menu.weekday);
+            if (sameWeek) {
+              dateField.value = toISODate(sameWeek);
+              const label = sameWeek.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+              if (dateLabel) dateLabel.textContent = label;
+            } else {
+              dateField.value = '';
+              if (dateLabel) dateLabel.textContent = 'Dieser Tag ist in dieser Woche nicht mehr verfügbar.';
+            }
+          } else {
+            dateField.value = '';
+            if (dateLabel) dateLabel.textContent = 'Wochentag wählen ↑';
+          }
+        }
+
+        // Price
+        let total = menu ? qty * menu.price : null;
+        if (menu && menu.dish) {
+          const available = getStockValue(stock, menu.dish);
+          const hasLimitedStock = Number.isFinite(available) && available >= 0;
+          if (hasLimitedStock) {
+            if (qtyField) qtyField.max = '20';
+            if (available <= 0) {
+              if (stockHint) {
+                stockHint.classList.add('checkout-hint-warning');
+                stockHint.textContent = `${menu.dish} ist aktuell ausverkauft.`;
+              }
+              if (submitBtn) submitBtn.disabled = true;
+              total = null;
+            } else if (qty > available) {
+              if (stockHint) {
+                stockHint.classList.add('checkout-hint-warning');
+                stockHint.textContent = `Nur noch maximal ${available} verfügbar. (gerne im Laden anrufen und nachfragen)`;
+              }
+              if (submitBtn) submitBtn.disabled = true;
+              total = null;
+            } else {
+              total = qty * menu.price;
+              if (stockHint) {
+                stockHint.classList.remove('checkout-hint-warning');
+                stockHint.textContent = `Verfügbar: ${available} Portion(en)`;
+              }
+              if (submitBtn) submitBtn.disabled = false;
+            }
+          } else {
+            if (qtyField) qtyField.max = '20';
+            if (qtyField) qtyField.value = String(qty);
+            if (stockHint) {
+              stockHint.classList.remove('checkout-hint-warning');
+              stockHint.textContent = '';
+            }
+            if (submitBtn) submitBtn.disabled = false;
+          }
+        } else {
+          if (qtyField) qtyField.max = '20';
+          if (qtyField) qtyField.value = String(qty);
+          if (stockHint) {
+            stockHint.classList.remove('checkout-hint-warning');
+            stockHint.textContent = '';
+          }
+          if (submitBtn) submitBtn.disabled = false;
+        }
+        if (priceValue) priceValue.textContent = total !== null ? `${fmt.format(total)} €` : '–';
+
+        if (receiptFulfillment) receiptFulfillment.textContent = mode === 'delivery' ? 'Lieferung' : 'Abholung';
+        if (receiptDay) receiptDay.textContent = selected || '–';
+        if (receiptDish) receiptDish.textContent = menu?.dish || '–';
+        if (receiptDate) {
+          const label = dateLabel?.textContent?.trim() || '';
+          receiptDate.textContent = label && label !== 'Wochentag wählen ↑' ? label : '–';
+        }
+        if (receiptQty) receiptQty.textContent = String(qty || 1);
+        if (receiptTotal) receiptTotal.textContent = total !== null ? `${fmt.format(total)} €` : '–';
+        if (receiptDeliveryFee) {
+          if (mode !== 'delivery') {
+            receiptDeliveryFee.textContent = '–';
+          } else if (bundeswehrVerified) {
+            receiptDeliveryFee.innerHTML = `<s>${fmt.format(DELIVERY_FEE)} €</s> <span class="receipt-benefit">0,00 €</span>`;
+          } else {
+            receiptDeliveryFee.textContent = `${fmt.format(DELIVERY_FEE)} €`;
+          }
+        }
+        if (receiptMinOrder) {
+          if (mode !== 'delivery') {
+            receiptMinOrder.textContent = '–';
+          } else if (bundeswehrVerified) {
+            receiptMinOrder.innerHTML = `<s>${fmt.format(DELIVERY_MIN_ORDER)} €</s> <span class="receipt-benefit">0,00 €</span>`;
+          } else {
+            receiptMinOrder.textContent = `${fmt.format(DELIVERY_MIN_ORDER)} €`;
+          }
+        }
+        if (receiptBwNote) {
+          receiptBwNote.hidden = !(mode === 'delivery' && bundeswehrVerified);
+        }
+      }
+
+      dayField?.addEventListener('change', () => {
+        renderLunchPlanUI();
+        updateForm();
+      });
+      qtyField?.addEventListener('input', updateForm);
+      bwToggleBtn?.addEventListener('click', () => {
+        if (bundeswehrVerified) {
+          resetBundeswehrState();
+          if (bwCodeFeedback) bwCodeFeedback.textContent = 'Bundeswehr-Vorteile deaktiviert.';
+          updateForm();
+          return;
+        }
+        if (bwCodePanel) bwCodePanel.hidden = !bwCodePanel.hidden;
+      });
+      bwCodeVerify?.addEventListener('click', () => {
+        const input = (bwCodeInput?.value || '').trim().toLocaleUpperCase('de-DE');
+        const expected = BUNDESWEHR_CODE.toLocaleUpperCase('de-DE');
+        if (input !== expected) {
+          bundeswehrVerified = false;
+          if (bwToggleBtn) bwToggleBtn.setAttribute('aria-pressed', 'false');
+          if (bwCodeFeedback) {
+            bwCodeFeedback.classList.add('checkout-hint-warning');
+            bwCodeFeedback.classList.remove('feedback-success');
+            bwCodeFeedback.textContent = 'Code ungültig. Bitte erneut eingeben.';
+          }
+          updateForm();
+          return;
+        }
+        bundeswehrVerified = true;
+        if (bwToggleBtn) bwToggleBtn.setAttribute('aria-pressed', 'true');
+        if (bwCodePanel) bwCodePanel.hidden = true;
+        if (deliveryStreet) deliveryStreet.value = 'Mörsenbroicher Weg';
+        if (deliveryNumber) deliveryNumber.value = '200';
+        if (deliveryZip) deliveryZip.value = '40470';
+        if (deliveryCity) deliveryCity.value = 'Düsseldorf';
+        setDeliveryFieldsReadonly(true);
+        if (bwCodeFeedback) {
+          bwCodeFeedback.classList.add('feedback-success');
+          bwCodeFeedback.classList.remove('checkout-hint-warning');
+          bwCodeFeedback.textContent = 'Vorteile aktiv: Liefergebühr 0,00 € und Mindestbestellwert 0,00 €.';
+        }
+        renderPickupTimeOptions();
+        updateForm();
+      });
+      fulfillmentRadios.forEach(radio => radio.addEventListener('change', () => {
+        handleFulfillmentChange();
+        updateForm();
+      }));
+      weekplanChooser?.addEventListener('click', event => {
+        const btn = event.target.closest('[data-lunch-day]');
+        if (!btn || btn.disabled || !dayField) return;
+        dayField.value = btn.getAttribute('data-lunch-day') || '';
+        renderLunchPlanUI();
+        updateForm();
+      });
+      step1NextBtn?.addEventListener('click', () => {
+        if (feedback) {
+          feedback.classList.remove('feedback-success');
+          feedback.textContent = '';
+        }
+        const selectedDay = dayField?.value || '';
+        const selectedTime = timeField?.value || '';
+        const isDisabled = submitBtn?.disabled;
+        if (!selectedDay || !selectedTime) {
+          if (feedback) feedback.textContent = 'Bitte wähle zuerst Wochentag, Abholzeit und Menge.';
+          return;
+        }
+        if (isDisabled) {
+          if (feedback) feedback.textContent = 'Bitte korrigiere zuerst die Auswahl in Schritt 1.';
+          return;
+        }
+        showStep(2);
+      });
+      step2BackBtn?.addEventListener('click', () => {
+        if (feedback) feedback.textContent = '';
+        showStep(1);
+      });
+      disablePastDayOptions();
+      renderPickupTimeOptions();
+      handleFulfillmentChange();
+      renderLunchPlanUI();
+      updateForm();
+      showStep(1);
+      window.SBPlatform?.trackEvent?.('reservation_started');
+
+      window.addEventListener('storage', (event) => {
+        if (event.key === LUNCH_PLAN_KEY || event.key === LUNCH_STOCK_KEY) {
+          refreshLunchPlan();
+        }
+      });
+
+      form?.addEventListener('submit', event => {
+        event.preventDefault();
+        if (feedback) feedback.textContent = '';
+        window.SBPlatform?.trackEvent?.('reservation_submit_attempt', { mode: 'guest' });
+
+        const data         = new FormData(form);
+        const firstname    = data.get('firstname')?.toString().trim() || '';
+        const lastname     = data.get('lastname')?.toString().trim() || '';
+        const phone        = data.get('phone')?.toString().trim() || '';
+        const email        = data.get('email')?.toString().trim() || '';
+        const day          = data.get('day')?.toString() || '';
+        const pickupDate   = data.get('pickupDate')?.toString() || '';
+        const pickupTime   = data.get('pickupTime')?.toString() || '';
+        const fulfillment  = data.get('fulfillment')?.toString() || 'pickup';
+        const quantity     = Math.max(1, Number.parseInt((data.get('quantity') || '1').toString(), 10) || 1);
+        const notes        = data.get('notes')?.toString().trim() || '';
+        const deliveryStreetValue = data.get('deliveryStreet')?.toString().trim() || '';
+        const deliveryNumberValue = data.get('deliveryNumber')?.toString().trim() || '';
+        const deliveryZipValue = data.get('deliveryZip')?.toString().trim() || '';
+        const deliveryCityValue = data.get('deliveryCity')?.toString().trim() || '';
+        const paymentMethod = data.get('paymentMethod')?.toString() || 'Vor Ort';
+        const termsOk      = data.get('terms') === 'on';
+        const contractOk   = data.get('contract') === 'on';
+
+        if (!firstname || !lastname || !phone || !email || !day || !pickupDate || !pickupTime) {
+          if (feedback) feedback.textContent = 'Bitte fülle alle Pflichtfelder aus.';
+          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'required-fields', email });
+          return;
+        }
+        const menu = LUNCH_MENU[day];
+        if (!menu || !menu.dish) {
+          if (feedback) feedback.textContent = 'Bitte wähle einen gültigen Wochentag.';
+          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'invalid-day', email });
+          return;
+        }
+        const sameWeekDate = getSameWeekDate(menu.weekday);
+        if (!sameWeekDate) {
+          if (feedback) feedback.textContent = 'Dieser Wochentag ist in dieser Woche nicht mehr reservierbar.';
+          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'same-week-only', email });
+          return;
+        }
+        if (pickupDate !== toISODate(sameWeekDate)) {
+          if (feedback) feedback.textContent = 'Reservierungen sind nur für die aktuelle Woche möglich.';
+          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'date-mismatch', email });
+          return;
+        }
+        if (pickupTime < '11:00' || pickupTime > '15:30') {
+          if (feedback) feedback.textContent = 'Bitte wähle eine Abholzeit zwischen 11:00 und 15:30 Uhr.';
+          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'pickup-time', email });
+          return;
+        }
+        if (fulfillment === 'delivery' && bundeswehrVerified && !['12:00', '13:00'].includes(pickupTime)) {
+          if (feedback) feedback.textContent = 'Mit Bundeswehr-Vorteilen sind nur Lieferzeiten 12:00 oder 13:00 Uhr möglich.';
+          return;
+        }
+        if (fulfillment === 'delivery') {
+          if (!deliveryStreetValue || !deliveryNumberValue || !deliveryZipValue || !deliveryCityValue) {
+            if (feedback) feedback.textContent = 'Bitte gib für die Lieferung eine vollständige Adresse an.';
+            return;
+          }
+          if (!/^\d{5}$/.test(deliveryZipValue)) {
+            if (feedback) feedback.textContent = 'Bitte gib eine gültige Postleitzahl (5 Stellen) an.';
+            return;
+          }
+        }
+        if (!termsOk || !contractOk) {
+          if (feedback) feedback.textContent = 'Bitte bestätige AGB und die zahlungspflichtige Reservierung.';
+          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'terms', email });
+          return;
+        }
+
+        const stock = loadLunchStock();
+        const available = getStockValue(stock, menu.dish);
+        const hasLimitedStock = Number.isFinite(available) && available >= 0;
+        if (hasLimitedStock && available <= 0) {
+          if (feedback) feedback.textContent = `${menu.dish} ist aktuell ausverkauft.`;
+          updateForm();
+          return;
+        }
+        if (hasLimitedStock && quantity > available) {
+          if (feedback) feedback.textContent = `Für ${menu.dish} sind nur noch ${available} Portion(en) verfügbar.`;
+          updateForm();
+          return;
+        }
+
+        const total = menu.price * quantity;
+        const internalNumber = getNextLunchNumber();
+        const pickupCode = getNextPickupCode();
+        const reservation = {
+          id: internalNumber,
+          internalNumber,
+          pickupCode,
+          createdAt: new Date().toISOString(),
+          customer: { name: `${firstname} ${lastname}`, firstname, lastname, phone, email },
+          reservation: {
+            day, pickupDate, pickupTime,
+            fulfillment,
+            dish: menu.dish,
+            unitPrice: menu.price,
+            quantity, total, notes,
+            paymentMethod,
+            bundeswehrDelivery: fulfillment === 'delivery' ? bundeswehrVerified : false,
+            location: fulfillment === 'delivery'
+              ? `${deliveryStreetValue} ${deliveryNumberValue}, ${deliveryZipValue} ${deliveryCityValue}`
+              : 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+            deliveryAddress: fulfillment === 'delivery'
+              ? {
+                  street: deliveryStreetValue,
+                  number: deliveryNumberValue,
+                  zip: deliveryZipValue,
+                  city: deliveryCityValue
+                }
+              : null
+          },
+          contract: {
+            agbAccepted: true,
+            bindingReservationAccepted: true,
+            concluded: true,
+            text: 'Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.'
+          },
+          status: 'reserviert'
+        };
+
+        const existing = JSON.parse(localStorage.getItem(LUNCH_STORAGE_KEY) || '[]');
+        existing.push(reservation);
+        localStorage.setItem(LUNCH_STORAGE_KEY, JSON.stringify(existing));
+        if (hasLimitedStock) {
+          setStockValue(stock, menu.dish, Math.max(0, available - quantity));
+          saveLunchStock(stock);
+        }
+        const currentUser = window.SBPlatform?.getCurrentUser?.();
+        if (currentUser && currentUser.email === email.toLowerCase()) {
+          window.SBPlatform?.updateCurrentUser?.({
+            firstName: firstname,
+            lastName: lastname,
+            phone,
+            lastReservationAt: new Date().toISOString()
+          });
+        }
+        window.SBPlatform?.trackEvent?.('reservation_submitted', {
+          email,
+          mode: 'guest',
+          dish: menu.dish,
+          total
+        });
+
+        form.reset();
+        if (qtyField) qtyField.value = '1';
+        resetBundeswehrState();
+        renderPickupTimeOptions();
+        showStep(1);
+        disablePastDayOptions();
+        renderLunchPlanUI();
+        updateForm();
+
+        // Bestätigungs-Modal anzeigen
+        const modal       = document.getElementById('lunch-confirm-modal');
+        const msgEl       = document.getElementById('lunch-confirm-msg');
+        const pickupBlock = document.getElementById('lunch-confirm-pickup-block');
+        const codeEl      = document.getElementById('lunch-confirm-code');
+        const delivBlock  = document.getElementById('lunch-confirm-delivery-block');
+        const timeEl      = document.getElementById('lunch-confirm-delivery-time');
+
+        const dateFormatted = new Date(pickupDate + 'T12:00:00').toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+        msgEl.textContent = `✓ Deine Reservierung für ${menu.dish} am ${dateFormatted} wurde erfolgreich aufgegeben.`;
+
+        if (fulfillment === 'delivery') {
+          pickupBlock.hidden = true;
+          delivBlock.hidden  = false;
+          timeEl.textContent = pickupTime + ' Uhr';
+
+          const printData = reservation;
+          document.getElementById('lunch-confirm-print').onclick = () => {
+            const w = window.open('', '_blank');
+            w.document.write(`<html><head><title>Bestellübersicht</title><style>body{font-family:sans-serif;padding:2rem;max-width:520px;margin:auto}h2{margin-bottom:1rem}table{width:100%;border-collapse:collapse}td{padding:0.4rem 0;border-bottom:1px solid #eee}td:last-child{text-align:right;font-weight:600}</style></head><body>
+              <h2>Bestellübersicht – Simonsbrotkörbchen</h2>
+              <table>
+                <tr><td>Name</td><td>${printData.customer.firstname} ${printData.customer.lastname}</td></tr>
+                <tr><td>Telefon</td><td>${printData.customer.phone}</td></tr>
+                <tr><td>E-Mail</td><td>${printData.customer.email}</td></tr>
+                <tr><td>Gericht</td><td>${printData.reservation.dish}</td></tr>
+                <tr><td>Datum</td><td>${dateFormatted}</td></tr>
+                <tr><td>Lieferzeit</td><td>${printData.reservation.pickupTime} Uhr</td></tr>
+                <tr><td>Menge</td><td>${printData.reservation.quantity}</td></tr>
+                <tr><td>Lieferadresse</td><td>${printData.reservation.location}</td></tr>
+                <tr><td>Zahlungsart</td><td>${printData.reservation.paymentMethod}</td></tr>
+                <tr><td>Gesamt</td><td>${fmt.format(printData.reservation.total)} €</td></tr>
+              </table>
+            </body></html>`);
+            w.document.close();
+            w.print();
+          };
+          document.getElementById('lunch-confirm-pdf').onclick = () => {
+            const w = window.open('', '_blank');
+            w.document.write(`<html><head><title>Bestellübersicht</title><style>body{font-family:sans-serif;padding:2rem;max-width:520px;margin:auto}h2{margin-bottom:1rem}table{width:100%;border-collapse:collapse}td{padding:0.4rem 0;border-bottom:1px solid #eee}td:last-child{text-align:right;font-weight:600}@media print{body{padding:0}}</style></head><body>
+              <h2>Bestellübersicht – Simonsbrotkörbchen</h2>
+              <table>
+                <tr><td>Name</td><td>${printData.customer.firstname} ${printData.customer.lastname}</td></tr>
+                <tr><td>Telefon</td><td>${printData.customer.phone}</td></tr>
+                <tr><td>E-Mail</td><td>${printData.customer.email}</td></tr>
+                <tr><td>Gericht</td><td>${printData.reservation.dish}</td></tr>
+                <tr><td>Datum</td><td>${dateFormatted}</td></tr>
+                <tr><td>Lieferzeit</td><td>${printData.reservation.pickupTime} Uhr</td></tr>
+                <tr><td>Menge</td><td>${printData.reservation.quantity}</td></tr>
+                <tr><td>Lieferadresse</td><td>${printData.reservation.location}</td></tr>
+                <tr><td>Zahlungsart</td><td>${printData.reservation.paymentMethod}</td></tr>
+                <tr><td>Gesamt</td><td>${fmt.format(printData.reservation.total)} €</td></tr>
+              </table>
+              <script>window.onload=()=>{window.print();}<\/script>
+            </body></html>`);
+            w.document.close();
+          };
+        } else {
+          delivBlock.hidden  = true;
+          pickupBlock.hidden = false;
+          codeEl.textContent = pickupCode;
+        }
+
+        modal.classList.add('is-visible');
+
+        const closeModal = () => {
+          modal.classList.remove('is-visible');
+          window.location.href = 'index.html';
+        };
+        document.getElementById('lunch-confirm-close').onclick = closeModal;
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); }, { once: true });
+      });
+    })();
+
+  </script>
+</body>
+</html>
