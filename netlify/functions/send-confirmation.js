@@ -70,6 +70,19 @@ exports.handler = async (event) => {
     const orderType = String(payload.order_type || 'Bestellung');
     const orderNumber = String(payload.order_number || '-');
     const pickupCode = String(payload.pickup_code || '-');
+    const modeLabel = /liefer/i.test(fulfillmentType) ? 'Lieferung' : 'Abholung';
+    const isDelivery = modeLabel === 'Lieferung';
+    const locationDisplay = modeLabel === 'Abholung'
+      ? 'Lenaustraße 1, 40472 Düsseldorf (Simonsbrotkörbchen Filiale)'
+      : location;
+    const codeBoxHtml = isDelivery ? '' : `
+        <div style="margin:18px 0;padding:14px;border:2px dashed #c8a96e;background:#fff9ee;text-align:center;border-radius:8px;">
+          <div style="font-size:12px;color:#7d6b59;">Dein Abholcode</div>
+          <div style="font-size:26px;font-weight:700;letter-spacing:0.06em;">${pickupCode}</div>
+        </div>
+
+        <p style="font-size:13px;color:#7d6b59;">Bitte zeige den Abholcode bei der Abholung vor.</p>
+    `;
 
     const htmlContent = `
       <div style="font-family:Arial,sans-serif;max-width:620px;margin:0 auto;color:#2d1f0e;line-height:1.5;">
@@ -80,19 +93,13 @@ exports.handler = async (event) => {
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Art</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${orderType}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Bestellnummer</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${orderNumber}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Artikel</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${itemsText}</td></tr>
-          <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Termin</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${dateTime}</td></tr>
-          <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Übergabe</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${fulfillmentType}</td></tr>
-          <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Ort/Adresse</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${location}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">${modeLabel}</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${dateTime}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Ort/Adresse</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${locationDisplay}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Betrag</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${totalPrice}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Zahlungsart</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${paymentMethod}</td></tr>
         </table>
 
-        <div style="margin:18px 0;padding:14px;border:2px dashed #c8a96e;background:#fff9ee;text-align:center;border-radius:8px;">
-          <div style="font-size:12px;color:#7d6b59;">Dein Bestätigungscode</div>
-          <div style="font-size:26px;font-weight:700;letter-spacing:0.06em;">${pickupCode}</div>
-        </div>
-
-        <p style="font-size:13px;color:#7d6b59;">Bitte zeige den Code bei Abholung/Lieferung vor.</p>
+        ${codeBoxHtml}
       </div>
     `;
 
@@ -103,12 +110,11 @@ exports.handler = async (event) => {
       `Art: ${orderType}`,
       `Bestellnummer: ${orderNumber}`,
       `Artikel: ${itemsText}`,
-      `Termin: ${dateTime}`,
-      `Übergabe: ${fulfillmentType}`,
-      `Ort/Adresse: ${location}`,
+      `${modeLabel}: ${dateTime}`,
+      `Ort/Adresse: ${locationDisplay}`,
       `Betrag: ${totalPrice}`,
       `Zahlungsart: ${paymentMethod}`,
-      `Bestätigungscode: ${pickupCode}`,
+      ...(isDelivery ? [] : [`Abholcode: ${pickupCode}`]),
       '',
       'Danke für deine Bestellung bei Simonsbrotkörbchen.'
     ].join('\n');
