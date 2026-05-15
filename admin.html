@@ -429,7 +429,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
           notes: row.notes || '',
           paymentMethod: row.payment_method || 'Vor Ort',
           bundeswehrDelivery: !!row.bundeswehr_delivery,
-          location: row.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+          location: row.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf',
           deliveryAddress: row.fulfillment === 'delivery'
             ? {
                 street: row.delivery_street || '',
@@ -893,7 +893,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
       content += `Menge: ${lunch.quantity || 1}\n`;
       content += `Einzelpreis: ${typeof lunch.unitPrice === 'number' ? lunch.unitPrice.toFixed(2) : '0.00'} €\n`;
       content += `Gesamt: ${typeof lunch.total === 'number' ? lunch.total.toFixed(2) : '0.00'} €\n`;
-      content += `Abholort: ${lunch.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf'}\n`;
+      content += `Abholort: ${lunch.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf'}\n`;
       if (reservation.pickupCode) content += `Abholcode: ${reservation.pickupCode}\n`;
       if (lunch.notes) content += `Hinweis: ${lunch.notes}\n`;
       content += `\nVertrag:\n`;

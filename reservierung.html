@@ -24,7 +24,6 @@
       </button>
       <nav class="site-nav" id="primary-navigation" data-nav>
         <a class="nav-link" href="index.html">Startseite</a>
-        <a class="nav-link" href="jetzt-bestellen.html">Jetzt Bestellen</a>
         <a class="nav-link" href="gerichtswunsch.html">Gerichtswunsch</a>
         <a class="nav-link" href="gallery.html">Galerie</a>
         <a class="nav-link" href="contact.html">Kontakt</a>
@@ -240,8 +239,8 @@
         <div class="footer-hours">
           <h4 class="footer-heading">Öffnungszeiten</h4>
           <ul class="footer-links">
-            <li>Mo – Fr: 06:30 – 17:00 Uhr</li>
-            <li>Sa: 07:00 – 14:00 Uhr</li>
+            <li>Mo – Fr: 05:30 – 15:30 Uhr</li>
+            <li>Sa: 06:30 – 12:00 Uhr</li>
             <li>So: geschlossen</li>
             <li>Mittagstisch: 11:00 – 15:00 Uhr</li>
           </ul>
@@ -249,9 +248,9 @@
         <div class="footer-contact">
           <h4 class="footer-heading">Kontakt</h4>
           <ul class="footer-links">
-            <li>Lenaustraße 1<br>40472 Düsseldorf</li>
-            <li>0211 · 000000</li>
-            <li><a href="mailto:info@simonsbrotkoerbchen.de">info@simons&shy;brotkoerbchen.de</a></li>
+            <li>Lenaustraße 1<br>40470 Düsseldorf</li>
+            <li>0211 60166103</li>
+            <li><a href="mailto:info@simons-brotkoerbchen.de">info@simons-brotkoerbchen.de</a></li>
           </ul>
         </div>
       </div>
@@ -533,7 +532,7 @@
             notes: row.notes || '',
             paymentMethod: row.payment_method || 'Vor Ort',
             bundeswehrDelivery: !!row.bundeswehr_delivery,
-            location: row.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+            location: row.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf',
             deliveryAddress: row.fulfillment === 'delivery'
               ? {
                   street: row.delivery_street || '',
@@ -1067,7 +1066,7 @@
               bundeswehr_delivery: fulfillment === 'delivery' ? bundeswehrVerified : false,
               location: fulfillment === 'delivery'
                 ? `${deliveryStreetValue} ${deliveryNumberValue}, ${deliveryZipValue} ${deliveryCityValue}`
-                : 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+                : 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf',
               delivery_street: deliveryStreetValue,
               delivery_number: deliveryNumberValue,
               delivery_zip: deliveryZipValue,
@@ -1104,7 +1103,7 @@
               bundeswehrDelivery: fulfillment === 'delivery' ? bundeswehrVerified : false,
               location: fulfillment === 'delivery'
                 ? `${deliveryStreetValue} ${deliveryNumberValue}, ${deliveryZipValue} ${deliveryCityValue}`
-                : 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+                : 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf',
               deliveryAddress: fulfillment === 'delivery'
                 ? {
                     street: deliveryStreetValue,
@@ -1169,8 +1168,8 @@
         const dateFormatted = new Date(pickupDate + 'T12:00:00').toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
         msgEl.textContent = `✓ Deine Reservierung für ${menu.dish} am ${dateFormatted} wurde erfolgreich aufgegeben.`;
 
-        // Bestätigungs-E-Mail senden
-        const emailSent = await sendConfirmationEmail({
+        // Bestätigungs-E-Mail senden (asynchron, damit Popup sofort erscheint)
+        sendConfirmationEmail({
           to_name:          `${firstname} ${lastname}`,
           to_email:         email,
           order_type:       'Mittagstisch-Reservierung',
@@ -1179,13 +1178,14 @@
           items_text:       `${quantity}× ${menu.dish}`,
           date_time:        `${dateFormatted}, ${pickupTime} Uhr`,
           fulfillment_type: fulfillment === 'delivery' ? 'Lieferung' : 'Abholung in der Filiale',
-          location:         String(reservation.reservation?.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf'),
+          location:         String(reservation.reservation?.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf'),
           total_price:      `${(Number(reservation.reservation?.total || 0)).toFixed(2).replace('.', ',')} €`,
           payment_method:   paymentMethod
+        }).then(emailSent => {
+          if (!emailSent) {
+            msgEl.textContent += ' (Hinweis: E-Mail konnte gerade nicht zugestellt werden.)';
+          }
         });
-        if (!emailSent) {
-          msgEl.textContent += ' (Hinweis: E-Mail konnte gerade nicht zugestellt werden.)';
-        }
 
         if (fulfillment === 'delivery') {
           pickupBlock.hidden = true;

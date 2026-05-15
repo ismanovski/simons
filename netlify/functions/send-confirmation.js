@@ -73,7 +73,7 @@ exports.handler = async (event) => {
     const modeLabel = /liefer/i.test(fulfillmentType) ? 'Lieferung' : 'Abholung';
     const isDelivery = modeLabel === 'Lieferung';
     const locationDisplay = modeLabel === 'Abholung'
-      ? 'Lenaustraße 1, 40472 Düsseldorf (Simonsbrotkörbchen Filiale)'
+      ? 'Lenaustraße 1, 40470 Düsseldorf (Simonsbrotkörbchen Filiale)'
       : location;
     const codeBoxHtml = isDelivery ? '' : `
         <div style="margin:18px 0;padding:14px;border:2px dashed #c8a96e;background:#fff9ee;text-align:center;border-radius:8px;">
@@ -91,7 +91,7 @@ exports.handler = async (event) => {
 
         <table style="width:100%;border-collapse:collapse;margin:16px 0;">
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Art</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${orderType}</td></tr>
-          <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Bestellnummer</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${orderNumber}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Bestellnr.</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${orderNumber}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Artikel</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${itemsText}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">${modeLabel}</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${dateTime}</td></tr>
           <tr><td style="padding:8px 0;border-bottom:1px solid #eee;color:#6c5b4a;">Ort/Adresse</td><td style="padding:8px 0;border-bottom:1px solid #eee;font-weight:600;">${locationDisplay}</td></tr>
@@ -108,7 +108,7 @@ exports.handler = async (event) => {
       '',
       'deine Bestellung wurde erfolgreich gespeichert.',
       `Art: ${orderType}`,
-      `Bestellnummer: ${orderNumber}`,
+      `Bestellnr.: ${orderNumber}`,
       `Artikel: ${itemsText}`,
       `${modeLabel}: ${dateTime}`,
       `Ort/Adresse: ${locationDisplay}`,

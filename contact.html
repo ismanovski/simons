@@ -24,11 +24,9 @@
       </button>
       <nav class="site-nav" id="primary-navigation" data-nav>
         <a class="nav-link" href="index.html">Startseite</a>
-        <a class="nav-link" href="jetzt-bestellen.html">Jetzt Bestellen</a>
         <a class="nav-link" href="gallery.html">Galerie</a>
         <a class="nav-link is-active" href="contact.html">Kontakt</a>
-        <a class="nav-link" href="impressum.html">Impressum</a>
-        <a class="btn btn-primary nav-cta" href="jetzt-bestellen.html">Jetzt vorbestellen</a>
+        <a class="btn btn-primary nav-cta" href="jetzt-bestellen.html">Jetzt bestellen</a>
       </nav>
     </div>
   </header>
@@ -51,33 +49,33 @@
           <ul class="info-list">
             <li>
               <strong>Adresse</strong>
-              <span>Lenaustraße 1<br>40472 Düsseldorf</span>
+              <span>Lenaustraße 1<br>40470 Düsseldorf</span>
             </li>
             <li>
               <strong>Telefon</strong>
-              <a href="tel:+49211000000">0211 · 000000</a>
+              <a href="tel:+4921160166103">0211 60166103</a>
             </li>
             <li>
               <strong>E-Mail</strong>
-              <a href="mailto:info@simonsbrotkoerbchen.de">info@simonsbrotkoerbchen.de</a>
+              <a href="mailto:info@simons-brotkoerbchen.de">info@simons-brotkoerbchen.de</a>
             </li>
             <li>
               <strong>Servicezeiten</strong>
-              <span>Mo – Fr · 06:30 – 17:00 Uhr, Sa · 07:00 – 14:00 Uhr</span>
+              <span>Mo – Fr · 05:30 – 15:30 Uhr, Sa · 06:30 – 12:00 Uhr, So geschlossen</span>
             </li>
           </ul>
         </div>
         <div class="contact-card">
           <h2>Nachricht senden</h2>
-          <form class="form" aria-label="Kontaktformular">
+          <form class="form" id="contact-form" aria-label="Kontaktformular" novalidate>
             <label> Name
-              <input type="text" name="name" placeholder="Dein Name" required>
+              <input type="text" name="name" id="cf-name" placeholder="Dein Name" required>
             </label>
             <label> E-Mail
-              <input type="email" name="email" placeholder="deine@mailadresse.de" required>
+              <input type="email" name="email" id="cf-email" placeholder="deine@mailadresse.de" required>
             </label>
             <label> Anliegen
-              <select name="topic" required>
+              <select name="topic" id="cf-topic" required>
                 <option value="">Bitte auswählen</option>
                 <option>Fragen zur Bestellung</option>
                 <option>Firmen- &amp; Eventvorbestellung</option>
@@ -85,10 +83,20 @@
               </select>
             </label>
             <label> Nachricht
-              <textarea name="message" rows="4" placeholder="Wie können wir helfen?" required></textarea>
+              <textarea name="message" id="cf-message" rows="4" placeholder="Wie können wir helfen?" required></textarea>
             </label>
-            <button class="btn btn-primary" type="submit">Nachricht senden</button>
+            <button class="btn btn-primary" type="submit" id="cf-submit">Nachricht senden</button>
           </form>
+        </div>
+
+        <!-- Success Popup -->
+        <div id="contact-success-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+          <div style="background:#fff;border-radius:12px;padding:40px 32px;max-width:400px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.2);">
+            <div style="font-size:48px;margin-bottom:12px;">✅</div>
+            <h3 style="margin:0 0 8px;color:#5c3b1e;">Nachricht gesendet!</h3>
+            <p style="color:#555;margin:0 0 24px;">Vielen Dank! Wir melden uns so schnell wie möglich bei dir.</p>
+            <button onclick="document.getElementById('contact-success-overlay').style.display='none';" class="btn btn-primary">Schließen</button>
+          </div>
         </div>
       </div>
     </section>
@@ -100,7 +108,7 @@
           <h2>Direkt gegenüber der Polizeiwache Mörsenbroich.</h2>
         </div>
         <div class="map-wrapper">
-          <iframe title="Standort Simonsbrotkörbchen" src="https://www.google.com/maps?q=Lenaustra%C3%9Fe%201%2C%2040472%20D%C3%BCsseldorf&output=embed" loading="lazy"></iframe>
+          <iframe title="Standort Simonsbrotkörbchen" src="https://www.google.com/maps?q=Lenaustra%C3%9Fe%201%2C%2040470%20D%C3%BCsseldorf&output=embed" loading="lazy"></iframe>
         </div>
       </div>
     </section>
@@ -131,17 +139,17 @@
         <div class="footer-hours">
           <h4 class="footer-heading">Öffnungszeiten</h4>
           <ul class="footer-links">
-            <li>Mo – Fr: 06:30 – 17:00 Uhr</li>
-            <li>Sa: 07:00 – 14:00 Uhr</li>
+            <li>Mo – Fr: 05:30 – 15:30 Uhr</li>
+            <li>Sa: 06:30 – 12:00 Uhr</li>
             <li>So: geschlossen</li>
           </ul>
         </div>
         <div class="footer-contact">
           <h4 class="footer-heading">Kontakt</h4>
           <ul class="footer-links">
-            <li>Lenaustraße 1<br>40472 Düsseldorf</li>
-            <li>0211 · 000000</li>
-            <li><a href="mailto:info@simonsbrotkoerbchen.de">info@simons­brotkoerbchen.de</a></li>
+            <li>Lenaustraße 1<br>40470 Düsseldorf</li>
+            <li>0211 60166103</li>
+            <li><a href="mailto:info@simons-brotkoerbchen.de">info@simons-brotkoerbchen.de</a></li>
           </ul>
         </div>
       </div>
@@ -168,6 +176,40 @@
         });
       }
     })();
+
+    document.getElementById('contact-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = document.getElementById('cf-submit');
+      btn.disabled = true;
+      btn.textContent = 'Wird gesendet…';
+      const payload = {
+        name: document.getElementById('cf-name').value,
+        email: document.getElementById('cf-email').value,
+        topic: document.getElementById('cf-topic').value,
+        message: document.getElementById('cf-message').value,
+      };
+      try {
+        const endpoint = '/.netlify/functions/send-contact';
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById('contact-form').reset();
+          const overlay = document.getElementById('contact-success-overlay');
+          overlay.style.display = 'flex';
+        } else {
+          alert('Fehler beim Senden. Bitte versuche es erneut oder schreib uns direkt an info@simons-brotkoerbchen.de');
+        }
+      } catch (err) {
+        alert('Verbindungsfehler. Bitte versuche es erneut.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Nachricht senden';
+      }
+    });
   </script>
 </body>
 </html>
