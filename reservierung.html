@@ -519,6 +519,17 @@
           .subscribe();
       }
 
+      function startLunchMenuSyncFallback() {
+        if (!supabaseClient) return;
+        setInterval(() => {
+          syncLunchDataFromSupabase()
+            .then(changed => {
+              if (changed) refreshLunchPlan();
+            })
+            .catch(error => console.error('Supabase Fallback Sync fehlgeschlagen:', error));
+        }, 10000);
+      }
+
       function mapSupabaseOrderToReservation(row) {
         if (!row) return null;
         const pickupTime = cleanTimeValue(row.pickup_time);
@@ -1303,6 +1314,7 @@
         });
 
       subscribeLunchMenuRealtime();
+      startLunchMenuSyncFallback();
     })();
 
   </script>
