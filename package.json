@@ -1,0 +1,9 @@
+{
+  "name": "simonsbrotkoerbchen",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static site with Netlify Functions",
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

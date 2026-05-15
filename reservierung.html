@@ -52,7 +52,7 @@
                   </button>
                   <div id="lunch-bw-code-panel" hidden>
                     <label for="lunch-bw-code-input">Code eingeben
-                      <input type="text" id="lunch-bw-code-input" placeholder="FRÜHSTÜCKSWEHR" autocomplete="off" maxlength="24">
+                      <input type="text" id="lunch-bw-code-input" placeholder="FRÜHSTÜCKSWEHR" autocomplete="off" maxlength="24" style="text-transform:uppercase;">
                     </label>
                     <button class="btn btn-outline" type="button" id="lunch-bw-code-verify">Code prüfen</button>
                   </div>
@@ -260,7 +260,6 @@
         <div class="footer-bottom-links">
           <a href="impressum.html">Impressum</a>
           <a href="agb.html">AGB</a>
-          <a href="admin.html">Admin</a>
         </div>
       </div>
     </div>
@@ -327,6 +326,29 @@
       const LUNCH_STOCK_KEY = 'sb_lunch_stock';
       const PICKUP_CODE_INDEX_KEY = 'sb_pickup_code_index';
       const BUNDESWEHR_CODE = 'FRÜHSTÜCKSWEHR';
+
+      // ── E-Mail Bestätigung via Netlify Function ────────────────────────────
+      // Endpoint: /.netlify/functions/send-confirmation
+      // Setup-Anleitung: siehe netlify/functions/send-confirmation.js
+      async function sendConfirmationEmail(params) {
+        try {
+          const response = await fetch('/.netlify/functions/send-confirmation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+          });
+          if (!response.ok) {
+            const details = await response.text();
+            console.warn('Bestätigungs-E-Mail konnte nicht gesendet werden:', details);
+            return false;
+          }
+          return true;
+        } catch (err) {
+          console.warn('Bestätigungs-E-Mail konnte nicht gesendet werden:', err);
+          return false;
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────
       const DELIVERY_FEE = 2.90;
       const DELIVERY_MIN_ORDER = 25;
       const LUNCH_WEEKDAYS = [
@@ -383,6 +405,11 @@
       const bwCodeInput = document.getElementById('lunch-bw-code-input');
       const bwCodeVerify = document.getElementById('lunch-bw-code-verify');
       const bwCodeFeedback = document.getElementById('lunch-bw-code-feedback');
+      if (bwCodeInput) bwCodeInput.addEventListener('input', () => {
+        const pos = bwCodeInput.selectionStart;
+        bwCodeInput.value = bwCodeInput.value.toLocaleUpperCase('de-DE');
+        bwCodeInput.setSelectionRange(pos, pos);
+      });
       const fulfillmentRadios = form?.querySelectorAll('input[name="fulfillment"]') || [];
       const deliveryStreet = document.getElementById('lunch-delivery-street');
       const deliveryNumber = document.getElementById('lunch-delivery-number');
@@ -1138,6 +1165,24 @@
 
         const dateFormatted = new Date(pickupDate + 'T12:00:00').toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
         msgEl.textContent = `✓ Deine Reservierung für ${menu.dish} am ${dateFormatted} wurde erfolgreich aufgegeben.`;
+
+        // Bestätigungs-E-Mail senden
+        const emailSent = await sendConfirmationEmail({
+          to_name:          `${firstname} ${lastname}`,
+          to_email:         email,
+          order_type:       'Mittagstisch-Reservierung',
+          order_number:     String(reservation.id || reservation.internalNumber || ''),
+          pickup_code:      String(reservation.pickupCode || ''),
+          items_text:       `${quantity}× ${menu.dish}`,
+          date_time:        `${dateFormatted}, ${pickupTime} Uhr`,
+          fulfillment_type: fulfillment === 'delivery' ? 'Lieferung' : 'Abholung in der Filiale',
+          location:         String(reservation.reservation?.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf'),
+          total_price:      `${(Number(reservation.reservation?.total || 0)).toFixed(2).replace('.', ',')} €`,
+          payment_method:   paymentMethod
+        });
+        if (!emailSent) {
+          msgEl.textContent += ' (Hinweis: E-Mail konnte gerade nicht zugestellt werden.)';
+        }
 
         if (fulfillment === 'delivery') {
           pickupBlock.hidden = true;

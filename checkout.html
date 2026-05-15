@@ -216,6 +216,29 @@
     const MIN_DELIVERY_VALUE = 15;
     const numberFormatter = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+    // ── E-Mail Bestätigung via Netlify Function ────────────────────────────
+    // Endpoint: /.netlify/functions/send-confirmation
+    // Setup-Anleitung: siehe netlify/functions/send-confirmation.js
+    async function sendConfirmationEmail(params) {
+      try {
+        const response = await fetch('/.netlify/functions/send-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params)
+        });
+        if (!response.ok) {
+          const details = await response.text();
+          console.warn('Bestätigungs-E-Mail konnte nicht gesendet werden:', details);
+          return false;
+        }
+        return true;
+      } catch (err) {
+        console.warn('Bestätigungs-E-Mail konnte nicht gesendet werden:', err);
+        return false;
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
     // Nur diese Werte hinterlegen, um PayPal zu aktivieren
     const PAYPAL_CONFIG = {
       clientId: '',
@@ -511,7 +534,7 @@
       };
     }
 
-    function submitOrder(payload) {
+    async function submitOrder(payload) {
       const existing = JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]');
       existing.push(payload);
       localStorage.setItem(ORDERS_KEY, JSON.stringify(existing));
@@ -520,7 +543,30 @@
       renderReceipt();
       el.checkoutStatus.textContent = payload.approvalRequired
         ? `Bestellung gespeichert: Warten auf Genehmigung der Bestellung. Abholcode: ${payload.pickupCode}`
-        : `Bestellung gespeichert. Abholcode: ${payload.pickupCode}. Bestellbestätigung per Mail ist vorbereitet (Mail-Provider konfigurieren).`;
+        : `Bestellung gespeichert. Abholcode: ${payload.pickupCode}. Eine Bestätigungs-E-Mail wurde an ${payload.customer.email} versandt.`;
+
+      // Bestätigungs-E-Mail senden
+      const itemsText = (payload.items || []).map(i => `${i.qty}× ${i.name}`).join(', ');
+      const dateFormatted = payload.fulfillment.date
+        ? new Date(payload.fulfillment.date + 'T12:00:00').toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+        : '';
+      const emailSent = await sendConfirmationEmail({
+        to_name:          String(payload.customer.name || ''),
+        to_email:         String(payload.customer.email || ''),
+        order_type:       'Frühstücks-Bestellung',
+        order_number:     String(payload.internalNumber || payload.id || ''),
+        pickup_code:      String(payload.pickupCode || ''),
+        items_text:       itemsText,
+        date_time:        `${dateFormatted}${payload.fulfillment.time ? ', ' + payload.fulfillment.time + ' Uhr' : ''}`.trim(),
+        fulfillment_type: payload.fulfillment.type === 'delivery' ? 'Lieferung' : 'Abholung in der Filiale',
+        location:         String(payload.customer.address || ''),
+        total_price:      `${(Number(payload.total || 0)).toFixed(2).replace('.', ',')} €`,
+        payment_method:   String(payload.paymentMethod || '')
+      });
+      if (!emailSent) {
+        el.checkoutStatus.textContent += ' Hinweis: E-Mail konnte gerade nicht zugestellt werden.';
+      }
+
       showToast('Bestellung erfolgreich gespeichert.');
     }
 

@@ -39,7 +39,7 @@
 
       <div class="checkout-page-card" id="admin-auth-card">
         <h2 style="margin:0;">Admin-Login</h2>
-        <p class="checkout-hint">Melde dich mit deinem Supabase-Adminkonto an. Trage vorher in assets/js/supabase-config.js deine Projekt-URL und den Anon-Key ein.</p>
+        <p class="checkout-hint">Melde dich mit deinem Supabase-Adminkonto an. Erst nach erfolgreichem Login werden offene Bestellungen, abgeschlossene Bestellungen und alle weiteren Admin-Inhalte sichtbar. Verwende dafür die E-Mail und das Passwort deines Supabase-Users.</p>
         <form id="admin-auth-form" class="form-grid form-grid-2" style="margin-top:0.5rem;">
           <label for="admin-email">E-Mail
             <input type="email" id="admin-email" autocomplete="username" required>
@@ -54,7 +54,7 @@
         <p class="lunch-feedback" id="admin-auth-feedback" aria-live="polite"></p>
       </div>
 
-      <div class="admin-panel" id="admin-dashboard" hidden>
+      <div class="admin-panel" id="admin-dashboard" hidden style="display:none;">
         <div class="tab-bar" role="tablist">
           <button class="chip is-active" role="tab" aria-selected="true" data-tab-target="pending">Offene Bestellungen</button>
           <button class="chip" role="tab" aria-selected="false" data-tab-target="sent">Abgeschlossene Bestellungen</button>
@@ -367,7 +367,16 @@ Dein Team von Simonsbrotkörbchen</textarea>
       Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4 },
       Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5 }
     };
-    const supabaseClient = window.SB_SUPABASE?.createClient?.();
+    const supabaseConfig = window.SB_SUPABASE?.config || {};
+    const supabaseClient = window.supabase?.createClient && window.SB_SUPABASE?.isConfigured?.()
+      ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false
+          }
+        })
+      : null;
     let adminSubscription = null;
 
     const tabButtons = document.querySelectorAll('[data-tab-target]');
@@ -576,7 +585,9 @@ Dein Team von Simonsbrotkörbchen</textarea>
 
     function setAdminAuthenticated(isAuthenticated) {
       if (adminAuthCard) adminAuthCard.hidden = isAuthenticated;
+      if (adminAuthCard) adminAuthCard.style.display = isAuthenticated ? 'none' : '';
       if (adminDashboard) adminDashboard.hidden = !isAuthenticated;
+      if (adminDashboard) adminDashboard.style.display = isAuthenticated ? '' : 'none';
       if (adminLogoutBtn) adminLogoutBtn.hidden = !isAuthenticated;
     }
 
@@ -1177,16 +1188,27 @@ Dein Team von Simonsbrotkörbchen</textarea>
       const email = document.getElementById('admin-email')?.value?.trim();
       const password = document.getElementById('admin-password')?.value || '';
       setAdminFeedback('Anmeldung läuft ...');
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
         setAdminFeedback('Login fehlgeschlagen. Bitte Daten prüfen.');
         return;
+      }
+      setAdminAuthenticated(!!data?.session);
+      try {
+        await hydrateAdminFromSupabase();
+        showTab('pending');
+      } catch (syncError) {
+        console.error('Adminbereich konnte nach dem Login nicht geladen werden:', syncError);
       }
       setAdminFeedback('Anmeldung erfolgreich.', true);
     });
 
     adminLogoutBtn?.addEventListener('click', async () => {
       await supabaseClient?.auth?.signOut?.();
+    });
+
+    window.addEventListener('pagehide', () => {
+      supabaseClient?.auth?.signOut?.();
     });
 
     renderTables();
