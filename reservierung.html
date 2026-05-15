@@ -471,7 +471,10 @@
         localStorage.setItem(LUNCH_PLAN_KEY, JSON.stringify(plan || {}));
       }
 
-      // ── Wochenplan Sync (komplett neu, robust + deterministisch) ────────
+      // ── Wochenplan Live-Sync ─────────────────────────────────────────────
+      // Strategie: direkte Supabase REST API (kein SDK nötig, kein Auth nötig
+      // solange RLS anon-select erlaubt ODER Netlify-Funktion mit service key).
+
       const SUPABASE_REST_URL = (() => {
         const cfg = window.SB_SUPABASE_CONFIG || {};
         if (!cfg.url) return null;
@@ -479,100 +482,70 @@
           '/rest/v1/lunch_menu_items?select=day_name,weekday,dish,unit_price,quantity_available,is_active&order=weekday.asc';
       })();
       const SUPABASE_ANON_KEY = (window.SB_SUPABASE_CONFIG || {}).anonKey || '';
-      let lunchMenuSyncInFlight = false;
-      let lunchMenuLastHash = '';
 
       async function fetchMenuRows() {
-        const ts = Date.now();
-
-        // 1) Netlify Function zuerst
+        // 1. Netlify-Funktion (service role key → RLS umgehen)
         try {
-          const res = await fetch(`/.netlify/functions/get-lunch-menu?t=${ts}`, {
-            method: 'GET',
-            cache: 'no-store'
-          });
+          const res = await fetch('/.netlify/functions/get-lunch-menu', { cache: 'no-store' });
           if (res.ok) {
             const payload = await res.json();
             if (payload?.ok && Array.isArray(payload.rows)) return payload.rows;
           }
-        } catch {
-          // fallback below
-        }
+        } catch {}
 
-        // 2) Direkter REST Fallback
+        // 2. Direkt Supabase REST (anon key)
         if (SUPABASE_REST_URL && SUPABASE_ANON_KEY) {
           try {
-            const join = SUPABASE_REST_URL.includes('?') ? '&' : '?';
-            const res = await fetch(`${SUPABASE_REST_URL}${join}t=${ts}`, {
-              method: 'GET',
-              headers: {
-                apikey: SUPABASE_ANON_KEY,
-                Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-              },
+            const res = await fetch(SUPABASE_REST_URL, {
+              headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
               cache: 'no-store'
             });
             if (res.ok) {
               const rows = await res.json();
               if (Array.isArray(rows)) return rows;
             }
-          } catch {
-            // no-op
-          }
+          } catch {}
         }
 
         return null;
       }
 
-      function normalizeMenuState(rows) {
-        const plan = { ...DEFAULT_LUNCH_PLAN };
+      function applyMenuRows(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const plan  = { ...DEFAULT_LUNCH_PLAN };
         const stock = {};
-        (Array.isArray(rows) ? rows : []).forEach(row => {
+        rows.forEach(row => {
           if (!row?.day_name) return;
           const dish = String(row.dish || '').trim();
           plan[row.day_name] = {
             dish,
-            price: Number(row.unit_price) || 0,
-            weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1,
+            price:    Number(row.unit_price) || 0,
+            weekday:  Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1,
             isActive: row.is_active !== false
           };
           if (dish && row.is_active !== false && row.quantity_available != null) {
             stock[normalizeStockKey(dish)] = Math.max(0, Number(row.quantity_available) || 0);
           }
         });
-        return { plan, stock };
-      }
-
-      function applyMenuRows(rows) {
-        const { plan, stock } = normalizeMenuState(rows);
         saveLunchPlan(plan);
         saveLunchStock(stock);
       }
 
-      async function syncLunchDataFromSupabase({ forceRefresh = false } = {}) {
-        if (lunchMenuSyncInFlight) return false;
-        lunchMenuSyncInFlight = true;
-        try {
-          const rows = await fetchMenuRows();
-          if (!rows) return false;
-          const hash = JSON.stringify(rows);
-          const changed = forceRefresh || hash !== lunchMenuLastHash;
-          if (changed) {
-            lunchMenuLastHash = hash;
-            applyMenuRows(rows);
-            refreshLunchPlan();
-          }
-          return changed;
-        } finally {
-          lunchMenuSyncInFlight = false;
-        }
+      async function syncLunchDataFromSupabase() {
+        const rows = await fetchMenuRows();
+        if (!rows) return false;
+        applyMenuRows(rows);
+        return true;
       }
 
-      function subscribeLunchMenuRealtime() { /* intentionally disabled */ }
+      function subscribeLunchMenuRealtime() { /* polling used instead */ }
 
       function startLunchMenuSyncFallback() {
-        setInterval(() => {
-          syncLunchDataFromSupabase().catch(() => {});
-        }, 3000);
+        // Alle 5 Sekunden aktualisieren
+        setInterval(async () => {
+          const rows = await fetchMenuRows();
+          if (rows) { applyMenuRows(rows); refreshLunchPlan(); }
+        }, 5000);
       }
       // ────────────────────────────────────────────────────────────────────
 
@@ -1060,7 +1033,10 @@
       });
 
       const syncNow = () => {
-        syncLunchDataFromSupabase({ forceRefresh: true })
+        syncLunchDataFromSupabase()
+          .then(changed => {
+            if (changed) refreshLunchPlan();
+          })
           .catch(error => console.error('Supabase Fokus-Sync fehlgeschlagen:', error));
       };
       window.addEventListener('focus', syncNow);
@@ -1186,7 +1162,8 @@
               contract_concluded: true,
               contract_text: 'Mit Klick auf „Zahlungspflichtig bestellen" gebe ich eine verbindliche, zahlungspflichtige Bestellung ab.'
             });
-            await syncLunchDataFromSupabase({ forceRefresh: true });
+            const synced = await syncLunchDataFromSupabase();
+            if (synced) refreshLunchPlan();
           } catch (error) {
             if (feedback) feedback.textContent = formatReservationError(error);
             updateForm();
@@ -1358,8 +1335,10 @@
         modal.addEventListener('click', e => { if (e.target === modal) closeModal(); }, { once: true });
       });
 
-      // Beim Laden: sofort synchronisieren
-      syncLunchDataFromSupabase({ forceRefresh: true }).catch(() => {});
+      // Beim Laden: sofort vom Server holen und UI aktualisieren
+      fetchMenuRows().then(rows => {
+        if (rows) { applyMenuRows(rows); refreshLunchPlan(); }
+      }).catch(() => {});
 
       subscribeLunchMenuRealtime();
       startLunchMenuSyncFallback();
