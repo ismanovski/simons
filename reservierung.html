@@ -361,11 +361,11 @@
         { day: 'Freitag', weekday: 5 }
       ];
       const DEFAULT_LUNCH_PLAN = {
-        Montag:    { dish: 'Nudelgulasch',               price: 7.90, weekday: 1 },
-        Dienstag:  { dish: 'Hähnchen mit Reis',          price: 8.90, weekday: 2 },
-        Mittwoch:  { dish: 'Linsensuppe',                price: 6.90, weekday: 3 },
-        Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4 },
-        Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5 }
+        Montag:    { dish: 'Nudelgulasch',               price: 7.90, weekday: 1, isActive: true },
+        Dienstag:  { dish: 'Hähnchen mit Reis',          price: 8.90, weekday: 2, isActive: true },
+        Mittwoch:  { dish: 'Linsensuppe',                price: 6.90, weekday: 3, isActive: true },
+        Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4, isActive: true },
+        Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5, isActive: true }
       };
       const PICKUP_CODES = [
         'SpiderMan','BudSpencer','TerenceHill','Manitou','RockyBalboa','DonCorleone','Batman','Joker','Deadpool','IronMan',
@@ -486,13 +486,14 @@
         const stock = {};
         (data || []).forEach(row => {
           if (!row?.day_name) return;
-          const dish = row.is_active ? String(row.dish || '').trim() : '';
+          const dish = String(row.dish || '').trim();
           plan[row.day_name] = {
             dish,
             price: Number(row.unit_price) || 0,
-            weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1
+            weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1,
+            isActive: row.is_active !== false
           };
-          if (dish && row.quantity_available !== null && row.quantity_available !== undefined) {
+          if (dish && row.is_active !== false && row.quantity_available !== null && row.quantity_available !== undefined) {
             stock[normalizeStockKey(dish)] = Math.max(0, Number(row.quantity_available) || 0);
           }
         });
@@ -596,13 +597,16 @@
             const available = item?.dish ? getStockValue(stock, item.dish) : NaN;
             const soldOut = item && item.dish && Number.isFinite(available) && available <= 0;
             const orderDate = getLunchOrderDate(weekday);
-            const disabled = !orderDate || !item?.dish || soldOut;
+            const unavailable = !orderDate || !item?.dish || item?.isActive === false;
+            const disabled = unavailable || soldOut;
             const status = soldOut ? 'Ausverkauft' : (disabled ? 'Nicht verfügbar' : 'Auswählen');
+            const dishLabel = unavailable ? 'Nicht verfügbar' : (item?.dish || 'Ausverkauft');
+            const priceLabel = unavailable ? '–' : (item?.dish ? formatPrice(item.price) : '–');
             return `
               <button type="button" class="lunch-weekplan-option${dayField?.value === day ? ' is-active' : ''}" data-lunch-day="${escapeHtml(day)}"${disabled ? ' disabled' : ''}>
                 <strong>${escapeHtml(day)}</strong>
-                <span>${escapeHtml(item?.dish || 'Ausverkauft')}</span>
-                <em>${item?.dish ? formatPrice(item.price) : '–'}</em>
+                <span>${escapeHtml(dishLabel)}</span>
+                <em>${escapeHtml(priceLabel)}</em>
                 <small>${status}</small>
               </button>
             `;
@@ -613,9 +617,10 @@
             const item = LUNCH_MENU[day];
             const available = item?.dish ? getStockValue(stock, item.dish) : NaN;
             const soldOut = item && item.dish && Number.isFinite(available) && available <= 0;
-            return item && item.dish
+            const unavailable = !getLunchOrderDate(item?.weekday) || !item?.dish || item?.isActive === false;
+            return item && item.dish && !unavailable
               ? `<li><span class="res-wochentag">${escapeHtml(day.slice(0, 2))}</span><span class="res-dish-name">${escapeHtml(item.dish)}${soldOut ? ' · Ausverkauft' : ''}</span><span class="res-dish-price">${soldOut ? '–' : formatPrice(item.price)}</span></li>`
-              : `<li><span class="res-wochentag">${escapeHtml(day.slice(0, 2))}</span><span class="res-dish-name">Ausverkauft</span><span class="res-dish-price">–</span></li>`;
+              : `<li><span class="res-wochentag">${escapeHtml(day.slice(0, 2))}</span><span class="res-dish-name">Nicht verfügbar</span><span class="res-dish-price">–</span></li>`;
           }).join('');
         }
       }
@@ -718,7 +723,7 @@
           const target = LUNCH_MENU[option.value].weekday;
           const menu = LUNCH_MENU[option.value];
           const available = menu?.dish ? getStockValue(stock, menu.dish) : NaN;
-          option.disabled = !getLunchOrderDate(target) || !menu.dish || (Number.isFinite(available) && available <= 0);
+          option.disabled = !getLunchOrderDate(target) || !menu.dish || menu.isActive === false || (Number.isFinite(available) && available <= 0);
         });
       }
 
@@ -787,11 +792,11 @@
         let qty      = Math.max(1, Number.parseInt(qtyField?.value || '1', 10) || 1);
 
         // Dish
-        if (dishField) dishField.value = menu && menu.dish ? menu.dish : '';
+        if (dishField) dishField.value = menu && menu.dish && menu.isActive !== false ? menu.dish : '';
 
         // Auto-date (readonly)
         if (dateField) {
-          if (menu && menu.dish) {
+          if (menu && menu.dish && menu.isActive !== false) {
             const orderDate = getLunchOrderDate(menu.weekday);
             if (orderDate) {
               dateField.value = toISODate(orderDate);
@@ -811,7 +816,7 @@
 
         // Price
         let total = menu ? qty * menu.price : null;
-        if (menu && menu.dish) {
+        if (menu && menu.dish && menu.isActive !== false) {
           const available = getStockValue(stock, menu.dish);
           const hasLimitedStock = Number.isFinite(available) && available >= 0;
           if (hasLimitedStock) {
@@ -1011,8 +1016,8 @@
           return;
         }
         const menu = LUNCH_MENU[day];
-        if (!menu || !menu.dish) {
-          if (feedback) feedback.textContent = 'Bitte wähle einen gültigen Wochentag.';
+        if (!menu || !menu.dish || menu.isActive === false) {
+          if (feedback) feedback.textContent = 'Bitte wähle einen verfügbaren Wochentag.';
           window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'invalid-day', email });
           return;
         }

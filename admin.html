@@ -126,14 +126,15 @@
         <div class="tab-panel" id="lunch-settings" role="tabpanel" hidden>
           <div class="admin-lunch-settings">
             <h3>Wochenplan &amp; Bestände</h3>
-            <p class="checkout-hint">Spalte A = Gericht, Spalte B = Verfügbarkeit, Spalte C = Preis. Leer bei Verfügbarkeit = unbegrenzt.</p>
+            <p class="checkout-hint">Gericht eintragen, Bestand optional setzen und bei Bedarf den Tag manuell auf nicht verfügbar stellen.</p>
             <div class="table-wrapper">
               <table class="data-table admin-lunch-settings-table" id="lunch-settings-table">
                 <thead>
                   <tr>
                     <th>Tag</th>
                     <th>Gericht</th>
-                    <th>Verfügbarkeit</th>
+                    <th>Bestand</th>
+                    <th>Nicht verfügbar</th>
                     <th>Preis</th>
                   </tr>
                 </thead>
@@ -361,11 +362,11 @@ Dein Team von Simonsbrotkörbchen</textarea>
       { day: 'Freitag', weekday: 5 }
     ];
     const DEFAULT_LUNCH_PLAN = {
-      Montag:    { dish: 'Nudelgulasch',               price: 7.90, weekday: 1 },
-      Dienstag:  { dish: 'Hähnchen mit Reis',          price: 8.90, weekday: 2 },
-      Mittwoch:  { dish: 'Linsensuppe',                price: 6.90, weekday: 3 },
-      Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4 },
-      Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5 }
+      Montag:    { dish: 'Nudelgulasch',               price: 7.90, weekday: 1, isActive: true },
+      Dienstag:  { dish: 'Hähnchen mit Reis',          price: 8.90, weekday: 2, isActive: true },
+      Mittwoch:  { dish: 'Linsensuppe',                price: 6.90, weekday: 3, isActive: true },
+      Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4, isActive: true },
+      Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5, isActive: true }
     };
     const supabaseConfig = window.SB_SUPABASE?.config || {};
     const supabaseClient = window.supabase?.createClient && window.SB_SUPABASE?.isConfigured?.()
@@ -454,13 +455,14 @@ Dein Team von Simonsbrotkörbchen</textarea>
       const stock = {};
       (rows || []).forEach(row => {
         if (!row?.day_name) return;
-        const dish = row.is_active ? String(row.dish || '').trim() : '';
+        const dish = String(row.dish || '').trim();
         plan[row.day_name] = {
           dish,
           price: Number(row.unit_price) || 0,
-          weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1
+          weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1,
+          isActive: row.is_active !== false
         };
-        if (dish && row.quantity_available !== null && row.quantity_available !== undefined) {
+        if (dish && row.is_active !== false && row.quantity_available !== null && row.quantity_available !== undefined) {
           stock[normalizeStockKey(dish)] = Math.max(0, Number(row.quantity_available) || 0);
         }
       });
@@ -536,11 +538,12 @@ Dein Team von Simonsbrotkörbchen</textarea>
     function normalizeLunchPlan(plan) {
       const next = {};
       LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
-        const item = plan?.[day] || DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday };
+        const item = plan?.[day] || DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday, isActive: true };
         next[day] = {
           dish: String(item.dish || '').trim(),
           price: Number(item.price) || 0,
-          weekday
+          weekday,
+          isActive: item.isActive !== false
         };
       });
       return next;
@@ -999,9 +1002,10 @@ Dein Team von Simonsbrotkörbchen</textarea>
       const plan = loadLunchPlan();
       const stock = loadLunchStock();
       body.innerHTML = LUNCH_WEEKDAYS.map(({ day, weekday }) => {
-        const item = plan[day] || DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday };
+        const item = plan[day] || DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday, isActive: true };
         const currentStock = getStockValue(stock, item.dish);
         const availability = Number.isFinite(currentStock) ? currentStock : '';
+        const isInactive = item.isActive === false;
         return `
           <tr>
             <td><strong>${escapeHtml(day)}</strong></td>
@@ -1010,6 +1014,11 @@ Dein Team von Simonsbrotkörbchen</textarea>
             </td>
             <td>
               <input type="number" data-plan-stock="${escapeHtml(day)}" min="0" step="1" value="${availability}" placeholder="unbegrenzt">
+            </td>
+            <td>
+              <label style="display:flex;justify-content:center;align-items:center;">
+                <input type="checkbox" data-plan-inactive="${escapeHtml(day)}" ${isInactive ? 'checked' : ''}>
+              </label>
             </td>
             <td>
               <input type="number" data-plan-price="${escapeHtml(day)}" min="0" step="0.05" value="${Number(item.price || 0).toFixed(2)}">
@@ -1067,12 +1076,14 @@ Dein Team von Simonsbrotkörbchen</textarea>
         const dishInput = document.querySelector(`[data-plan-dish="${day}"]`);
         const stockInput = document.querySelector(`[data-plan-stock="${day}"]`);
         const priceInput = document.querySelector(`[data-plan-price="${day}"]`);
+        const inactiveInput = document.querySelector(`[data-plan-inactive="${day}"]`);
         const dish = (dishInput?.value || '').trim();
         const price = Number(priceInput?.value || 0);
+        const isActive = !(inactiveInput?.checked);
         const availabilityRaw = (stockInput?.value || '').trim();
-        plan[day] = { dish, price, weekday };
+        plan[day] = { dish, price, weekday, isActive };
         let quantityAvailable = null;
-        if (availabilityRaw !== '') {
+        if (availabilityRaw !== '' && dish && isActive) {
           const n = Math.max(0, Math.floor(Number(availabilityRaw)));
           if (Number.isFinite(n)) {
             stock[normalizeStockKey(dish)] = n;
@@ -1085,7 +1096,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
           dish,
           unit_price: price,
           quantity_available: quantityAvailable,
-          is_active: !!dish
+          is_active: !!dish && isActive
         });
       });
       const feedback = document.getElementById('lunch-settings-feedback');
@@ -1123,7 +1134,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
             dish: item.dish,
             unit_price: item.price,
             quantity_available: null,
-            is_active: !!item.dish
+            is_active: item.isActive !== false
           }));
           const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
           if (error) throw error;
