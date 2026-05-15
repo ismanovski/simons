@@ -56,6 +56,15 @@ exports.handler = async (event) => {
       },
       body: JSON.stringify({
         intent: 'CAPTURE',
+        payment_source: {
+          paypal: {
+            experience_context: {
+              payment_method_preference: 'IMMEDIATE_PAYMENT_REQUIRED',
+              landing_page: 'LOGIN',
+              user_action: 'PAY_NOW'
+            }
+          }
+        },
         purchase_units: [
           {
             amount: {

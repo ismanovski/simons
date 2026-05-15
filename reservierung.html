@@ -513,7 +513,7 @@
         if (!lunchPaypalClientId) return;
 
         const script = document.createElement('script');
-        script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(lunchPaypalClientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(lunchPaypalClientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}&intent=capture&commit=true&enable-funding=paypal&disable-funding=card,credit,paylater,venmo`;
         script.onload = () => {
           if (!window.paypal || !paypalContainer) return;
           lunchPaypalReady = true;
