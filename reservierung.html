@@ -302,6 +302,8 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/site-core.js"></script>
   <script>
     (function(){
@@ -353,6 +355,7 @@
         'LuckyLuke','Asterix','Obelix','Popeye','Aladin','Simba','Pinocchio','Spongebob','PatrickStar','Thaddäus',
         'Terminator','Robocop','Blade','JohnWick','Maximus','Hannibal','Pumba','AlCapone','HannibalSmith','Magnum'
       ];
+      const supabaseClient = window.SB_SUPABASE?.createClient?.();
       let LUNCH_MENU = loadLunchPlan();
 
       const form        = document.getElementById('lunch-reservation-form');
@@ -428,6 +431,112 @@
         if (options.includes(previous)) {
           timeField.value = previous;
         }
+      }
+
+      function cleanTimeValue(value) {
+        return String(value || '').slice(0, 5);
+      }
+
+      function saveLunchPlan(plan) {
+        localStorage.setItem(LUNCH_PLAN_KEY, JSON.stringify(plan || {}));
+      }
+
+      async function syncLunchDataFromSupabase() {
+        if (!supabaseClient) return false;
+        const { data, error } = await supabaseClient
+          .from('lunch_menu_items')
+          .select('day_name, weekday, dish, unit_price, quantity_available, is_active')
+          .order('weekday', { ascending: true });
+
+        if (error) {
+          console.error('Supabase Wochenplan konnte nicht geladen werden:', error);
+          return false;
+        }
+
+        const plan = { ...DEFAULT_LUNCH_PLAN };
+        const stock = {};
+        (data || []).forEach(row => {
+          if (!row?.day_name) return;
+          const dish = row.is_active ? String(row.dish || '').trim() : '';
+          plan[row.day_name] = {
+            dish,
+            price: Number(row.unit_price) || 0,
+            weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1
+          };
+          if (dish && row.quantity_available !== null && row.quantity_available !== undefined) {
+            stock[normalizeStockKey(dish)] = Math.max(0, Number(row.quantity_available) || 0);
+          }
+        });
+
+        saveLunchPlan(plan);
+        saveLunchStock(stock);
+        return true;
+      }
+
+      function mapSupabaseOrderToReservation(row) {
+        if (!row) return null;
+        const pickupTime = cleanTimeValue(row.pickup_time);
+        const pickupDate = typeof row.pickup_date === 'string' ? row.pickup_date : '';
+        const name = row.customer_name || `${row.firstname || ''} ${row.lastname || ''}`.trim();
+        return {
+          id: row.internal_number,
+          internalNumber: row.internal_number,
+          pickupCode: row.pickup_code,
+          createdAt: row.created_at,
+          completedAt: row.completed_at,
+          customer: {
+            name,
+            firstname: row.firstname || '',
+            lastname: row.lastname || '',
+            phone: row.phone || '',
+            email: row.email || ''
+          },
+          reservation: {
+            day: row.day_name,
+            pickupDate,
+            pickupTime,
+            fulfillment: row.fulfillment,
+            dish: row.dish,
+            unitPrice: Number(row.unit_price) || 0,
+            quantity: Number(row.quantity) || 1,
+            total: Number(row.total) || 0,
+            notes: row.notes || '',
+            paymentMethod: row.payment_method || 'Vor Ort',
+            bundeswehrDelivery: !!row.bundeswehr_delivery,
+            location: row.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+            deliveryAddress: row.fulfillment === 'delivery'
+              ? {
+                  street: row.delivery_street || '',
+                  number: row.delivery_number || '',
+                  zip: row.delivery_zip || '',
+                  city: row.delivery_city || ''
+                }
+              : null
+          },
+          contract: {
+            agbAccepted: !!row.agb_accepted,
+            bindingReservationAccepted: !!row.contract_accepted,
+            concluded: !!row.contract_concluded,
+            text: row.contract_text || 'Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.'
+          },
+          status: row.status || 'reserviert'
+        };
+      }
+
+      function formatReservationError(error) {
+        const message = String(error?.message || '').trim();
+        if (!message) return 'Reservierung konnte gerade nicht gespeichert werden. Bitte versuche es erneut.';
+        if (/portion/i.test(message) || /wochenplan/i.test(message) || /verfügbar/i.test(message)) return message;
+        return 'Reservierung konnte gerade nicht gespeichert werden. Bitte versuche es erneut.';
+      }
+
+      async function createLunchReservationInSupabase(payload) {
+        if (!supabaseClient) return null;
+        const { data, error } = await supabaseClient.rpc('create_lunch_order', {
+          order_payload: payload
+        });
+        if (error) throw error;
+        return mapSupabaseOrderToReservation(Array.isArray(data) ? data[0] : data);
       }
 
       function loadLunchPlan() {
@@ -824,7 +933,7 @@
         }
       });
 
-      form?.addEventListener('submit', event => {
+      form?.addEventListener('submit', async event => {
         event.preventDefault();
         if (feedback) feedback.textContent = '';
         window.SBPlatform?.trackEvent?.('reservation_submit_attempt', { mode: 'guest' });
@@ -909,51 +1018,91 @@
           return;
         }
 
-        const total = menu.price * quantity;
-        const internalNumber = getNextLunchNumber();
-        const pickupCode = getNextPickupCode();
-        const reservation = {
-          id: internalNumber,
-          internalNumber,
-          pickupCode,
-          createdAt: new Date().toISOString(),
-          customer: { name: `${firstname} ${lastname}`, firstname, lastname, phone, email },
-          reservation: {
-            day, pickupDate, pickupTime,
-            fulfillment,
-            dish: menu.dish,
-            unitPrice: menu.price,
-            quantity, total, notes,
-            paymentMethod,
-            bundeswehrDelivery: fulfillment === 'delivery' ? bundeswehrVerified : false,
-            location: fulfillment === 'delivery'
-              ? `${deliveryStreetValue} ${deliveryNumberValue}, ${deliveryZipValue} ${deliveryCityValue}`
-              : 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
-            deliveryAddress: fulfillment === 'delivery'
-              ? {
-                  street: deliveryStreetValue,
-                  number: deliveryNumberValue,
-                  zip: deliveryZipValue,
-                  city: deliveryCityValue
-                }
-              : null
-          },
-          contract: {
-            agbAccepted: true,
-            bindingReservationAccepted: true,
-            concluded: true,
-            text: 'Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.'
-          },
-          status: 'reserviert'
-        };
+        let reservation;
+        if (supabaseClient) {
+          try {
+            reservation = await createLunchReservationInSupabase({
+              firstname,
+              lastname,
+              phone,
+              email,
+              day,
+              dish: menu.dish,
+              pickup_date: pickupDate,
+              pickup_time: pickupTime,
+              fulfillment,
+              quantity,
+              notes,
+              payment_method: paymentMethod,
+              bundeswehr_delivery: fulfillment === 'delivery' ? bundeswehrVerified : false,
+              location: fulfillment === 'delivery'
+                ? `${deliveryStreetValue} ${deliveryNumberValue}, ${deliveryZipValue} ${deliveryCityValue}`
+                : 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+              delivery_street: deliveryStreetValue,
+              delivery_number: deliveryNumberValue,
+              delivery_zip: deliveryZipValue,
+              delivery_city: deliveryCityValue,
+              agb_accepted: true,
+              contract_accepted: true,
+              contract_concluded: true,
+              contract_text: 'Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.'
+            });
+            const synced = await syncLunchDataFromSupabase();
+            if (synced) refreshLunchPlan();
+          } catch (error) {
+            if (feedback) feedback.textContent = formatReservationError(error);
+            updateForm();
+            return;
+          }
+        } else {
+          const total = menu.price * quantity;
+          const internalNumber = getNextLunchNumber();
+          const pickupCode = getNextPickupCode();
+          reservation = {
+            id: internalNumber,
+            internalNumber,
+            pickupCode,
+            createdAt: new Date().toISOString(),
+            customer: { name: `${firstname} ${lastname}`, firstname, lastname, phone, email },
+            reservation: {
+              day, pickupDate, pickupTime,
+              fulfillment,
+              dish: menu.dish,
+              unitPrice: menu.price,
+              quantity, total, notes,
+              paymentMethod,
+              bundeswehrDelivery: fulfillment === 'delivery' ? bundeswehrVerified : false,
+              location: fulfillment === 'delivery'
+                ? `${deliveryStreetValue} ${deliveryNumberValue}, ${deliveryZipValue} ${deliveryCityValue}`
+                : 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+              deliveryAddress: fulfillment === 'delivery'
+                ? {
+                    street: deliveryStreetValue,
+                    number: deliveryNumberValue,
+                    zip: deliveryZipValue,
+                    city: deliveryCityValue
+                  }
+                : null
+            },
+            contract: {
+              agbAccepted: true,
+              bindingReservationAccepted: true,
+              concluded: true,
+              text: 'Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.'
+            },
+            status: 'reserviert'
+          };
+
+          if (hasLimitedStock) {
+            setStockValue(stock, menu.dish, Math.max(0, available - quantity));
+            saveLunchStock(stock);
+          }
+        }
 
         const existing = JSON.parse(localStorage.getItem(LUNCH_STORAGE_KEY) || '[]');
-        existing.push(reservation);
-        localStorage.setItem(LUNCH_STORAGE_KEY, JSON.stringify(existing));
-        if (hasLimitedStock) {
-          setStockValue(stock, menu.dish, Math.max(0, available - quantity));
-          saveLunchStock(stock);
-        }
+        const nextMirror = [reservation, ...existing.filter(entry => String(entry.id) !== String(reservation.id))];
+        localStorage.setItem(LUNCH_STORAGE_KEY, JSON.stringify(nextMirror));
+        const total = Number(reservation?.reservation?.total) || 0;
         const currentUser = window.SBPlatform?.getCurrentUser?.();
         if (currentUser && currentUser.email === email.toLowerCase()) {
           window.SBPlatform?.updateCurrentUser?.({
@@ -1039,7 +1188,7 @@
         } else {
           delivBlock.hidden  = true;
           pickupBlock.hidden = false;
-          codeEl.textContent = pickupCode;
+          codeEl.textContent = reservation.pickupCode;
         }
 
         modal.classList.add('is-visible');
@@ -1051,6 +1200,15 @@
         document.getElementById('lunch-confirm-close').onclick = closeModal;
         modal.addEventListener('click', e => { if (e.target === modal) closeModal(); }, { once: true });
       });
+
+      syncLunchDataFromSupabase()
+        .then(changed => {
+          if (!changed) return;
+          refreshLunchPlan();
+        })
+        .catch(error => {
+          console.error('Supabase Sync fehlgeschlagen:', error);
+        });
     })();
 
   </script>

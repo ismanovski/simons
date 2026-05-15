@@ -24,7 +24,7 @@
       </button>
       <nav class="site-nav" id="primary-navigation" data-nav>
         <a class="nav-link" href="index.html">Zur Website</a>
-        <button class="btn btn-outline" type="button">Logout</button>
+        <button class="btn btn-outline" type="button" id="admin-logout-btn" hidden>Logout</button>
       </nav>
     </div>
   </header>
@@ -37,7 +37,24 @@
         <p>Verwalte eingehende Vorbestellungen und Mittagstisch-Reservierungen, markiere Abholungen als erledigt und erstelle Ausdrucke für dein Team.</p>
       </div>
 
-      <div class="admin-panel">
+      <div class="checkout-page-card" id="admin-auth-card">
+        <h2 style="margin:0;">Admin-Login</h2>
+        <p class="checkout-hint">Melde dich mit deinem Supabase-Adminkonto an. Trage vorher in assets/js/supabase-config.js deine Projekt-URL und den Anon-Key ein.</p>
+        <form id="admin-auth-form" class="form-grid form-grid-2" style="margin-top:0.5rem;">
+          <label for="admin-email">E-Mail
+            <input type="email" id="admin-email" autocomplete="username" required>
+          </label>
+          <label for="admin-password">Passwort
+            <input type="password" id="admin-password" autocomplete="current-password" required>
+          </label>
+          <div class="table-actions" style="grid-column:1 / -1; justify-content:flex-start;">
+            <button class="btn btn-primary" type="submit">Einloggen</button>
+          </div>
+        </form>
+        <p class="lunch-feedback" id="admin-auth-feedback" aria-live="polite"></p>
+      </div>
+
+      <div class="admin-panel" id="admin-dashboard" hidden>
         <div class="tab-bar" role="tablist">
           <button class="chip is-active" role="tab" aria-selected="true" data-tab-target="pending">Offene Bestellungen</button>
           <button class="chip" role="tab" aria-selected="false" data-tab-target="sent">Abgeschlossene Bestellungen</button>
@@ -314,6 +331,8 @@ Dein Team von Simonsbrotkörbchen</textarea>
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
   <script src="assets/js/site-core.js"></script>
   <script>
     (function(){
@@ -348,6 +367,8 @@ Dein Team von Simonsbrotkörbchen</textarea>
       Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4 },
       Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5 }
     };
+    const supabaseClient = window.SB_SUPABASE?.createClient?.();
+    let adminSubscription = null;
 
     const tabButtons = document.querySelectorAll('[data-tab-target]');
     const tabPanels = document.querySelectorAll('.tab-panel');
@@ -355,6 +376,88 @@ Dein Team von Simonsbrotkörbchen</textarea>
     const lunchFilterDay = document.getElementById('lunch-filter-day');
     const lunchFilterDate = document.getElementById('lunch-filter-date');
     const lunchFilterReset = document.getElementById('lunch-filter-reset');
+    const adminAuthCard = document.getElementById('admin-auth-card');
+    const adminDashboard = document.getElementById('admin-dashboard');
+    const adminAuthForm = document.getElementById('admin-auth-form');
+    const adminAuthFeedback = document.getElementById('admin-auth-feedback');
+    const adminLogoutBtn = document.getElementById('admin-logout-btn');
+
+    function cleanTimeValue(value) {
+      return String(value || '').slice(0, 5);
+    }
+
+    function saveLunchMirror(pending, done) {
+      localStorage.setItem('sb_lunch_reservations', JSON.stringify(pending || []));
+      localStorage.setItem('sb_lunch_reservations_done', JSON.stringify(done || []));
+    }
+
+    function mapSupabaseOrderToLegacy(row) {
+      if (!row) return null;
+      const pickupTime = cleanTimeValue(row.pickup_time);
+      const pickupDate = typeof row.pickup_date === 'string' ? row.pickup_date : '';
+      return {
+        id: row.internal_number,
+        internalNumber: row.internal_number,
+        pickupCode: row.pickup_code,
+        createdAt: row.created_at,
+        completedAt: row.completed_at,
+        customer: {
+          name: row.customer_name || `${row.firstname || ''} ${row.lastname || ''}`.trim(),
+          firstname: row.firstname || '',
+          lastname: row.lastname || '',
+          phone: row.phone || '',
+          email: row.email || ''
+        },
+        reservation: {
+          day: row.day_name,
+          pickupDate,
+          pickupTime,
+          fulfillment: row.fulfillment,
+          dish: row.dish,
+          unitPrice: Number(row.unit_price) || 0,
+          quantity: Number(row.quantity) || 1,
+          total: Number(row.total) || 0,
+          notes: row.notes || '',
+          paymentMethod: row.payment_method || 'Vor Ort',
+          bundeswehrDelivery: !!row.bundeswehr_delivery,
+          location: row.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40472 Düsseldorf',
+          deliveryAddress: row.fulfillment === 'delivery'
+            ? {
+                street: row.delivery_street || '',
+                number: row.delivery_number || '',
+                zip: row.delivery_zip || '',
+                city: row.delivery_city || ''
+              }
+            : null
+        },
+        contract: {
+          agbAccepted: !!row.agb_accepted,
+          bindingReservationAccepted: !!row.contract_accepted,
+          concluded: !!row.contract_concluded,
+          text: row.contract_text || 'Mit Reservierung wurde ein Kaufvertrag abgeschlossen.'
+        },
+        status: row.status || 'reserviert'
+      };
+    }
+
+    function applySupabaseMenuRows(rows) {
+      const plan = { ...DEFAULT_LUNCH_PLAN };
+      const stock = {};
+      (rows || []).forEach(row => {
+        if (!row?.day_name) return;
+        const dish = row.is_active ? String(row.dish || '').trim() : '';
+        plan[row.day_name] = {
+          dish,
+          price: Number(row.unit_price) || 0,
+          weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1
+        };
+        if (dish && row.quantity_available !== null && row.quantity_available !== undefined) {
+          stock[normalizeStockKey(dish)] = Math.max(0, Number(row.quantity_available) || 0);
+        }
+      });
+      saveLunchPlan(plan);
+      saveLunchStock(stock);
+    }
 
     function toDateFromISO(value) {
       if (!value) return null;
@@ -432,6 +535,71 @@ Dein Team von Simonsbrotkörbchen</textarea>
         };
       });
       return next;
+    }
+
+    async function syncLunchReservationsFromSupabase() {
+      if (!supabaseClient) return false;
+      const { data, error } = await supabaseClient
+        .from('lunch_orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const mapped = (data || []).map(mapSupabaseOrderToLegacy).filter(Boolean);
+      lunchReservations = mapped.filter(entry => entry.status !== 'abgeholt');
+      lunchReservationsDone = mapped.filter(entry => entry.status === 'abgeholt');
+      saveLunchMirror(lunchReservations, lunchReservationsDone);
+      renderTables();
+      return true;
+    }
+
+    async function syncLunchMenuFromSupabase() {
+      if (!supabaseClient) return false;
+      const { data, error } = await supabaseClient
+        .from('lunch_menu_items')
+        .select('day_name, weekday, dish, unit_price, quantity_available, is_active')
+        .order('weekday', { ascending: true });
+
+      if (error) throw error;
+
+      applySupabaseMenuRows(data || []);
+      renderLunchSettingsManager();
+      return true;
+    }
+
+    function setAdminFeedback(message, success = false) {
+      if (!adminAuthFeedback) return;
+      adminAuthFeedback.className = success ? 'lunch-feedback feedback-success' : 'lunch-feedback';
+      adminAuthFeedback.textContent = message || '';
+    }
+
+    function setAdminAuthenticated(isAuthenticated) {
+      if (adminAuthCard) adminAuthCard.hidden = isAuthenticated;
+      if (adminDashboard) adminDashboard.hidden = !isAuthenticated;
+      if (adminLogoutBtn) adminLogoutBtn.hidden = !isAuthenticated;
+    }
+
+    function subscribeAdminRealtime() {
+      if (!supabaseClient) return;
+      adminSubscription?.unsubscribe?.();
+      adminSubscription = supabaseClient
+        .channel('admin-lunch-live')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'lunch_orders' }, () => {
+          syncLunchReservationsFromSupabase().catch(console.error);
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'lunch_menu_items' }, () => {
+          syncLunchMenuFromSupabase().catch(console.error);
+        })
+        .subscribe();
+    }
+
+    async function hydrateAdminFromSupabase() {
+      await Promise.all([
+        syncLunchReservationsFromSupabase(),
+        syncLunchMenuFromSupabase()
+      ]);
+      subscribeAdminRealtime();
     }
 
     function renderLunchPlanManager() {
@@ -728,16 +896,25 @@ Dein Team von Simonsbrotkörbchen</textarea>
       printWindow.print();
     }
 
-    function markLunchDone(id) {
-      const index = lunchReservations.findIndex(entry => String(entry.id) === String(id));
-      if (index === -1) return;
-      const [moved] = lunchReservations.splice(index, 1);
-      moved.status = 'abgeholt';
-      moved.completedAt = new Date().toISOString();
-      lunchReservationsDone.push(moved);
-      localStorage.setItem('sb_lunch_reservations', JSON.stringify(lunchReservations));
-      localStorage.setItem('sb_lunch_reservations_done', JSON.stringify(lunchReservationsDone));
-      renderTables();
+    async function markLunchDone(id) {
+      if (supabaseClient) {
+        const { error } = await supabaseClient
+          .from('lunch_orders')
+          .update({ status: 'abgeholt', completed_at: new Date().toISOString() })
+          .eq('internal_number', String(id));
+        if (error) throw error;
+        await syncLunchReservationsFromSupabase();
+      } else {
+        const index = lunchReservations.findIndex(entry => String(entry.id) === String(id));
+        if (index === -1) return;
+        const [moved] = lunchReservations.splice(index, 1);
+        moved.status = 'abgeholt';
+        moved.completedAt = new Date().toISOString();
+        lunchReservationsDone.push(moved);
+        localStorage.setItem('sb_lunch_reservations', JSON.stringify(lunchReservations));
+        localStorage.setItem('sb_lunch_reservations_done', JSON.stringify(lunchReservationsDone));
+        renderTables();
+      }
       showTab('lunch-pending');
     }
 
@@ -758,7 +935,9 @@ Dein Team von Simonsbrotkörbchen</textarea>
         printLunchReservation(idRaw, inDone);
       }
       if (action === 'lunch-done') {
-        markLunchDone(idRaw);
+        markLunchDone(idRaw).catch(error => {
+          console.error('Mittagstisch-Status konnte nicht aktualisiert werden:', error);
+        });
       }
     });
 
@@ -869,9 +1048,10 @@ Dein Team von Simonsbrotkörbchen</textarea>
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify({}) }));
     });
 
-    document.getElementById('lunch-settings-save')?.addEventListener('click', () => {
+    document.getElementById('lunch-settings-save')?.addEventListener('click', async () => {
       const plan = {};
       const stock = {};
+      const rows = [];
       LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
         const dishInput = document.querySelector(`[data-plan-dish="${day}"]`);
         const stockInput = document.querySelector(`[data-plan-stock="${day}"]`);
@@ -880,33 +1060,77 @@ Dein Team von Simonsbrotkörbchen</textarea>
         const price = Number(priceInput?.value || 0);
         const availabilityRaw = (stockInput?.value || '').trim();
         plan[day] = { dish, price, weekday };
+        let quantityAvailable = null;
         if (availabilityRaw !== '') {
           const n = Math.max(0, Math.floor(Number(availabilityRaw)));
           if (Number.isFinite(n)) {
             stock[normalizeStockKey(dish)] = n;
+            quantityAvailable = n;
           }
         }
+        rows.push({
+          day_name: day,
+          weekday,
+          dish,
+          unit_price: price,
+          quantity_available: quantityAvailable,
+          is_active: !!dish
+        });
       });
-      saveLunchPlan(normalizeLunchPlan(plan));
-      saveLunchStock(stock);
-      renderLunchSettingsManager();
       const feedback = document.getElementById('lunch-settings-feedback');
-      if (feedback) {
-        feedback.className = 'lunch-feedback feedback-success';
-        feedback.textContent = 'Wochenplan und Bestände gespeichert.';
+      try {
+        if (supabaseClient) {
+          const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
+          if (error) throw error;
+          await syncLunchMenuFromSupabase();
+        } else {
+          saveLunchPlan(normalizeLunchPlan(plan));
+          saveLunchStock(stock);
+          renderLunchSettingsManager();
+        }
+        if (feedback) {
+          feedback.className = 'lunch-feedback feedback-success';
+          feedback.textContent = 'Wochenplan und Bestände gespeichert.';
+        }
+      } catch (error) {
+        if (feedback) {
+          feedback.className = 'lunch-feedback';
+          feedback.textContent = 'Speichern in Supabase fehlgeschlagen.';
+        }
       }
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
     });
 
-    document.getElementById('lunch-settings-reset')?.addEventListener('click', () => {
-      saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
-      saveLunchStock({});
-      renderLunchSettingsManager();
+    document.getElementById('lunch-settings-reset')?.addEventListener('click', async () => {
       const feedback = document.getElementById('lunch-settings-feedback');
-      if (feedback) {
-        feedback.className = 'lunch-feedback feedback-success';
-        feedback.textContent = 'Wochenplan und Bestände auf Standard zurückgesetzt.';
+      try {
+        if (supabaseClient) {
+          const rows = Object.entries(DEFAULT_LUNCH_PLAN).map(([day, item]) => ({
+            day_name: day,
+            weekday: item.weekday,
+            dish: item.dish,
+            unit_price: item.price,
+            quantity_available: null,
+            is_active: !!item.dish
+          }));
+          const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
+          if (error) throw error;
+          await syncLunchMenuFromSupabase();
+        } else {
+          saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
+          saveLunchStock({});
+          renderLunchSettingsManager();
+        }
+        if (feedback) {
+          feedback.className = 'lunch-feedback feedback-success';
+          feedback.textContent = 'Wochenplan und Bestände auf Standard zurückgesetzt.';
+        }
+      } catch (error) {
+        if (feedback) {
+          feedback.className = 'lunch-feedback';
+          feedback.textContent = 'Zurücksetzen in Supabase fehlgeschlagen.';
+        }
       }
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify({}) }));
@@ -944,9 +1168,61 @@ Dein Team von Simonsbrotkörbchen</textarea>
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
     });
 
+    adminAuthForm?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!window.SB_SUPABASE?.isConfigured?.() || !supabaseClient) {
+        setAdminFeedback('Bitte trage zuerst URL und Anon-Key in assets/js/supabase-config.js ein.');
+        return;
+      }
+      const email = document.getElementById('admin-email')?.value?.trim();
+      const password = document.getElementById('admin-password')?.value || '';
+      setAdminFeedback('Anmeldung läuft ...');
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) {
+        setAdminFeedback('Login fehlgeschlagen. Bitte Daten prüfen.');
+        return;
+      }
+      setAdminFeedback('Anmeldung erfolgreich.', true);
+    });
+
+    adminLogoutBtn?.addEventListener('click', async () => {
+      await supabaseClient?.auth?.signOut?.();
+    });
+
     renderTables();
     renderLunchSettingsManager();
     showTab('pending');
+
+    if (!window.SB_SUPABASE?.isConfigured?.() || !supabaseClient) {
+      setAdminAuthenticated(false);
+      setAdminFeedback('Supabase ist noch nicht konfiguriert. Öffne assets/js/supabase-config.js und trage Projekt-URL + Anon-Key ein.');
+    } else {
+      supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        setAdminAuthenticated(!!session);
+        if (session) {
+          setAdminFeedback('');
+          try {
+            await hydrateAdminFromSupabase();
+          } catch (error) {
+            console.error('Supabase Admin Sync fehlgeschlagen:', error);
+          }
+        } else {
+          adminSubscription?.unsubscribe?.();
+          adminSubscription = null;
+        }
+      });
+
+      supabaseClient.auth.getSession().then(async ({ data }) => {
+        const session = data?.session || null;
+        setAdminAuthenticated(!!session);
+        if (!session) return;
+        try {
+          await hydrateAdminFromSupabase();
+        } catch (error) {
+          console.error('Supabase Admin Initialisierung fehlgeschlagen:', error);
+        }
+      });
+    }
 
     /* ===== Wunschzettel ===== */
     const WZ_KEY = 'sb_wunschzettel';
