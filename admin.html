@@ -1080,6 +1080,51 @@ Dein Team von Simonsbrotkörbchen</textarea>
       return { plan, stock, rows };
     }
 
+    async function writeLunchMenuRows(rows) {
+      if (!supabaseClient) throw new Error('Supabase nicht verbunden – Seite neu laden.');
+      if (!Array.isArray(rows) || !rows.length) return;
+
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      if (!sessionData?.session) throw new Error('Keine Admin-Session – bitte neu einloggen.');
+
+      const upsertResult = await supabaseClient
+        .from('lunch_menu_items')
+        .upsert(rows, { onConflict: 'day_name' });
+
+      if (!upsertResult.error) return;
+
+      const upsertMessage = String(upsertResult.error?.message || '').toLowerCase();
+      const canFallback = upsertMessage.includes('no unique') || upsertMessage.includes('on conflict');
+      if (!canFallback) {
+        throw upsertResult.error;
+      }
+
+      for (const row of rows) {
+        const payload = {
+          weekday: row.weekday,
+          dish: row.dish,
+          unit_price: row.unit_price,
+          quantity_available: row.quantity_available,
+          is_active: row.is_active
+        };
+
+        const { data: updatedRows, error: updateError } = await supabaseClient
+          .from('lunch_menu_items')
+          .update(payload)
+          .eq('day_name', row.day_name)
+          .select('day_name');
+
+        if (updateError) throw updateError;
+
+        if (!Array.isArray(updatedRows) || !updatedRows.length) {
+          const { error: insertError } = await supabaseClient
+            .from('lunch_menu_items')
+            .insert([row]);
+          if (insertError) throw insertError;
+        }
+      }
+    }
+
     let lunchSaveInFlight = false;
 
     async function persistLunchSettings({ silent = false } = {}) {
@@ -1098,12 +1143,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
         const { plan, stock, rows } = collectLunchSettings();
         const normalizedPlan = normalizeLunchPlan(plan);
 
-        if (supabaseClient) {
-          const { error } = await supabaseClient
-            .from('lunch_menu_items')
-            .upsert(rows, { onConflict: 'day_name' });
-          if (error) throw error;
-        }
+        await writeLunchMenuRows(rows);
 
         saveLunchPlan(normalizedPlan);
         saveLunchStock(stock);
@@ -1157,26 +1197,19 @@ Dein Team von Simonsbrotkörbchen</textarea>
     document.getElementById('lunch-settings-reset')?.addEventListener('click', async () => {
       const feedback = document.getElementById('lunch-settings-feedback');
       try {
-        if (supabaseClient) {
-          const rows = Object.entries(DEFAULT_LUNCH_PLAN).map(([day, item]) => ({
-            day_name: day,
-            weekday: item.weekday,
-            dish: item.dish,
-            unit_price: item.price,
-            quantity_available: null,
-            is_active: item.isActive !== false
-          }));
-          const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
-          if (error) throw error;
-          saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
-          saveLunchStock({});
-          renderLunchSettingsManager();
-          syncLunchMenuFromSupabase().catch(console.error);
-        } else {
-          saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
-          saveLunchStock({});
-          renderLunchSettingsManager();
-        }
+        const rows = Object.entries(DEFAULT_LUNCH_PLAN).map(([day, item]) => ({
+          day_name: day,
+          weekday: item.weekday,
+          dish: item.dish,
+          unit_price: item.price,
+          quantity_available: null,
+          is_active: item.isActive !== false
+        }));
+        await writeLunchMenuRows(rows);
+        saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
+        saveLunchStock({});
+        renderLunchSettingsManager();
+        syncLunchMenuFromSupabase().catch(console.error);
         if (feedback) {
           feedback.className = 'lunch-feedback feedback-success';
           feedback.textContent = 'Wochenplan und Bestände auf Standard zurückgesetzt.';
