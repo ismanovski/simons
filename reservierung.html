@@ -331,22 +331,25 @@
       // Endpoint: /.netlify/functions/send-confirmation
       // Setup-Anleitung: siehe netlify/functions/send-confirmation.js
       async function sendConfirmationEmail(params) {
-        try {
-          const response = await fetch('/.netlify/functions/send-confirmation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(params)
-          });
-          if (!response.ok) {
+        const endpoints = [
+          '/.netlify/functions/send-confirmation',
+          'https://simons-brotkoerbchen.de/.netlify/functions/send-confirmation'
+        ];
+        for (const url of endpoints) {
+          try {
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(params)
+            });
+            if (response.ok) return true;
             const details = await response.text();
-            console.warn('Bestätigungs-E-Mail konnte nicht gesendet werden:', details);
-            return false;
+            console.warn(`Bestätigungs-E-Mail (${url}) fehlgeschlagen:`, details);
+          } catch (err) {
+            console.warn(`Bestätigungs-E-Mail (${url}) fehlgeschlagen:`, err);
           }
-          return true;
-        } catch (err) {
-          console.warn('Bestätigungs-E-Mail konnte nicht gesendet werden:', err);
-          return false;
         }
+        return false;
       }
       // ─────────────────────────────────────────────────────────────────────
       const DELIVERY_FEE = 2.90;
