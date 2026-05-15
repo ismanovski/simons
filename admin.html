@@ -1081,6 +1081,9 @@ Dein Team von Simonsbrotkörbchen</textarea>
     }
 
     let lunchSettingsSaveTimer = null;
+    let lunchSettingsSaving = false;
+    let lunchSettingsSaveQueued = false;
+    let lunchStockSaveTimer = null;
 
     function scheduleLunchSettingsSave() {
       clearTimeout(lunchSettingsSaveTimer);
@@ -1090,18 +1093,33 @@ Dein Team von Simonsbrotkörbchen</textarea>
     }
 
     async function persistLunchSettings({ silent = false } = {}) {
-      const { plan, stock, rows } = collectLunchSettings();
+      if (lunchSettingsSaving) {
+        lunchSettingsSaveQueued = true;
+        return false;
+      }
+
+      lunchSettingsSaving = true;
       const feedback = document.getElementById('lunch-settings-feedback');
+
       try {
-        if (supabaseClient) {
-          const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
-          if (error) throw error;
-          await syncLunchMenuFromSupabase();
-        } else {
-          saveLunchPlan(normalizeLunchPlan(plan));
-          saveLunchStock(stock);
-          renderLunchSettingsManager();
-        }
+        do {
+          lunchSettingsSaveQueued = false;
+          const { plan, stock, rows } = collectLunchSettings();
+
+          if (supabaseClient) {
+            const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
+            if (error) throw error;
+            await syncLunchMenuFromSupabase();
+          } else {
+            saveLunchPlan(normalizeLunchPlan(plan));
+            saveLunchStock(stock);
+            renderLunchSettingsManager();
+          }
+
+          window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
+          window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
+        } while (lunchSettingsSaveQueued);
+
         if (!silent && feedback) {
           feedback.className = 'lunch-feedback feedback-success';
           feedback.textContent = 'Wochenplan, Bestände und Verfügbarkeit gespeichert. Entfernte Haken sind jetzt wieder sichtbar.';
@@ -1111,9 +1129,10 @@ Dein Team von Simonsbrotkörbchen</textarea>
           feedback.className = 'lunch-feedback';
           feedback.textContent = 'Speichern in Supabase fehlgeschlagen.';
         }
+      } finally {
+        lunchSettingsSaving = false;
       }
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
+
       return true;
     }
 
@@ -1219,6 +1238,25 @@ Dein Team von Simonsbrotkörbchen</textarea>
 
     document.getElementById('lunch-settings-body')?.addEventListener('input', scheduleLunchSettingsSave);
     document.getElementById('lunch-settings-body')?.addEventListener('change', scheduleLunchSettingsSave);
+    document.getElementById('lunch-stock-fields')?.addEventListener('input', () => {
+      clearTimeout(lunchStockSaveTimer);
+      lunchStockSaveTimer = setTimeout(() => {
+        const inputs = Array.from(document.querySelectorAll('[data-stock-dish]'));
+        const next = {};
+        inputs.forEach(input => {
+          const dish = input.dataset.stockDish;
+          const raw = (input.value || '').trim();
+          if (raw === '') return;
+          const n = Math.max(0, Math.floor(Number(raw)));
+          if (Number.isFinite(n)) next[normalizeStockKey(dish)] = n;
+        });
+        saveLunchStock(next);
+        window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(next) }));
+      }, 500);
+    });
+    document.getElementById('lunch-stock-fields')?.addEventListener('change', () => {
+      document.getElementById('lunch-stock-save')?.click();
+    });
 
     adminAuthForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
