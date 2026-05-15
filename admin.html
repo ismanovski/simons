@@ -1046,6 +1046,77 @@ Dein Team von Simonsbrotkörbchen</textarea>
       `).join('');
     }
 
+    function collectLunchSettings() {
+      const plan = {};
+      const stock = {};
+      const rows = [];
+      LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
+        const dishInput = document.querySelector(`[data-plan-dish="${day}"]`);
+        const stockInput = document.querySelector(`[data-plan-stock="${day}"]`);
+        const priceInput = document.querySelector(`[data-plan-price="${day}"]`);
+        const inactiveInput = document.querySelector(`[data-plan-inactive="${day}"]`);
+        const dish = (dishInput?.value || '').trim();
+        const price = Number(priceInput?.value || 0);
+        const isActive = !(inactiveInput?.checked);
+        const availabilityRaw = (stockInput?.value || '').trim();
+        plan[day] = { dish, price, weekday, isActive };
+        let quantityAvailable = null;
+        if (availabilityRaw !== '' && dish && isActive) {
+          const n = Math.max(0, Math.floor(Number(availabilityRaw)));
+          if (Number.isFinite(n)) {
+            stock[normalizeStockKey(dish)] = n;
+            quantityAvailable = n;
+          }
+        }
+        rows.push({
+          day_name: day,
+          weekday,
+          dish,
+          unit_price: price,
+          quantity_available: quantityAvailable,
+          is_active: !!dish && isActive
+        });
+      });
+      return { plan, stock, rows };
+    }
+
+    let lunchSettingsSaveTimer = null;
+
+    function scheduleLunchSettingsSave() {
+      clearTimeout(lunchSettingsSaveTimer);
+      lunchSettingsSaveTimer = setTimeout(() => {
+        persistLunchSettings({ silent: true }).catch(console.error);
+      }, 500);
+    }
+
+    async function persistLunchSettings({ silent = false } = {}) {
+      const { plan, stock, rows } = collectLunchSettings();
+      const feedback = document.getElementById('lunch-settings-feedback');
+      try {
+        if (supabaseClient) {
+          const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
+          if (error) throw error;
+          await syncLunchMenuFromSupabase();
+        } else {
+          saveLunchPlan(normalizeLunchPlan(plan));
+          saveLunchStock(stock);
+          renderLunchSettingsManager();
+        }
+        if (!silent && feedback) {
+          feedback.className = 'lunch-feedback feedback-success';
+          feedback.textContent = 'Wochenplan, Bestände und Verfügbarkeit gespeichert. Entfernte Haken sind jetzt wieder sichtbar.';
+        }
+      } catch (error) {
+        if (!silent && feedback) {
+          feedback.className = 'lunch-feedback';
+          feedback.textContent = 'Speichern in Supabase fehlgeschlagen.';
+        }
+      }
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
+      return true;
+    }
+
     document.getElementById('lunch-stock-save')?.addEventListener('click', () => {
       const inputs = Array.from(document.querySelectorAll('[data-stock-dish]'));
       const next = {};
@@ -1077,59 +1148,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
     });
 
     document.getElementById('lunch-settings-save')?.addEventListener('click', async () => {
-      const plan = {};
-      const stock = {};
-      const rows = [];
-      LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
-        const dishInput = document.querySelector(`[data-plan-dish="${day}"]`);
-        const stockInput = document.querySelector(`[data-plan-stock="${day}"]`);
-        const priceInput = document.querySelector(`[data-plan-price="${day}"]`);
-        const inactiveInput = document.querySelector(`[data-plan-inactive="${day}"]`);
-        const dish = (dishInput?.value || '').trim();
-        const price = Number(priceInput?.value || 0);
-        const isActive = !(inactiveInput?.checked);
-        const availabilityRaw = (stockInput?.value || '').trim();
-        plan[day] = { dish, price, weekday, isActive };
-        let quantityAvailable = null;
-        if (availabilityRaw !== '' && dish && isActive) {
-          const n = Math.max(0, Math.floor(Number(availabilityRaw)));
-          if (Number.isFinite(n)) {
-            stock[normalizeStockKey(dish)] = n;
-            quantityAvailable = n;
-          }
-        }
-        rows.push({
-          day_name: day,
-          weekday,
-          dish,
-          unit_price: price,
-          quantity_available: quantityAvailable,
-          is_active: !!dish && isActive
-        });
-      });
-      const feedback = document.getElementById('lunch-settings-feedback');
-      try {
-        if (supabaseClient) {
-          const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
-          if (error) throw error;
-          await syncLunchMenuFromSupabase();
-        } else {
-          saveLunchPlan(normalizeLunchPlan(plan));
-          saveLunchStock(stock);
-          renderLunchSettingsManager();
-        }
-        if (feedback) {
-          feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = 'Wochenplan, Bestände und Verfügbarkeit gespeichert. Entfernte Haken sind jetzt wieder sichtbar.';
-        }
-      } catch (error) {
-        if (feedback) {
-          feedback.className = 'lunch-feedback';
-          feedback.textContent = 'Speichern in Supabase fehlgeschlagen.';
-        }
-      }
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
+      await persistLunchSettings();
     });
 
     document.getElementById('lunch-settings-reset')?.addEventListener('click', async () => {
@@ -1197,6 +1216,9 @@ Dein Team von Simonsbrotkörbchen</textarea>
       }
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
     });
+
+    document.getElementById('lunch-settings-body')?.addEventListener('input', scheduleLunchSettingsSave);
+    document.getElementById('lunch-settings-body')?.addEventListener('change', scheduleLunchSettingsSave);
 
     adminAuthForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
