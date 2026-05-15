@@ -471,21 +471,45 @@
         localStorage.setItem(LUNCH_PLAN_KEY, JSON.stringify(plan || {}));
       }
 
-      async function syncLunchDataFromSupabase() {
-        if (!supabaseClient) return false;
-        const { data, error } = await supabaseClient
-          .from('lunch_menu_items')
-          .select('day_name, weekday, dish, unit_price, quantity_available, is_active')
-          .order('weekday', { ascending: true });
-
-        if (error) {
-          console.error('Supabase Wochenplan konnte nicht geladen werden:', error);
-          return false;
+      async function fetchLunchMenuRowsViaEndpoint() {
+        const endpoints = [
+          '/.netlify/functions/get-lunch-menu',
+          'https://simons-brotkoerbchen.de/.netlify/functions/get-lunch-menu'
+        ];
+        for (const endpoint of endpoints) {
+          try {
+            const res = await fetch(endpoint, { method: 'GET' });
+            if (!res.ok) continue;
+            const payload = await res.json();
+            if (payload?.ok && Array.isArray(payload.rows)) return payload.rows;
+          } catch {
+            // try next endpoint
+          }
         }
+        return null;
+      }
+
+      async function syncLunchDataFromSupabase() {
+        let rows = await fetchLunchMenuRowsViaEndpoint();
+
+        if (!rows && supabaseClient) {
+          const { data, error } = await supabaseClient
+            .from('lunch_menu_items')
+            .select('day_name, weekday, dish, unit_price, quantity_available, is_active')
+            .order('weekday', { ascending: true });
+
+          if (error) {
+            console.error('Supabase Wochenplan konnte nicht geladen werden:', error);
+            return false;
+          }
+          rows = data || [];
+        }
+
+        if (!rows) return false;
 
         const plan = { ...DEFAULT_LUNCH_PLAN };
         const stock = {};
-        (data || []).forEach(row => {
+        (rows || []).forEach(row => {
           if (!row?.day_name) return;
           const dish = String(row.dish || '').trim();
           plan[row.day_name] = {
