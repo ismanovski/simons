@@ -1080,69 +1080,66 @@ Dein Team von Simonsbrotkörbchen</textarea>
       return { plan, stock, rows };
     }
 
-    let lunchSettingsSaveTimer = null;
-    let lunchSettingsSaving = false;
-    let lunchSettingsSaveQueued = false;
-    let lunchStockSaveTimer = null;
+    let lunchRemoteSyncInFlight = false;
+    let lunchRemoteSyncQueuedRows = null;
 
-    function scheduleLunchSettingsSave() {
-      clearTimeout(lunchSettingsSaveTimer);
-      lunchSettingsSaveTimer = setTimeout(() => {
-        persistLunchSettings({ silent: true }).catch(console.error);
-      }, 500);
+    function syncLunchSettingsToSupabase(rows, { silent = false } = {}) {
+      if (!supabaseClient) return;
+      lunchRemoteSyncQueuedRows = rows;
+      if (lunchRemoteSyncInFlight) return;
+
+      lunchRemoteSyncInFlight = true;
+      const feedback = document.getElementById('lunch-settings-feedback');
+
+      (async () => {
+        try {
+          while (lunchRemoteSyncQueuedRows) {
+            const nextRows = lunchRemoteSyncQueuedRows;
+            lunchRemoteSyncQueuedRows = null;
+            const { error } = await supabaseClient.from('lunch_menu_items').upsert(nextRows, { onConflict: 'day_name' });
+            if (error) throw error;
+          }
+          syncLunchMenuFromSupabase().catch(console.error);
+          if (!silent && feedback) {
+            feedback.className = 'lunch-feedback feedback-success';
+            feedback.textContent = 'Gespeichert und live synchronisiert.';
+          }
+        } catch (error) {
+          if (feedback) {
+            feedback.className = 'lunch-feedback';
+            feedback.textContent = `Sync fehlgeschlagen: ${error?.message || 'Unbekannter Fehler'}`;
+          }
+        } finally {
+          lunchRemoteSyncInFlight = false;
+          if (lunchRemoteSyncQueuedRows) {
+            syncLunchSettingsToSupabase(lunchRemoteSyncQueuedRows, { silent: true });
+          }
+        }
+      })();
     }
 
     async function persistLunchSettings({ silent = false } = {}) {
-      if (lunchSettingsSaving) {
-        lunchSettingsSaveQueued = true;
-        if (!silent) {
-          const feedback = document.getElementById('lunch-settings-feedback');
-          if (feedback) {
-            feedback.className = 'lunch-feedback feedback-success';
-            feedback.textContent = 'Änderung wird gespeichert…';
-          }
-        }
-        return false;
-      }
-
-      lunchSettingsSaving = true;
+      const { plan, stock, rows } = collectLunchSettings();
+      const normalizedPlan = normalizeLunchPlan(plan);
       const feedback = document.getElementById('lunch-settings-feedback');
 
-      try {
-        do {
-          lunchSettingsSaveQueued = false;
-          const { plan, stock, rows } = collectLunchSettings();
+      saveLunchPlan(normalizedPlan);
+      saveLunchStock(stock);
 
-          if (supabaseClient) {
-            const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
-            if (error) throw error;
-            saveLunchPlan(normalizeLunchPlan(plan));
-            saveLunchStock(stock);
-            renderLunchSettingsManager();
-            syncLunchMenuFromSupabase().catch(console.error);
-          } else {
-            saveLunchPlan(normalizeLunchPlan(plan));
-            saveLunchStock(stock);
-            renderLunchSettingsManager();
-          }
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizedPlan) }));
+      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
 
-          window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
-          window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
-        } while (lunchSettingsSaveQueued);
-
-        if (!silent && feedback) {
+      if (!silent && feedback) {
+        if (supabaseClient) {
           feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = 'Wochenplan, Bestände und Verfügbarkeit gespeichert. Entfernte Haken sind jetzt wieder sichtbar.';
+          feedback.textContent = 'Lokal gespeichert. Synchronisierung läuft …';
+        } else {
+          feedback.className = 'lunch-feedback feedback-success';
+          feedback.textContent = 'Lokal gespeichert.';
         }
-      } catch (error) {
-        if (!silent && feedback) {
-          feedback.className = 'lunch-feedback';
-          feedback.textContent = `Speichern fehlgeschlagen: ${error?.message || 'Unbekannter Fehler'}`;
-        }
-      } finally {
-        lunchSettingsSaving = false;
       }
 
+      syncLunchSettingsToSupabase(rows, { silent });
       return true;
     }
 
@@ -1167,8 +1164,8 @@ Dein Team von Simonsbrotkörbchen</textarea>
       }
     });
 
-    document.getElementById('lunch-settings-save')?.addEventListener('click', async () => {
-      await persistLunchSettings();
+    document.getElementById('lunch-settings-save')?.addEventListener('click', () => {
+      persistLunchSettings({ silent: false }).catch(console.error);
     });
 
     document.getElementById('lunch-settings-reset')?.addEventListener('click', async () => {
@@ -1240,17 +1237,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
     });
 
-    document.getElementById('lunch-settings-body')?.addEventListener('input', scheduleLunchSettingsSave);
-    document.getElementById('lunch-settings-body')?.addEventListener('change', scheduleLunchSettingsSave);
-    document.getElementById('lunch-stock-fields')?.addEventListener('input', () => {
-      clearTimeout(lunchStockSaveTimer);
-      lunchStockSaveTimer = setTimeout(() => {
-        persistLunchSettings({ silent: true }).catch(console.error);
-      }, 500);
-    });
-    document.getElementById('lunch-stock-fields')?.addEventListener('change', () => {
-      persistLunchSettings({ silent: true }).catch(console.error);
-    });
+    // Autosave intentionally disabled to avoid slow/failing rapid network writes.
 
     adminAuthForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
