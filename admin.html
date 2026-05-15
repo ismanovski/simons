@@ -845,27 +845,30 @@ Dein Team von Simonsbrotkörbchen</textarea>
       const email = document.getElementById('admin-email')?.value?.trim();
       const password = document.getElementById('admin-password')?.value || '';
       setAdminFeedback('Anmeldung läuft ...');
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        setAdminFeedback('Login fehlgeschlagen. Bitte Daten prüfen.');
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) {
+          const message = String(error?.message || 'Login fehlgeschlagen').trim();
+          setAdminFeedback(message, false);
+          return;
+        }
+        setAdminAuthenticated(!!data?.session);
+        try {
+          await hydrateAdminFromSupabase();
+          showTab('pending');
+        } catch (syncError) {
+          console.error('Adminbereich konnte nach dem Login nicht geladen werden:', syncError);
+        }
+        setAdminFeedback('Anmeldung erfolgreich.', true);
+      } catch (error) {
+        const message = String(error?.message || 'Login fehlgeschlagen').trim();
+        setAdminFeedback(message, false);
         return;
       }
-      setAdminAuthenticated(!!data?.session);
-      try {
-        await hydrateAdminFromSupabase();
-        showTab('pending');
-      } catch (syncError) {
-        console.error('Adminbereich konnte nach dem Login nicht geladen werden:', syncError);
-      }
-      setAdminFeedback('Anmeldung erfolgreich.', true);
     });
 
     adminLogoutBtn?.addEventListener('click', async () => {
       await supabaseClient?.auth?.signOut?.();
-    });
-
-    window.addEventListener('pagehide', () => {
-      supabaseClient?.auth?.signOut?.();
     });
 
     renderTables();
