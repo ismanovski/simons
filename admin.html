@@ -1111,14 +1111,19 @@ Dein Team von Simonsbrotkörbchen</textarea>
           const normalizedPlan = normalizeLunchPlan(plan);
 
           if (supabaseClient) {
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 10000);
             const { error } = await supabaseClient
               .from('lunch_menu_items')
-              .upsert(rows, { onConflict: 'day_name' });
+              .upsert(rows, { onConflict: 'day_name', returning: 'minimal' })
+              .abortSignal(controller.signal);
+            clearTimeout(timeout);
             if (error) throw error;
             saveLunchPlan(normalizedPlan);
             saveLunchStock(stock);
             renderLunchSettingsManager();
-            syncLunchMenuFromSupabase().catch(console.error);
+            // background re-sync deferred to avoid blocking UI
+            setTimeout(() => syncLunchMenuFromSupabase().catch(console.error), 500);
           } else {
             saveLunchPlan(normalizedPlan);
             saveLunchStock(stock);
