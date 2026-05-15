@@ -634,23 +634,37 @@
       if (!hasConfig) return;
 
       const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(state.paypalClientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}&intent=capture&commit=true&enable-funding=paypal&disable-funding=card,credit,paylater,venmo`;
+      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(state.paypalClientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}&intent=capture&commit=true&enable-funding=paypal`;
       script.onload = () => {
         if (!window.paypal) return;
         state.paypalReady = true;
         window.paypal.Buttons({
           createOrder: async () => {
-            state.paypalApproved = false;
-            const total = state.subtotal + getDeliveryFee();
-            return createPaypalOrderOnServer(total);
+            try {
+              state.paypalApproved = false;
+              const total = state.subtotal + getDeliveryFee();
+              return await createPaypalOrderOnServer(total);
+            } catch (error) {
+              state.paypalApproved = false;
+              console.error('PayPal createOrder failed:', error);
+              showToast(error?.message || 'PayPal-Start fehlgeschlagen.', true);
+              throw error;
+            }
           },
           onApprove: async (data) => {
-            await capturePaypalOrderOnServer(data.orderID);
-            state.paypalApproved = true;
-            showToast('PayPal-Zahlung bestätigt.');
+            try {
+              await capturePaypalOrderOnServer(data.orderID);
+              state.paypalApproved = true;
+              showToast('PayPal-Zahlung bestätigt.');
+            } catch (error) {
+              state.paypalApproved = false;
+              console.error('PayPal capture failed:', error);
+              showToast(error?.message || 'PayPal-Zahlung konnte nicht bestätigt werden.', true);
+            }
           },
-          onError: () => {
+          onError: (error) => {
             state.paypalApproved = false;
+            console.error('PayPal SDK error:', error);
             showToast('PayPal-Fehler. Bitte erneut versuchen.', true);
           }
         }).render('#paypal-button-container');

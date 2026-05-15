@@ -513,25 +513,45 @@
         if (!lunchPaypalClientId) return;
 
         const script = document.createElement('script');
-        script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(lunchPaypalClientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}&intent=capture&commit=true&enable-funding=paypal&disable-funding=card,credit,paylater,venmo`;
+        script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(lunchPaypalClientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}&intent=capture&commit=true&enable-funding=paypal`;
         script.onload = () => {
           if (!window.paypal || !paypalContainer) return;
           lunchPaypalReady = true;
           window.paypal.Buttons({
             createOrder: async () => {
-              resetLunchPaypalApproval();
-              return createLunchPaypalOrderOnServer(getCurrentLunchTotal());
-            },
-            onApprove: async (data) => {
-              await captureLunchPaypalOrderOnServer(data.orderID);
-              lunchPaypalApproved = true;
-              if (feedback) {
-                feedback.classList.add('feedback-success');
-                feedback.textContent = 'PayPal-Zahlung bestätigt. Du kannst jetzt bestellen.';
+              try {
+                resetLunchPaypalApproval();
+                return await createLunchPaypalOrderOnServer(getCurrentLunchTotal());
+              } catch (error) {
+                lunchPaypalApproved = false;
+                console.error('Lunch PayPal createOrder failed:', error);
+                if (feedback) {
+                  feedback.classList.remove('feedback-success');
+                  feedback.textContent = error?.message || 'PayPal-Start fehlgeschlagen.';
+                }
+                throw error;
               }
             },
-            onError: () => {
+            onApprove: async (data) => {
+              try {
+                await captureLunchPaypalOrderOnServer(data.orderID);
+                lunchPaypalApproved = true;
+                if (feedback) {
+                  feedback.classList.add('feedback-success');
+                  feedback.textContent = 'PayPal-Zahlung bestätigt. Du kannst jetzt bestellen.';
+                }
+              } catch (error) {
+                lunchPaypalApproved = false;
+                console.error('Lunch PayPal capture failed:', error);
+                if (feedback) {
+                  feedback.classList.remove('feedback-success');
+                  feedback.textContent = error?.message || 'PayPal-Zahlung konnte nicht bestätigt werden.';
+                }
+              }
+            },
+            onError: (error) => {
               lunchPaypalApproved = false;
+              console.error('Lunch PayPal SDK error:', error);
               if (feedback) {
                 feedback.classList.remove('feedback-success');
                 feedback.textContent = 'PayPal-Fehler. Bitte erneut versuchen.';
