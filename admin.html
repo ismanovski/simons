@@ -1080,71 +1080,73 @@ Dein Team von Simonsbrotkörbchen</textarea>
       return { plan, stock, rows };
     }
 
-    let lunchRemoteSyncInFlight = false;
-    let lunchRemoteSyncQueuedRows = null;
-
-    function syncLunchSettingsToSupabase(rows, { silent = false } = {}) {
-      if (!supabaseClient) return;
-      lunchRemoteSyncQueuedRows = rows;
-      if (lunchRemoteSyncInFlight) return;
-
-      lunchRemoteSyncInFlight = true;
-      const feedback = document.getElementById('lunch-settings-feedback');
-
-      (async () => {
-        try {
-          while (lunchRemoteSyncQueuedRows) {
-            const nextRows = lunchRemoteSyncQueuedRows;
-            lunchRemoteSyncQueuedRows = null;
-            const { error } = await supabaseClient.from('lunch_menu_items').upsert(nextRows, { onConflict: 'day_name' });
-            if (error) throw error;
-          }
-          syncLunchMenuFromSupabase().catch(console.error);
-          if (!silent && feedback) {
-            feedback.className = 'lunch-feedback feedback-success';
-            feedback.textContent = 'Gespeichert und live synchronisiert.';
-          }
-        } catch (error) {
-          if (feedback) {
-            feedback.className = 'lunch-feedback';
-            feedback.textContent = `Sync fehlgeschlagen: ${error?.message || 'Unbekannter Fehler'}`;
-          }
-        } finally {
-          lunchRemoteSyncInFlight = false;
-          if (lunchRemoteSyncQueuedRows) {
-            syncLunchSettingsToSupabase(lunchRemoteSyncQueuedRows, { silent: true });
-          }
-        }
-      })();
-    }
+    let lunchSaveInFlight = false;
+    let lunchSaveQueued = false;
 
     async function persistLunchSettings({ silent = false } = {}) {
-      const { plan, stock, rows } = collectLunchSettings();
-      const normalizedPlan = normalizeLunchPlan(plan);
       const feedback = document.getElementById('lunch-settings-feedback');
+      const saveBtn = document.getElementById('lunch-settings-save');
+      let hasError = false;
 
-      saveLunchPlan(normalizedPlan);
-      saveLunchStock(stock);
-
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizedPlan) }));
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(stock) }));
-
-      if (!silent && feedback) {
-        if (supabaseClient) {
+      if (lunchSaveInFlight) {
+        lunchSaveQueued = true;
+        if (!silent && feedback) {
           feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = 'Lokal gespeichert. Synchronisierung läuft …';
-        } else {
-          feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = 'Lokal gespeichert.';
+          feedback.textContent = 'Speichern läuft … Änderungen werden direkt danach übernommen.';
         }
+        return false;
       }
 
-      syncLunchSettingsToSupabase(rows, { silent });
-      return true;
+      lunchSaveInFlight = true;
+      if (saveBtn) saveBtn.disabled = true;
+      if (!silent && feedback) {
+        feedback.className = 'lunch-feedback feedback-success';
+        feedback.textContent = 'Speichern läuft …';
+      }
+
+      try {
+        do {
+          lunchSaveQueued = false;
+          const { plan, stock, rows } = collectLunchSettings();
+          const normalizedPlan = normalizeLunchPlan(plan);
+
+          if (supabaseClient) {
+            const { error } = await supabaseClient
+              .from('lunch_menu_items')
+              .upsert(rows, { onConflict: 'day_name' });
+            if (error) throw error;
+            await syncLunchMenuFromSupabase();
+          } else {
+            saveLunchPlan(normalizedPlan);
+            saveLunchStock(stock);
+            renderLunchSettingsManager();
+          }
+
+          window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: localStorage.getItem(LUNCH_PLAN_KEY) || JSON.stringify(normalizedPlan) }));
+          window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: localStorage.getItem(LUNCH_STOCK_KEY) || JSON.stringify(stock) }));
+        } while (lunchSaveQueued);
+
+        if (!silent && feedback) {
+          feedback.className = 'lunch-feedback feedback-success';
+          feedback.textContent = 'Gespeichert und live synchronisiert.';
+        }
+      } catch (error) {
+        hasError = true;
+        if (feedback) {
+          feedback.className = 'lunch-feedback';
+          feedback.textContent = `Speichern fehlgeschlagen: ${error?.message || 'Unbekannter Fehler'}`;
+        }
+      } finally {
+        lunchSaveInFlight = false;
+        if (saveBtn) saveBtn.disabled = false;
+      }
+
+      return !hasError;
     }
 
     document.getElementById('lunch-stock-save')?.addEventListener('click', async () => {
-      await persistLunchSettings({ silent: false });
+      const ok = await persistLunchSettings({ silent: false });
+      if (!ok) return;
       const feedback = document.getElementById('lunch-stock-feedback');
       if (feedback) {
         feedback.className = 'lunch-feedback feedback-success';
@@ -1156,7 +1158,8 @@ Dein Team von Simonsbrotkörbchen</textarea>
       document.querySelectorAll('[data-stock-dish]').forEach(input => {
         input.value = '';
       });
-      await persistLunchSettings({ silent: false });
+      const ok = await persistLunchSettings({ silent: false });
+      if (!ok) return;
       const feedback = document.getElementById('lunch-stock-feedback');
       if (feedback) {
         feedback.className = 'lunch-feedback feedback-success';
