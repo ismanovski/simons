@@ -505,26 +505,12 @@
       }
 
       async function syncLunchDataFromSupabase() {
-        let rows = await fetchLunchMenuRowsViaEndpoint();
-
-        if (!rows && supabaseClient) {
-          const { data, error } = await supabaseClient
-            .from('lunch_menu_items')
-            .select('day_name, weekday, dish, unit_price, quantity_available, is_active')
-            .order('weekday', { ascending: true });
-
-          if (error) {
-            console.error('Supabase Wochenplan konnte nicht geladen werden:', error);
-            return false;
-          }
-          rows = data || [];
-        }
-
+        const rows = await fetchLunchMenuRowsViaEndpoint();
         if (!rows) return false;
 
         const plan = { ...DEFAULT_LUNCH_PLAN };
         const stock = {};
-        (rows || []).forEach(row => {
+        rows.forEach(row => {
           if (!row?.day_name) return;
           const dish = String(row.dish || '').trim();
           plan[row.day_name] = {
@@ -533,7 +519,7 @@
             weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1,
             isActive: row.is_active !== false
           };
-          if (dish && row.is_active !== false && row.quantity_available !== null && row.quantity_available !== undefined) {
+          if (dish && row.is_active !== false && row.quantity_available != null) {
             stock[normalizeStockKey(dish)] = Math.max(0, Number(row.quantity_available) || 0);
           }
         });
@@ -544,34 +530,17 @@
       }
 
       function subscribeLunchMenuRealtime() {
-        if (!supabaseClient) return;
-        lunchMenuSubscription?.unsubscribe?.();
-        lunchMenuSubscription = supabaseClient
-          .channel('lunch-menu-live')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'lunch_menu_items' }, () => {
-            syncLunchDataFromSupabase()
-              .then(changed => {
-                if (changed) refreshLunchPlan();
-              })
-              .catch(error => console.error('Supabase Live Sync fehlgeschlagen:', error));
-          })
-          .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-              syncLunchDataFromSupabase()
-                .then(changed => {
-                  if (changed) refreshLunchPlan();
-                })
-                .catch(error => console.error('Supabase Initial Sync fehlgeschlagen:', error));
-            }
-          });
+        // Nur polling, kein Realtime-SDK nötig
       }
 
       function startLunchMenuSyncFallback() {
-        setInterval(() => {
-          syncLunchDataFromSupabase()
-            .then(() => refreshLunchPlan())
-            .catch(error => console.error('Supabase Fallback Sync fehlgeschlagen:', error));
-        }, 2000);
+        // Alle 4 Sekunden vom Server holen und UI aktualisieren
+        setInterval(async () => {
+          try {
+            await syncLunchDataFromSupabase();
+            refreshLunchPlan();
+          } catch {}
+        }, 4000);
       }
 
       function mapSupabaseOrderToReservation(row) {
@@ -1361,13 +1330,8 @@
       });
 
       syncLunchDataFromSupabase()
-        .then(changed => {
-          if (!changed) return;
-          refreshLunchPlan();
-        })
-        .catch(error => {
-          console.error('Supabase Sync fehlgeschlagen:', error);
-        });
+        .then(() => refreshLunchPlan())
+        .catch(err => console.error('Initialer Sync fehlgeschlagen:', err));
 
       subscribeLunchMenuRealtime();
       startLunchMenuSyncFallback();

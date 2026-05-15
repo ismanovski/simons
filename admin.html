@@ -1081,22 +1081,12 @@ Dein Team von Simonsbrotkörbchen</textarea>
     }
 
     let lunchSaveInFlight = false;
-    let lunchSaveQueued = false;
 
     async function persistLunchSettings({ silent = false } = {}) {
       const feedback = document.getElementById('lunch-settings-feedback');
       const saveBtn = document.getElementById('lunch-settings-save');
-      let hasError = false;
 
-      if (lunchSaveInFlight) {
-        lunchSaveQueued = true;
-        if (!silent && feedback) {
-          feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = 'Speichern läuft … Änderungen werden direkt danach übernommen.';
-        }
-        return false;
-      }
-
+      if (lunchSaveInFlight) return false;
       lunchSaveInFlight = true;
       if (saveBtn) saveBtn.disabled = true;
       if (!silent && feedback) {
@@ -1105,51 +1095,36 @@ Dein Team von Simonsbrotkörbchen</textarea>
       }
 
       try {
-        do {
-          lunchSaveQueued = false;
-          const { plan, stock, rows } = collectLunchSettings();
-          const normalizedPlan = normalizeLunchPlan(plan);
+        const { plan, stock, rows } = collectLunchSettings();
+        const normalizedPlan = normalizeLunchPlan(plan);
 
-          if (supabaseClient) {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 10000);
-            const { error } = await supabaseClient
-              .from('lunch_menu_items')
-              .upsert(rows, { onConflict: 'day_name', returning: 'minimal' })
-              .abortSignal(controller.signal);
-            clearTimeout(timeout);
-            if (error) throw error;
-            saveLunchPlan(normalizedPlan);
-            saveLunchStock(stock);
-            renderLunchSettingsManager();
-            // background re-sync deferred to avoid blocking UI
-            setTimeout(() => syncLunchMenuFromSupabase().catch(console.error), 500);
-          } else {
-            saveLunchPlan(normalizedPlan);
-            saveLunchStock(stock);
-            renderLunchSettingsManager();
-          }
+        if (supabaseClient) {
+          const { error } = await supabaseClient
+            .from('lunch_menu_items')
+            .upsert(rows, { onConflict: 'day_name' });
+          if (error) throw error;
+        }
 
-          window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: localStorage.getItem(LUNCH_PLAN_KEY) || JSON.stringify(normalizedPlan) }));
-          window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: localStorage.getItem(LUNCH_STOCK_KEY) || JSON.stringify(stock) }));
-        } while (lunchSaveQueued);
+        saveLunchPlan(normalizedPlan);
+        saveLunchStock(stock);
+        renderLunchSettingsManager();
 
         if (!silent && feedback) {
           feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = 'Gespeichert und live synchronisiert.';
+          feedback.textContent = '✓ Gespeichert';
         }
-      } catch (error) {
-        hasError = true;
+        return true;
+      } catch (err) {
+        console.error('Speichern fehlgeschlagen:', err);
         if (feedback) {
           feedback.className = 'lunch-feedback';
-          feedback.textContent = `Speichern fehlgeschlagen: ${error?.message || 'Unbekannter Fehler'}`;
+          feedback.textContent = `Fehler: ${err?.message || 'Unbekannt'}`;
         }
+        return false;
       } finally {
         lunchSaveInFlight = false;
         if (saveBtn) saveBtn.disabled = false;
       }
-
-      return !hasError;
     }
 
     document.getElementById('lunch-stock-save')?.addEventListener('click', async () => {
