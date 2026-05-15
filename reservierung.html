@@ -516,7 +516,15 @@
               })
               .catch(error => console.error('Supabase Live Sync fehlgeschlagen:', error));
           })
-          .subscribe();
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              syncLunchDataFromSupabase()
+                .then(changed => {
+                  if (changed) refreshLunchPlan();
+                })
+                .catch(error => console.error('Supabase Initial Sync fehlgeschlagen:', error));
+            }
+          });
       }
 
       function startLunchMenuSyncFallback() {
@@ -527,7 +535,7 @@
               if (changed) refreshLunchPlan();
             })
             .catch(error => console.error('Supabase Fallback Sync fehlgeschlagen:', error));
-        }, 10000);
+        }, 2000);
       }
 
       function mapSupabaseOrderToReservation(row) {
@@ -1011,6 +1019,18 @@
         if (event.key === LUNCH_PLAN_KEY || event.key === LUNCH_STOCK_KEY) {
           refreshLunchPlan();
         }
+      });
+
+      const syncNow = () => {
+        syncLunchDataFromSupabase()
+          .then(changed => {
+            if (changed) refreshLunchPlan();
+          })
+          .catch(error => console.error('Supabase Fokus-Sync fehlgeschlagen:', error));
+      };
+      window.addEventListener('focus', syncNow);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') syncNow();
       });
 
       form?.addEventListener('submit', async event => {
