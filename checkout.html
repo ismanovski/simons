@@ -149,7 +149,7 @@
               </fieldset>
 
               <div id="paypal-config-hint" class="checkout-hint" hidden>
-                PayPal ist noch nicht verbunden. Hinterlege in checkout.html die Werte in PAYPAL_CONFIG.
+                PayPal ist noch nicht verbunden. Setze PAYPAL_CLIENT_ID und PAYPAL_CLIENT_SECRET in Netlify (Environment Variables).
               </div>
               <div id="paypal-button-container" hidden></div>
 
@@ -242,10 +242,12 @@
     }
     // ─────────────────────────────────────────────────────────────────────
 
-    // Nur diese Werte hinterlegen, um PayPal zu aktivieren
+    // PayPal läuft serverseitig über Netlify Functions
     const PAYPAL_CONFIG = {
-      clientId: '',
-      currency: 'EUR'
+      currency: 'EUR',
+      configEndpoint: '/.netlify/functions/get-paypal-config',
+      createOrderEndpoint: '/.netlify/functions/create-paypal-order',
+      captureOrderEndpoint: '/.netlify/functions/capture-paypal-order'
     };
 
     const PICKUP_CODES = [
@@ -269,6 +271,7 @@
       bundeswehrVerified: false,
       paypalReady: false,
       paypalApproved: false,
+      paypalClientId: '',
       pendingOrderPayload: null
     };
 
@@ -573,9 +576,50 @@
       showToast('Bestellung erfolgreich gespeichert.');
     }
 
-    function setupPaypal() {
+    async function fetchPaypalClientId() {
+      try {
+        const res = await fetch(PAYPAL_CONFIG.configEndpoint, { method: 'GET', cache: 'no-store' });
+        if (!res.ok) return '';
+        const payload = await res.json();
+        return String(payload?.clientId || '').trim();
+      } catch {
+        return '';
+      }
+    }
+
+    async function createPaypalOrderOnServer(totalValue) {
+      const res = await fetch(PAYPAL_CONFIG.createOrderEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Number(totalValue).toFixed(2),
+          currency: PAYPAL_CONFIG.currency || 'EUR'
+        })
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || !payload?.id) {
+        throw new Error(payload?.error || 'PayPal Order konnte nicht erstellt werden.');
+      }
+      return payload.id;
+    }
+
+    async function capturePaypalOrderOnServer(orderId) {
+      const res = await fetch(PAYPAL_CONFIG.captureOrderEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId })
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || !payload?.ok) {
+        throw new Error(payload?.error || 'PayPal Zahlung konnte nicht bestätigt werden.');
+      }
+      return payload;
+    }
+
+    async function setupPaypal() {
       const paymentRadios = Array.from(document.querySelectorAll('input[name="payment"]'));
-      const hasConfig = !!PAYPAL_CONFIG.clientId;
+      state.paypalClientId = await fetchPaypalClientId();
+      const hasConfig = !!state.paypalClientId;
 
       function refreshPaypalVisibility() {
         const selected = document.querySelector('input[name="payment"]:checked')?.value;
@@ -590,18 +634,25 @@
       if (!hasConfig) return;
 
       const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(PAYPAL_CONFIG.clientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}`;
+      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(state.paypalClientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}`;
       script.onload = () => {
         if (!window.paypal) return;
         state.paypalReady = true;
         window.paypal.Buttons({
-          createOrder: (_, actions) => actions.order.create({
-            purchase_units: [{ amount: { value: (state.subtotal + getDeliveryFee()).toFixed(2) } }]
-          }),
-          onApprove: (_, actions) => actions.order.capture().then(() => {
+          createOrder: async () => {
+            state.paypalApproved = false;
+            const total = state.subtotal + getDeliveryFee();
+            return createPaypalOrderOnServer(total);
+          },
+          onApprove: async (data) => {
+            await capturePaypalOrderOnServer(data.orderID);
             state.paypalApproved = true;
             showToast('PayPal-Zahlung bestätigt.');
-          })
+          },
+          onError: () => {
+            state.paypalApproved = false;
+            showToast('PayPal-Fehler. Bitte erneut versuchen.', true);
+          }
         }).render('#paypal-button-container');
       };
       document.head.appendChild(script);
@@ -643,6 +694,7 @@
       event.preventDefault();
       const data = validateContactStep();
       if (!data) return;
+      state.paypalApproved = false;
       state.pendingOrderPayload = data;
       el.stepFulfillment.hidden = true;
       el.stepPayment.hidden = false;
@@ -659,6 +711,12 @@
       event.preventDefault();
       if (!state.pendingOrderPayload) {
         showToast('Bitte zuerst Kontaktdaten ausfüllen.', true);
+        return;
+      }
+
+      const selectedPayment = el.paymentForm.querySelector('input[name="payment"]:checked')?.value || 'Vor Ort';
+      if (selectedPayment === 'PayPal' && !state.paypalApproved) {
+        showToast('Bitte PayPal-Zahlung zuerst abschließen.', true);
         return;
       }
 
@@ -683,7 +741,9 @@
 
     loadCart();
     setMode('pickup');
-    setupPaypal();
+    setupPaypal().catch(() => {
+      if (el.paypalHint) el.paypalHint.hidden = false;
+    });
   </script>
 </body>
 </html>
