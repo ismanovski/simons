@@ -1115,7 +1115,10 @@ Dein Team von Simonsbrotkörbchen</textarea>
               .from('lunch_menu_items')
               .upsert(rows, { onConflict: 'day_name' });
             if (error) throw error;
-            await syncLunchMenuFromSupabase();
+            saveLunchPlan(normalizedPlan);
+            saveLunchStock(stock);
+            renderLunchSettingsManager();
+            syncLunchMenuFromSupabase().catch(console.error);
           } else {
             saveLunchPlan(normalizedPlan);
             saveLunchStock(stock);
