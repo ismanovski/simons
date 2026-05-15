@@ -428,6 +428,7 @@
       const receiptBwNote = document.getElementById('lunch-bw-receipt-note');
       const fmt         = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       let bundeswehrVerified = false;
+      let lunchMenuSubscription = null;
 
       function setDeliveryFieldsReadonly(readonly) {
         [deliveryStreet, deliveryNumber, deliveryZip, deliveryCity].forEach(field => {
@@ -501,6 +502,21 @@
         saveLunchPlan(plan);
         saveLunchStock(stock);
         return true;
+      }
+
+      function subscribeLunchMenuRealtime() {
+        if (!supabaseClient) return;
+        lunchMenuSubscription?.unsubscribe?.();
+        lunchMenuSubscription = supabaseClient
+          .channel('lunch-menu-live')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'lunch_menu_items' }, () => {
+            syncLunchDataFromSupabase()
+              .then(changed => {
+                if (changed) refreshLunchPlan();
+              })
+              .catch(error => console.error('Supabase Live Sync fehlgeschlagen:', error));
+          })
+          .subscribe();
       }
 
       function mapSupabaseOrderToReservation(row) {
@@ -1285,6 +1301,8 @@
         .catch(error => {
           console.error('Supabase Sync fehlgeschlagen:', error);
         });
+
+      subscribeLunchMenuRealtime();
     })();
 
   </script>
