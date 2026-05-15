@@ -127,6 +127,14 @@
           <div class="admin-lunch-settings">
             <h3>Wochenplan &amp; Bestände</h3>
             <p class="checkout-hint">Gericht eintragen, Bestand optional setzen und bei Bedarf den Tag manuell auf nicht verfügbar stellen.</p>
+            <ul class="checkout-hint" style="margin:.35rem 0 1rem 1rem; display:grid; gap:.25rem;">
+              <li><strong>Gericht:</strong> Name des Tagesgerichts.</li>
+              <li><strong>Bestand leer:</strong> unbegrenzt verfügbar.</li>
+              <li><strong>Bestand 0:</strong> ausverkauft.</li>
+              <li><strong>Nicht verfügbar = Haken gesetzt:</strong> Tag wird im Wochenplan ausgeblendet und kann nicht bestellt werden.</li>
+              <li><strong>Nicht verfügbar = Haken entfernt + Speichern:</strong> Tag wird im Wochenplan wieder sichtbar und bestellbar, sofern ein Gericht eingetragen ist.</li>
+              <li><strong>Wichtig:</strong> Änderungen werden erst nach Klick auf <strong>Speichern</strong> live übernommen.</li>
+            </ul>
             <div class="table-wrapper">
               <table class="data-table admin-lunch-settings-table" id="lunch-settings-table">
                 <thead>
@@ -1017,7 +1025,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
             </td>
             <td>
               <label style="display:flex;justify-content:center;align-items:center;">
-                <input type="checkbox" data-plan-inactive="${escapeHtml(day)}" ${isInactive ? 'checked' : ''}>
+                <input type="checkbox" data-plan-inactive="${escapeHtml(day)}" ${isInactive ? 'checked' : ''} title="Haken gesetzt = nicht verfügbar, Haken entfernt = wieder sichtbar nach Speichern">
               </label>
             </td>
             <td>
@@ -1112,7 +1120,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
         }
         if (feedback) {
           feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = 'Wochenplan und Bestände gespeichert.';
+          feedback.textContent = 'Wochenplan, Bestände und Verfügbarkeit gespeichert. Entfernte Haken sind jetzt wieder sichtbar.';
         }
       } catch (error) {
         if (feedback) {
