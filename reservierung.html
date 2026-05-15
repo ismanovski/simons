@@ -478,7 +478,7 @@
         ];
         for (const endpoint of endpoints) {
           try {
-            const res = await fetch(endpoint, { method: 'GET' });
+            const res = await fetch(endpoint, { method: 'GET', cache: 'no-store' });
             if (!res.ok) continue;
             const payload = await res.json();
             if (payload?.ok && Array.isArray(payload.rows)) return payload.rows;
@@ -486,6 +486,21 @@
             // try next endpoint
           }
         }
+        // Direkter Supabase REST Fallback
+        try {
+          const cfg = window.SB_SUPABASE_CONFIG || {};
+          if (cfg.url && cfg.anonKey) {
+            const url = `${cfg.url.replace(/\/$/, '')}/rest/v1/lunch_menu_items?select=day_name,weekday,dish,unit_price,quantity_available,is_active&order=weekday.asc`;
+            const res = await fetch(url, {
+              headers: { apikey: cfg.anonKey, Authorization: `Bearer ${cfg.anonKey}` },
+              cache: 'no-store'
+            });
+            if (res.ok) {
+              const rows = await res.json();
+              if (Array.isArray(rows)) return rows;
+            }
+          }
+        } catch {}
         return null;
       }
 
@@ -552,12 +567,9 @@
       }
 
       function startLunchMenuSyncFallback() {
-        if (!supabaseClient) return;
         setInterval(() => {
           syncLunchDataFromSupabase()
-            .then(changed => {
-              if (changed) refreshLunchPlan();
-            })
+            .then(() => refreshLunchPlan())
             .catch(error => console.error('Supabase Fallback Sync fehlgeschlagen:', error));
         }, 2000);
       }
