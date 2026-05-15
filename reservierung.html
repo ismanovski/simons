@@ -168,6 +168,11 @@
                   </label>
                 </fieldset>
 
+                <div id="lunch-paypal-config-hint" class="checkout-hint" hidden>
+                  PayPal ist noch nicht verbunden. Bitte Konfiguration prüfen.
+                </div>
+                <div id="lunch-paypal-button-container" hidden></div>
+
                 <label class="contract-check" for="lunch-terms">
                   <input type="checkbox" id="lunch-terms" name="terms" required>
                   Ich akzeptiere die <a href="agb.html" target="_blank" rel="noopener noreferrer">AGB</a>.
@@ -367,6 +372,12 @@
         Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4, isActive: true },
         Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5, isActive: true }
       };
+      const PAYPAL_CONFIG = {
+        currency: 'EUR',
+        configEndpoint: '/.netlify/functions/get-paypal-config',
+        createOrderEndpoint: '/.netlify/functions/create-paypal-order',
+        captureOrderEndpoint: '/.netlify/functions/capture-paypal-order'
+      };
       const PICKUP_CODES = [
         'SpiderMan','BudSpencer','TerenceHill','Manitou','RockyBalboa','DonCorleone','Batman','Joker','Deadpool','IronMan',
         'Hulk','Thor','Loki','Wolverine','Superman','Flash','Shrek','HomerSimpson','MrBean','CharlieChaplin',
@@ -426,9 +437,110 @@
       const receiptDeliveryFee = document.getElementById('lunch-receipt-delivery-fee');
       const receiptMinOrder = document.getElementById('lunch-receipt-min-order');
       const receiptBwNote = document.getElementById('lunch-bw-receipt-note');
+      const paypalHint = document.getElementById('lunch-paypal-config-hint');
+      const paypalContainer = document.getElementById('lunch-paypal-button-container');
       const fmt         = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       let bundeswehrVerified = false;
       let lunchMenuSubscription = null;
+      let lunchPaypalClientId = '';
+      let lunchPaypalReady = false;
+      let lunchPaypalApproved = false;
+
+      function getSelectedPaymentMethod() {
+        return form?.querySelector('input[name="paymentMethod"]:checked')?.value || 'Vor Ort';
+      }
+
+      function getCurrentLunchTotal() {
+        const selected = dayField?.value;
+        const menu = selected ? LUNCH_MENU[selected] : null;
+        const qty = Math.max(1, Number.parseInt(qtyField?.value || '1', 10) || 1);
+        return menu ? qty * (Number(menu.price) || 0) : 0;
+      }
+
+      function refreshLunchPaypalVisibility() {
+        const isPaypal = getSelectedPaymentMethod() === 'PayPal';
+        if (paypalContainer) paypalContainer.hidden = !isPaypal;
+        if (paypalHint) paypalHint.hidden = !isPaypal || !!lunchPaypalClientId;
+      }
+
+      function resetLunchPaypalApproval() {
+        lunchPaypalApproved = false;
+      }
+
+      async function fetchLunchPaypalClientId() {
+        try {
+          const res = await fetch(PAYPAL_CONFIG.configEndpoint, { method: 'GET', cache: 'no-store' });
+          if (!res.ok) return '';
+          const payload = await res.json();
+          return String(payload?.clientId || '').trim();
+        } catch {
+          return '';
+        }
+      }
+
+      async function createLunchPaypalOrderOnServer(totalValue) {
+        const res = await fetch(PAYPAL_CONFIG.createOrderEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: Number(totalValue).toFixed(2),
+            currency: PAYPAL_CONFIG.currency || 'EUR'
+          })
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok || !payload?.id) {
+          throw new Error(payload?.error || 'PayPal Order konnte nicht erstellt werden.');
+        }
+        return payload.id;
+      }
+
+      async function captureLunchPaypalOrderOnServer(orderId) {
+        const res = await fetch(PAYPAL_CONFIG.captureOrderEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId })
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok || !payload?.ok) {
+          throw new Error(payload?.error || 'PayPal Zahlung konnte nicht bestätigt werden.');
+        }
+        return payload;
+      }
+
+      async function setupLunchPaypal() {
+        lunchPaypalClientId = await fetchLunchPaypalClientId();
+        refreshLunchPaypalVisibility();
+        if (!lunchPaypalClientId) return;
+
+        const script = document.createElement('script');
+        script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(lunchPaypalClientId)}&currency=${encodeURIComponent(PAYPAL_CONFIG.currency || 'EUR')}`;
+        script.onload = () => {
+          if (!window.paypal || !paypalContainer) return;
+          lunchPaypalReady = true;
+          window.paypal.Buttons({
+            createOrder: async () => {
+              resetLunchPaypalApproval();
+              return createLunchPaypalOrderOnServer(getCurrentLunchTotal());
+            },
+            onApprove: async (data) => {
+              await captureLunchPaypalOrderOnServer(data.orderID);
+              lunchPaypalApproved = true;
+              if (feedback) {
+                feedback.classList.add('feedback-success');
+                feedback.textContent = 'PayPal-Zahlung bestätigt. Du kannst jetzt bestellen.';
+              }
+            },
+            onError: () => {
+              lunchPaypalApproved = false;
+              if (feedback) {
+                feedback.classList.remove('feedback-success');
+                feedback.textContent = 'PayPal-Fehler. Bitte erneut versuchen.';
+              }
+            }
+          }).render('#lunch-paypal-button-container');
+        };
+        document.head.appendChild(script);
+      }
 
       function setDeliveryFieldsReadonly(readonly) {
         [deliveryStreet, deliveryNumber, deliveryZip, deliveryCity].forEach(field => {
@@ -918,11 +1030,16 @@
       }
 
       dayField?.addEventListener('change', () => {
+        resetLunchPaypalApproval();
         renderLunchPlanUI();
         updateForm();
       });
-      qtyField?.addEventListener('input', updateForm);
+      qtyField?.addEventListener('input', () => {
+        resetLunchPaypalApproval();
+        updateForm();
+      });
       bwToggleBtn?.addEventListener('click', () => {
+        resetLunchPaypalApproval();
         if (bundeswehrVerified) {
           resetBundeswehrState();
           if (bwCodeFeedback) bwCodeFeedback.textContent = 'Bundeswehr-Vorteile deaktiviert.';
@@ -932,6 +1049,7 @@
         if (bwCodePanel) bwCodePanel.hidden = !bwCodePanel.hidden;
       });
       bwCodeVerify?.addEventListener('click', () => {
+        resetLunchPaypalApproval();
         const input = (bwCodeInput?.value || '').trim().toLocaleUpperCase('de-DE');
         const expected = BUNDESWEHR_CODE.toLocaleUpperCase('de-DE');
         if (input !== expected) {
@@ -962,10 +1080,18 @@
         updateForm();
       });
       fulfillmentRadios.forEach(radio => radio.addEventListener('change', () => {
+        resetLunchPaypalApproval();
         handleFulfillmentChange();
         updateForm();
       }));
+      form?.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          resetLunchPaypalApproval();
+          refreshLunchPaypalVisibility();
+        });
+      });
       weekplanChooser?.addEventListener('click', event => {
+        resetLunchPaypalApproval();
         const btn = event.target.closest('[data-lunch-day]');
         if (!btn || btn.disabled || !dayField) return;
         dayField.value = btn.getAttribute('data-lunch-day') || '';
@@ -1000,7 +1126,12 @@
       renderLunchPlanUI();
       updateForm();
       showStep(1);
+      refreshLunchPaypalVisibility();
       window.SBPlatform?.trackEvent?.('reservation_started');
+
+      setupLunchPaypal().catch(() => {
+        if (paypalHint) paypalHint.hidden = false;
+      });
 
       window.addEventListener('storage', (event) => {
         if (event.key === LUNCH_PLAN_KEY || event.key === LUNCH_STOCK_KEY) {
@@ -1043,6 +1174,17 @@
         const paymentMethod = data.get('paymentMethod')?.toString() || 'Vor Ort';
         const termsOk      = data.get('terms') === 'on';
         const contractOk   = data.get('contract') === 'on';
+
+        if (paymentMethod === 'PayPal') {
+          if (!lunchPaypalClientId || !lunchPaypalReady) {
+            if (feedback) feedback.textContent = 'PayPal ist aktuell nicht verfügbar. Bitte später erneut versuchen oder Vor Ort bezahlen wählen.';
+            return;
+          }
+          if (!lunchPaypalApproved) {
+            if (feedback) feedback.textContent = 'Bitte zuerst die PayPal-Zahlung bestätigen.';
+            return;
+          }
+        }
 
         if (!firstname || !lastname || !phone || !email || !day || !pickupDate || !pickupTime) {
           if (feedback) feedback.textContent = 'Bitte fülle alle Pflichtfelder aus.';
@@ -1196,6 +1338,8 @@
         resetBundeswehrState();
         renderPickupTimeOptions();
         showStep(1);
+        resetLunchPaypalApproval();
+        refreshLunchPaypalVisibility();
         disablePastDayOptions();
         renderLunchPlanUI();
         updateForm();
