@@ -1095,6 +1095,13 @@ Dein Team von Simonsbrotkörbchen</textarea>
     async function persistLunchSettings({ silent = false } = {}) {
       if (lunchSettingsSaving) {
         lunchSettingsSaveQueued = true;
+        if (!silent) {
+          const feedback = document.getElementById('lunch-settings-feedback');
+          if (feedback) {
+            feedback.className = 'lunch-feedback feedback-success';
+            feedback.textContent = 'Änderung wird gespeichert…';
+          }
+        }
         return false;
       }
 
@@ -1109,7 +1116,10 @@ Dein Team von Simonsbrotkörbchen</textarea>
           if (supabaseClient) {
             const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
             if (error) throw error;
-            await syncLunchMenuFromSupabase();
+            saveLunchPlan(normalizeLunchPlan(plan));
+            saveLunchStock(stock);
+            renderLunchSettingsManager();
+            syncLunchMenuFromSupabase().catch(console.error);
           } else {
             saveLunchPlan(normalizeLunchPlan(plan));
             saveLunchStock(stock);
@@ -1127,7 +1137,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
       } catch (error) {
         if (!silent && feedback) {
           feedback.className = 'lunch-feedback';
-          feedback.textContent = 'Speichern in Supabase fehlgeschlagen.';
+          feedback.textContent = `Speichern fehlgeschlagen: ${error?.message || 'Unbekannter Fehler'}`;
         }
       } finally {
         lunchSettingsSaving = false;
@@ -1175,7 +1185,10 @@ Dein Team von Simonsbrotkörbchen</textarea>
           }));
           const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
           if (error) throw error;
-          await syncLunchMenuFromSupabase();
+          saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
+          saveLunchStock({});
+          renderLunchSettingsManager();
+          syncLunchMenuFromSupabase().catch(console.error);
         } else {
           saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
           saveLunchStock({});
@@ -1188,7 +1201,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
       } catch (error) {
         if (feedback) {
           feedback.className = 'lunch-feedback';
-          feedback.textContent = 'Zurücksetzen in Supabase fehlgeschlagen.';
+          feedback.textContent = `Zurücksetzen fehlgeschlagen: ${error?.message || 'Unbekannter Fehler'}`;
         }
       }
       window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
