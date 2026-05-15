@@ -3,8 +3,8 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const clientId = process.env.PAYPAL_CLIENT_ID || '';
-  const currency = process.env.PAYPAL_CURRENCY || 'EUR';
+  const clientId = String(process.env.PAYPAL_CLIENT_ID || '').trim();
+  const currency = String(process.env.PAYPAL_CURRENCY || 'EUR').trim().toUpperCase();
 
   if (!clientId) {
     return {

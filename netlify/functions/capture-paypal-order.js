@@ -21,9 +21,9 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const clientId = process.env.PAYPAL_CLIENT_ID;
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-  const env = String(process.env.PAYPAL_ENV || 'sandbox').toLowerCase();
+  const clientId = String(process.env.PAYPAL_CLIENT_ID || '').trim();
+  const clientSecret = String(process.env.PAYPAL_CLIENT_SECRET || '').trim();
+  const env = String(process.env.PAYPAL_ENV || 'sandbox').trim().toLowerCase();
   const baseUrl = env === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
 
   if (!clientId || !clientSecret) {
@@ -45,7 +45,23 @@ exports.handler = async (event) => {
       };
     }
 
-    const token = await getAccessToken(baseUrl, clientId, clientSecret);
+    let token;
+    try {
+      token = await getAccessToken(baseUrl, clientId, clientSecret);
+    } catch (error) {
+      const message = String(error?.message || 'PayPal token request failed');
+      const isAuthError = /authentication|invalid_client|unauthorized|access denied/i.test(message);
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ok: false,
+          error: isAuthError
+            ? 'PayPal Auth fehlgeschlagen. Prüfe PAYPAL_ENV sowie PAYPAL_CLIENT_ID/PAYPAL_CLIENT_SECRET.'
+            : message
+        })
+      };
+    }
     const response = await fetch(`${baseUrl}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
       method: 'POST',
       headers: {
