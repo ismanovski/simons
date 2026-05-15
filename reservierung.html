@@ -38,7 +38,7 @@
       <div class="container checkout-page-layout" id="lunch-checkout-layout">
         <div class="checkout-page-main">
           <div class="checkout-page-card">
-            <p class="checkout-hint">Bestellschluss 15:00 Uhr für den gleichen Tag · Montag kann ab Freitag für die nächste Woche bestellt werden.</p>
+            <p class="checkout-hint">Bestellungen sind ohne Tages-Cutoff möglich.</p>
 
             <form class="lunch-form" id="lunch-reservation-form" novalidate>
               <div id="lunch-step-1">
@@ -735,41 +735,24 @@
         return js === 0 ? 7 : js; // Mo=1 ... So=7
       }
 
-      function isPastCutoff() {
-        const now = new Date();
-        return now.getHours() > 15 || (now.getHours() === 15 && now.getMinutes() >= 0);
-      }
-
       function getLunchOrderDate(targetWeekday) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const todayWeekday = getTodayWeekday();
         if (targetWeekday < 1 || targetWeekday > 5) return null;
-        if (targetWeekday === todayWeekday) {
-          if (isPastCutoff()) return null;
-          return new Date(today);
-        }
-        if (targetWeekday > todayWeekday) {
-          const date = new Date(today);
-          date.setDate(date.getDate() + (targetWeekday - todayWeekday));
-          return date;
-        }
-        if (targetWeekday === 1 && todayWeekday >= 5) {
-          const date = new Date(today);
-          date.setDate(date.getDate() + (8 - todayWeekday));
-          return date;
-        }
-        return null;
+        const delta = (targetWeekday - todayWeekday + 7) % 7;
+        const date = new Date(today);
+        date.setDate(date.getDate() + delta);
+        return date;
       }
 
       function disablePastDayOptions() {
         const stock = loadLunchStock();
         Array.from(dayField?.options || []).forEach(option => {
           if (!option.value || !LUNCH_MENU[option.value]) return;
-          const target = LUNCH_MENU[option.value].weekday;
           const menu = LUNCH_MENU[option.value];
           const available = menu?.dish ? getStockValue(stock, menu.dish) : NaN;
-          option.disabled = !getLunchOrderDate(target) || !menu.dish || menu.isActive === false || (Number.isFinite(available) && available <= 0);
+          option.disabled = !menu.dish || menu.isActive === false || (Number.isFinite(available) && available <= 0);
         });
       }
 
@@ -844,16 +827,9 @@
         if (dateField) {
           if (menu && menu.dish && menu.isActive !== false) {
             const orderDate = getLunchOrderDate(menu.weekday);
-            if (orderDate) {
-              dateField.value = toISODate(orderDate);
-              const label = orderDate.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-              if (dateLabel) dateLabel.textContent = label;
-            } else {
-              dateField.value = '';
-              if (dateLabel) dateLabel.textContent = menu.weekday === getTodayWeekday() && isPastCutoff()
-                ? 'Heute ab 15:00 Uhr nicht mehr verfügbar.'
-                : 'Dieser Tag ist aktuell nicht verfügbar.';
-            }
+            dateField.value = toISODate(orderDate);
+            const label = orderDate.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+            if (dateLabel) dateLabel.textContent = label;
           } else {
             dateField.value = '';
             if (dateLabel) dateLabel.textContent = 'Wochentag wählen ↑';
@@ -1079,28 +1055,9 @@
           window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'invalid-day', email });
           return;
         }
-        if (getLunchOrderDate(menu.weekday) === null && menu.weekday === getTodayWeekday() && isPastCutoff()) {
-          if (feedback) feedback.textContent = 'Bestellschluss für heute war 15:00 Uhr. Bitte wähle einen anderen Tag.';
-          return;
-        }
         const orderDate = getLunchOrderDate(menu.weekday);
         if (!orderDate) {
-          if (feedback) feedback.textContent = 'Dieser Wochentag ist aktuell nicht bestellbar.';
-          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'day-unavailable', email });
-          return;
-        }
-        if (pickupDate !== toISODate(orderDate)) {
-          if (feedback) feedback.textContent = 'Bitte wähle einen verfügbaren Tag aus dem Wochenplan.';
-          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'date-mismatch', email });
-          return;
-        }
-        if (pickupTime < '11:00' || pickupTime > '15:30') {
-          if (feedback) feedback.textContent = 'Bitte wähle eine Abholzeit zwischen 11:00 und 15:30 Uhr.';
-          window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'pickup-time', email });
-          return;
-        }
-        if (fulfillment === 'delivery' && bundeswehrVerified && !['12:00', '13:00'].includes(pickupTime)) {
-          if (feedback) feedback.textContent = 'Mit Bundeswehr-Vorteilen sind nur Lieferzeiten 12:00 oder 13:00 Uhr möglich.';
+          if (feedback) feedback.textContent = 'Wochentag ungültig.';
           return;
         }
         if (fulfillment === 'delivery') {
