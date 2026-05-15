@@ -158,7 +158,7 @@
               <button class="calendar-nav" type="button" aria-label="Nächsten Monat anzeigen" data-calendar-next="pickup">&rsaquo;</button>
             </div>
             <div class="calendar-grid" data-calendar-grid="pickup"></div>
-            <p class="calendar-hint">Abholung Montag bis Samstag. NRW-Feiertage sind rot markiert.</p>
+            <p class="calendar-hint">Abholung Mo–Sa · Bestellschluss 15:00 Uhr für den gleichen Tag.</p>
             <input type="hidden" id="pickup-date" name="pickup-date">
           </div>
           <label for="pickup-time"> Abholzeit (07:00 – 15:00 Uhr)
@@ -1905,6 +1905,11 @@
           markCalendarInvalid('pickup');
           return;
         }
+        if (isSameDate(pickupDateObj, new Date()) && isPastCutoff()) {
+          showToast('Bestellschluss für heute war 15:00 Uhr. Bitte wähle einen anderen Tag.', true);
+          markCalendarInvalid('pickup');
+          return;
+        }
         if (!pickupTime || !isPickupTimeAllowed(pickupTime)) {
           showToast('Bitte eine Abholzeit zwischen 07:00 und 15:00 Uhr wählen.', true);
           markFieldInvalid(elements.pickupTimeInput);
@@ -2395,12 +2400,18 @@
       renderCalendar(calendar);
     }
 
+    function isPastCutoff() {
+      const now = new Date();
+      return now.getHours() > 15 || (now.getHours() === 15 && now.getMinutes() >= 0);
+    }
+
     function getCalendarMinDate(mode) {
       const today = startOfDay(new Date());
+      const startFrom = isPastCutoff() ? addDays(today, 1) : today;
       if (mode === 'delivery') {
-        return findNextWeekday(today, 0, true);
+        return findNextWeekday(startFrom, 0, false);
       }
-      return findNextPickupDay(today);
+      return findNextPickupDay(startFrom);
     }
 
     function getCalendarMaxDate(mode) {

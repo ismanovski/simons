@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mittagessen reservieren – Simonsbrotkörbchen</title>
+  <title>Mittagessen bestellen – Simonsbrotkörbchen</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -33,12 +33,12 @@
   </header>
 
   <main>
-    <!-- Reservierungsformular -->
-    <section class="section" id="reservierung-form">
+    <!-- Bestellformular -->
+    <section class="section" id="bestell-form">
       <div class="container checkout-page-layout" id="lunch-checkout-layout">
         <div class="checkout-page-main">
           <div class="checkout-page-card">
-            <p class="checkout-hint">Reservierungen sind nur für die aktuelle Woche möglich.</p>
+            <p class="checkout-hint">Bestellungen nur für aktuelle Woche möglich · Bestellschluss 15:00 Uhr für den gleichen Tag.</p>
 
             <form class="lunch-form" id="lunch-reservation-form" novalidate>
               <div id="lunch-step-1">
@@ -116,7 +116,7 @@
               </div>
 
               <div id="lunch-step-2" hidden>
-                <h2>Schritt 2 · Kontaktdaten & Reservierung</h2>
+                <h2>Schritt 2 · Kontaktdaten & Bestellung</h2>
 
                 <div class="form-grid form-grid-2">
                   <label for="lunch-firstname">Vorname
@@ -175,12 +175,12 @@
 
                 <label class="contract-check" for="lunch-contract">
                   <input type="checkbox" id="lunch-contract" name="contract" required>
-                  Ich bestätige: Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.
+                  Ich bestätige: Mit Klick auf „Zahlungspflichtig bestellen" gebe ich eine verbindliche, zahlungspflichtige Bestellung ab.
                 </label>
 
                 <div class="checkout-actions-row">
                   <button class="btn btn-secondary" type="button" id="lunch-back-to-step-1">Zurück</button>
-                  <button class="btn btn-primary" type="submit">Zahlungspflichtig reservieren</button>
+                  <button class="btn btn-primary" type="submit">Zahlungspflichtig bestellen</button>
                 </div>
               </div>
               <p class="lunch-feedback" id="lunch-feedback" aria-live="polite"></p>
@@ -316,7 +316,7 @@
       }
     })();
 
-    /* ===== Reservierungsformular ===== */
+    /* ===== Bestellformular ===== */
     (function(){
       const LUNCH_STORAGE_KEY = 'sb_lunch_reservations';
       const LUNCH_DONE_STORAGE_KEY = 'sb_lunch_reservations_done';
@@ -546,17 +546,17 @@
             agbAccepted: !!row.agb_accepted,
             bindingReservationAccepted: !!row.contract_accepted,
             concluded: !!row.contract_concluded,
-            text: row.contract_text || 'Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.'
+            text: row.contract_text || 'Mit Klick auf „Zahlungspflichtig bestellen" gebe ich eine verbindliche, zahlungspflichtige Bestellung ab.'
           },
-          status: row.status || 'reserviert'
+          status: 'bestellt''
         };
       }
 
       function formatReservationError(error) {
         const message = String(error?.message || '').trim();
-        if (!message) return 'Reservierung konnte gerade nicht gespeichert werden. Bitte versuche es erneut.';
+        if (!message) return 'Bestellung konnte gerade nicht gespeichert werden. Bitte versuche es erneut.';
         if (/portion/i.test(message) || /wochenplan/i.test(message) || /verfügbar/i.test(message)) return message;
-        return 'Reservierung konnte gerade nicht gespeichert werden. Bitte versuche es erneut.';
+        return 'Bestellung konnte gerade nicht gespeichert werden. Bitte versuche es erneut.';
       }
 
       async function createLunchReservationInSupabase(payload) {
@@ -595,7 +595,8 @@
             const item = LUNCH_MENU[day];
             const available = item?.dish ? getStockValue(stock, item.dish) : NaN;
             const soldOut = item && item.dish && Number.isFinite(available) && available <= 0;
-            const disabled = weekday < todayWeekday || !item?.dish || soldOut;
+            const isPastToday = weekday === todayWeekday && isPastCutoff();
+            const disabled = weekday < todayWeekday || isPastToday || !item?.dish || soldOut;
             const status = soldOut ? 'Ausverkauft' : (disabled ? 'Nicht verfügbar' : 'Auswählen');
             return `
               <button type="button" class="lunch-weekplan-option${dayField?.value === day ? ' is-active' : ''}" data-lunch-day="${escapeHtml(day)}"${disabled ? ' disabled' : ''}>
@@ -683,11 +684,17 @@
         return js === 0 ? 7 : js; // Mo=1 ... So=7
       }
 
+      function isPastCutoff() {
+        const now = new Date();
+        return now.getHours() > 15 || (now.getHours() === 15 && now.getMinutes() >= 0);
+      }
+
       function getSameWeekDate(targetWeekday) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const todayWeekday = getTodayWeekday();
         if (targetWeekday < todayWeekday || targetWeekday > 5) return null;
+        if (targetWeekday === todayWeekday && isPastCutoff()) return null;
         const date = new Date(today);
         date.setDate(date.getDate() + (targetWeekday - todayWeekday));
         return date;
@@ -997,14 +1004,18 @@
           window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'invalid-day', email });
           return;
         }
+        if (getSameWeekDate(menu.weekday) === null && menu.weekday === getTodayWeekday() && isPastCutoff()) {
+          if (feedback) feedback.textContent = 'Bestellschluss für heute war 15:00 Uhr. Bitte wähle einen anderen Tag.';
+          return;
+        }
         const sameWeekDate = getSameWeekDate(menu.weekday);
         if (!sameWeekDate) {
-          if (feedback) feedback.textContent = 'Dieser Wochentag ist in dieser Woche nicht mehr reservierbar.';
+          if (feedback) feedback.textContent = 'Dieser Wochentag ist in dieser Woche nicht mehr bestellbar.';
           window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'same-week-only', email });
           return;
         }
         if (pickupDate !== toISODate(sameWeekDate)) {
-          if (feedback) feedback.textContent = 'Reservierungen sind nur für die aktuelle Woche möglich.';
+          if (feedback) feedback.textContent = 'Bestellungen sind nur für die aktuelle Woche möglich.';
           window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'date-mismatch', email });
           return;
         }
@@ -1028,7 +1039,7 @@
           }
         }
         if (!termsOk || !contractOk) {
-          if (feedback) feedback.textContent = 'Bitte bestätige AGB und die zahlungspflichtige Reservierung.';
+          if (feedback) feedback.textContent = 'Bitte bestätige AGB und die zahlungspflichtige Bestellung.';
           window.SBPlatform?.trackEvent?.('reservation_dropoff', { step: 'terms', email });
           return;
         }
@@ -1074,7 +1085,7 @@
               agb_accepted: true,
               contract_accepted: true,
               contract_concluded: true,
-              contract_text: 'Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.'
+              contract_text: 'Mit Klick auf „Zahlungspflichtig bestellen" gebe ich eine verbindliche, zahlungspflichtige Bestellung ab.'
             });
             const synced = await syncLunchDataFromSupabase();
             if (synced) refreshLunchPlan();
@@ -1117,9 +1128,9 @@
               agbAccepted: true,
               bindingReservationAccepted: true,
               concluded: true,
-              text: 'Mit Klick auf „Zahlungspflichtig reservieren" gebe ich eine verbindliche, zahlungspflichtige Reservierung ab.'
+              text: 'Mit Klick auf „Zahlungspflichtig bestellen" gebe ich eine verbindliche, zahlungspflichtige Bestellung ab.'
             },
-            status: 'reserviert'
+            status: 'bestellt''
           };
 
           if (hasLimitedStock) {
@@ -1166,13 +1177,13 @@
         const timeEl      = document.getElementById('lunch-confirm-delivery-time');
 
         const dateFormatted = new Date(pickupDate + 'T12:00:00').toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-        msgEl.textContent = `✓ Deine Reservierung für ${menu.dish} am ${dateFormatted} wurde erfolgreich aufgegeben.`;
+        msgEl.textContent = `✓ Deine Bestellung für ${menu.dish} am ${dateFormatted} wurde erfolgreich aufgegeben.`;
 
         // Bestätigungs-E-Mail senden (asynchron, damit Popup sofort erscheint)
         sendConfirmationEmail({
           to_name:          `${firstname} ${lastname}`,
           to_email:         email,
-          order_type:       'Mittagstisch-Reservierung',
+          order_type:       'Mittagstisch-Bestellung',
           order_number:     String(reservation.id || reservation.internalNumber || ''),
           pickup_code:      String(reservation.pickupCode || ''),
           items_text:       `${quantity}× ${menu.dish}`,
