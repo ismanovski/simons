@@ -42,7 +42,7 @@
 
             <form class="lunch-form" id="lunch-reservation-form" novalidate>
               <div id="lunch-step-1">
-                <h2>Schritt 1 · Wochenplan & Auswahl</h2>
+                <h2>Schritt 1 · Auswahl</h2>
 
                 <div id="lunch-bw-box">
                   <button class="btn" type="button" id="lunch-bw-toggle-btn" aria-pressed="false">
@@ -69,8 +69,6 @@
                     Liefern lassen
                   </label>
                 </fieldset>
-
-                <div class="lunch-weekplan-picker" id="lunch-weekplan-chooser"></div>
 
                 <label for="lunch-day" class="sr-only">Wochentag
                   <select id="lunch-day" name="day" required>
@@ -206,15 +204,6 @@
           <div class="receipt-line"><span>Menge</span><strong id="lunch-receipt-qty">1</strong></div>
           <div class="receipt-line receipt-total"><span>Gesamt</span><strong id="lunch-receipt-total">–</strong></div>
         </aside>
-      </div>
-    </section>
-
-    <section class="section section-muted">
-      <div class="container section-header">
-        <span class="eyebrow">Mittagstisch mitgestalten</span>
-        <h2>Gerichtswunsch & Abstimmung</h2>
-        <p>Deinen Gerichtswunsch und die aktuelle Abstimmung findest du jetzt auf einer eigenen Seite.</p>
-        <a class="btn btn-secondary" href="gerichtswunsch.html">Zur Gerichtswunsch-Seite</a>
       </div>
     </section>
 
@@ -408,7 +397,6 @@
       const step2Panel  = document.getElementById('lunch-step-2');
       const step1NextBtn = document.getElementById('lunch-to-step-2');
       const step2BackBtn = document.getElementById('lunch-back-to-step-1');
-      const weekplanChooser = document.getElementById('lunch-weekplan-chooser');
       const receiptPanel = document.getElementById('lunch-receipt-panel');
       const lunchLayout = document.getElementById('lunch-checkout-layout');
       const submitBtn   = form?.querySelector('button[type="submit"]');
@@ -786,41 +774,10 @@
       }
 
       function renderLunchPlanUI() {
-        const sidebar = document.getElementById('res-wochenplan-list');
         const stock = loadLunchStock();
         const todayWeekday = getTodayWeekday();
-        if (weekplanChooser) {
-          weekplanChooser.innerHTML = LUNCH_WEEKDAYS.map(({ day, weekday }) => {
-            const item = LUNCH_MENU[day];
-            const available = item?.dish ? getStockValue(stock, item.dish) : NaN;
-            const soldOut = item && item.dish && Number.isFinite(available) && available <= 0;
-            const orderDate = getLunchOrderDate(weekday);
-            const unavailable = !orderDate || !item?.dish || item?.isActive === false;
-            const disabled = unavailable || soldOut;
-            const status = soldOut ? 'Ausverkauft' : (disabled ? 'Nicht verfügbar' : 'Auswählen');
-            const dishLabel = unavailable ? 'Nicht verfügbar' : (item?.dish || 'Ausverkauft');
-            const priceLabel = unavailable ? '–' : (item?.dish ? formatPrice(item.price) : '–');
-            return `
-              <button type="button" class="lunch-weekplan-option${dayField?.value === day ? ' is-active' : ''}" data-lunch-day="${escapeHtml(day)}"${disabled ? ' disabled' : ''}>
-                <strong>${escapeHtml(day)}</strong>
-                <span>${escapeHtml(dishLabel)}</span>
-                <em>${escapeHtml(priceLabel)}</em>
-                <small>${status}</small>
-              </button>
-            `;
-          }).join('');
-        }
-        if (sidebar) {
-          sidebar.innerHTML = LUNCH_WEEKDAYS.map(({ day }) => {
-            const item = LUNCH_MENU[day];
-            const available = item?.dish ? getStockValue(stock, item.dish) : NaN;
-            const soldOut = item && item.dish && Number.isFinite(available) && available <= 0;
-            const unavailable = !getLunchOrderDate(item?.weekday) || !item?.dish || item?.isActive === false;
-            return item && item.dish && !unavailable
-              ? `<li><span class="res-wochentag">${escapeHtml(day.slice(0, 2))}</span><span class="res-dish-name">${escapeHtml(item.dish)}${soldOut ? ' · Ausverkauft' : ''}</span><span class="res-dish-price">${soldOut ? '–' : formatPrice(item.price)}</span></li>`
-              : `<li><span class="res-wochentag">${escapeHtml(day.slice(0, 2))}</span><span class="res-dish-name">Nicht verfügbar</span><span class="res-dish-price">–</span></li>`;
-          }).join('');
-        }
+        void stock;
+        void todayWeekday;
       }
 
       function escapeHtml(value) {
@@ -1139,14 +1096,6 @@
           resetLunchPaypalApproval();
           refreshLunchPaypalVisibility();
         });
-      });
-      weekplanChooser?.addEventListener('click', event => {
-        resetLunchPaypalApproval();
-        const btn = event.target.closest('[data-lunch-day]');
-        if (!btn || btn.disabled || !dayField) return;
-        dayField.value = btn.getAttribute('data-lunch-day') || '';
-        renderLunchPlanUI();
-        updateForm();
       });
       step1NextBtn?.addEventListener('click', () => {
         if (feedback) {

@@ -58,7 +58,6 @@
         <div class="tab-bar" role="tablist">
           <button class="chip is-active" role="tab" aria-selected="true" data-tab-target="pending">Offene Bestellungen</button>
           <button class="chip" role="tab" aria-selected="false" data-tab-target="sent">Abgeschlossene Bestellungen</button>
-          <button class="chip" role="tab" aria-selected="false" data-tab-target="lunch-settings">Wochenplan &amp; Bestände</button>
           <button class="chip" role="tab" aria-selected="false" data-tab-target="lunch-pending">Mittagstisch-Reservierungen</button>
           <button class="chip" role="tab" aria-selected="false" data-tab-target="lunch-done">Abgeholte Mittagstisch-Reservierungen</button>
           <button class="chip" role="tab" aria-selected="false" data-tab-target="wunschzettel">Wunschzettel</button>
@@ -120,40 +119,6 @@
               </thead>
               <tbody></tbody>
             </table>
-          </div>
-        </div>
-
-        <div class="tab-panel" id="lunch-settings" role="tabpanel" hidden>
-          <div class="admin-lunch-settings">
-            <h3>Wochenplan &amp; Bestände</h3>
-            <p class="checkout-hint">Gericht eintragen, Bestand optional setzen und bei Bedarf den Tag manuell auf nicht verfügbar stellen.</p>
-            <ul class="checkout-hint" style="margin:.35rem 0 1rem 1rem; display:grid; gap:.25rem;">
-              <li><strong>Gericht:</strong> Name des Tagesgerichts.</li>
-              <li><strong>Bestand leer:</strong> unbegrenzt verfügbar.</li>
-              <li><strong>Bestand 0:</strong> ausverkauft.</li>
-              <li><strong>Nicht verfügbar = Haken gesetzt:</strong> Tag wird im Wochenplan ausgeblendet und kann nicht bestellt werden.</li>
-              <li><strong>Nicht verfügbar = Haken entfernt + Speichern:</strong> Tag wird im Wochenplan wieder sichtbar und bestellbar, sofern ein Gericht eingetragen ist.</li>
-              <li><strong>Wichtig:</strong> Änderungen werden erst nach Klick auf <strong>Speichern</strong> live übernommen.</li>
-            </ul>
-            <div class="table-wrapper">
-              <table class="data-table admin-lunch-settings-table" id="lunch-settings-table">
-                <thead>
-                  <tr>
-                    <th>Tag</th>
-                    <th>Gericht</th>
-                    <th>Bestand</th>
-                    <th>Nicht verfügbar</th>
-                    <th>Preis</th>
-                  </tr>
-                </thead>
-                <tbody id="lunch-settings-body"></tbody>
-              </table>
-            </div>
-            <div class="table-actions" style="margin-top:.7rem">
-              <button class="btn btn-secondary" type="button" id="lunch-settings-reset">Auf Standard zurücksetzen</button>
-              <button class="btn btn-primary" type="button" id="lunch-settings-save">Speichern</button>
-            </div>
-            <p class="lunch-feedback" id="lunch-settings-feedback" aria-live="polite"></p>
           </div>
         </div>
 
@@ -360,22 +325,6 @@ Dein Team von Simonsbrotkörbchen</textarea>
     let sentOrders = JSON.parse(localStorage.getItem('sentOrders')) || [];
     let lunchReservations = JSON.parse(localStorage.getItem('sb_lunch_reservations')) || [];
     let lunchReservationsDone = JSON.parse(localStorage.getItem('sb_lunch_reservations_done')) || [];
-    const LUNCH_PLAN_KEY = 'sb_lunch_weekplan';
-    const LUNCH_STOCK_KEY = 'sb_lunch_stock';
-    const LUNCH_WEEKDAYS = [
-      { day: 'Montag', weekday: 1 },
-      { day: 'Dienstag', weekday: 2 },
-      { day: 'Mittwoch', weekday: 3 },
-      { day: 'Donnerstag', weekday: 4 },
-      { day: 'Freitag', weekday: 5 }
-    ];
-    const DEFAULT_LUNCH_PLAN = {
-      Montag:    { dish: 'Nudelgulasch',               price: 7.90, weekday: 1, isActive: true },
-      Dienstag:  { dish: 'Hähnchen mit Reis',          price: 8.90, weekday: 2, isActive: true },
-      Mittwoch:  { dish: 'Linsensuppe',                price: 6.90, weekday: 3, isActive: true },
-      Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4, isActive: true },
-      Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5, isActive: true }
-    };
     const supabaseConfig = window.SB_SUPABASE?.config || {};
     const supabaseClient = window.supabase?.createClient && window.SB_SUPABASE?.isConfigured?.()
       ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey, {
@@ -458,26 +407,6 @@ Dein Team von Simonsbrotkörbchen</textarea>
       };
     }
 
-    function applySupabaseMenuRows(rows) {
-      const plan = { ...DEFAULT_LUNCH_PLAN };
-      const stock = {};
-      (rows || []).forEach(row => {
-        if (!row?.day_name) return;
-        const dish = String(row.dish || '').trim();
-        plan[row.day_name] = {
-          dish,
-          price: Number(row.unit_price) || 0,
-          weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1,
-          isActive: row.is_active !== false
-        };
-        if (dish && row.is_active !== false && row.quantity_available !== null && row.quantity_available !== undefined) {
-          stock[normalizeStockKey(dish)] = Math.max(0, Number(row.quantity_available) || 0);
-        }
-      });
-      saveLunchPlan(plan);
-      saveLunchStock(stock);
-    }
-
     function toDateFromISO(value) {
       if (!value) return null;
       if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -528,35 +457,6 @@ Dein Team von Simonsbrotkörbchen</textarea>
       return '';
     }
 
-    function loadLunchPlan() {
-      try {
-        const stored = JSON.parse(localStorage.getItem(LUNCH_PLAN_KEY) || 'null');
-        return stored && typeof stored === 'object'
-          ? { ...DEFAULT_LUNCH_PLAN, ...stored }
-          : { ...DEFAULT_LUNCH_PLAN };
-      } catch {
-        return { ...DEFAULT_LUNCH_PLAN };
-      }
-    }
-
-    function saveLunchPlan(plan) {
-      localStorage.setItem(LUNCH_PLAN_KEY, JSON.stringify(plan));
-    }
-
-    function normalizeLunchPlan(plan) {
-      const next = {};
-      LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
-        const item = plan?.[day] || DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday, isActive: true };
-        next[day] = {
-          dish: String(item.dish || '').trim(),
-          price: Number(item.price) || 0,
-          weekday,
-          isActive: item.isActive !== false
-        };
-      });
-      return next;
-    }
-
     async function syncLunchReservationsFromSupabase() {
       if (!supabaseClient) return false;
       const { data, error } = await supabaseClient
@@ -571,20 +471,6 @@ Dein Team von Simonsbrotkörbchen</textarea>
       lunchReservationsDone = mapped.filter(entry => entry.status === 'abgeholt');
       saveLunchMirror(lunchReservations, lunchReservationsDone);
       renderTables();
-      return true;
-    }
-
-    async function syncLunchMenuFromSupabase() {
-      if (!supabaseClient) return false;
-      const { data, error } = await supabaseClient
-        .from('lunch_menu_items')
-        .select('day_name, weekday, dish, unit_price, quantity_available, is_active')
-        .order('weekday', { ascending: true });
-
-      if (error) throw error;
-
-      applySupabaseMenuRows(data || []);
-      renderLunchSettingsManager();
       return true;
     }
 
@@ -610,39 +496,12 @@ Dein Team von Simonsbrotkörbchen</textarea>
         .on('postgres_changes', { event: '*', schema: 'public', table: 'lunch_orders' }, () => {
           syncLunchReservationsFromSupabase().catch(console.error);
         })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'lunch_menu_items' }, () => {
-          syncLunchMenuFromSupabase().catch(console.error);
-        })
         .subscribe();
     }
 
     async function hydrateAdminFromSupabase() {
-      await Promise.all([
-        syncLunchReservationsFromSupabase(),
-        syncLunchMenuFromSupabase()
-      ]);
+      await syncLunchReservationsFromSupabase();
       subscribeAdminRealtime();
-    }
-
-    function renderLunchPlanManager() {
-      const container = document.getElementById('lunch-plan-fields');
-      if (!container) return;
-      const plan = loadLunchPlan();
-      container.innerHTML = LUNCH_WEEKDAYS.map(({ day }) => {
-        const item = plan[day] || DEFAULT_LUNCH_PLAN[day];
-        return `
-          <div class="admin-lunch-plan-row">
-            <strong>${day}</strong>
-            <label>
-              Gericht
-              <input type="text" data-plan-dish="${day}" value="${escapeHtml(item.dish || '')}" placeholder="z. B. Börek mit Salat">
-            </label>
-            <label>
-              Preis
-              <input type="number" data-plan-price="${day}" min="0" step="0.05" value="${Number(item.price || 0).toFixed(2)}">
-            </label>
-          </div>`;
-      }).join('');
     }
 
     function showTab(targetId) {
@@ -975,254 +834,6 @@ Dein Team von Simonsbrotkörbchen</textarea>
       renderTables();
     });
 
-    function loadLunchStock() {
-      try {
-        return JSON.parse(localStorage.getItem(LUNCH_STOCK_KEY) || '{}') || {};
-      } catch {
-        return {};
-      }
-    }
-
-    function normalizeStockKey(value) {
-      return String(value || '')
-        .trim()
-        .toLocaleLowerCase('de-DE')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-');
-    }
-
-    function getStockValue(stock, dish) {
-      const exact = Number(stock[dish]);
-      if (Number.isFinite(exact)) return exact;
-      const normalized = Number(stock[normalizeStockKey(dish)]);
-      if (Number.isFinite(normalized)) return normalized;
-      return NaN;
-    }
-
-    function saveLunchStock(stock) {
-      localStorage.setItem(LUNCH_STOCK_KEY, JSON.stringify(stock || {}));
-    }
-
-    function renderLunchSettingsManager() {
-      const body = document.getElementById('lunch-settings-body');
-      if (!body) return;
-      const plan = loadLunchPlan();
-      const stock = loadLunchStock();
-      body.innerHTML = LUNCH_WEEKDAYS.map(({ day, weekday }) => {
-        const item = plan[day] || DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday, isActive: true };
-        const currentStock = getStockValue(stock, item.dish);
-        const availability = Number.isFinite(currentStock) ? currentStock : '';
-        const isInactive = item.isActive === false;
-        return `
-          <tr>
-            <td><strong>${escapeHtml(day)}</strong></td>
-            <td>
-              <input type="text" data-plan-dish="${escapeHtml(day)}" value="${escapeHtml(item.dish || '')}" placeholder="Gerichtname">
-            </td>
-            <td>
-              <input type="number" data-plan-stock="${escapeHtml(day)}" min="0" step="1" value="${availability}" placeholder="unbegrenzt">
-            </td>
-            <td>
-              <label style="display:flex;justify-content:center;align-items:center;">
-                <input type="checkbox" data-plan-inactive="${escapeHtml(day)}" ${isInactive ? 'checked' : ''} title="Haken gesetzt = nicht verfügbar, Haken entfernt = wieder sichtbar nach Speichern">
-              </label>
-            </td>
-            <td>
-              <input type="number" data-plan-price="${escapeHtml(day)}" min="0" step="0.05" value="${Number(item.price || 0).toFixed(2)}">
-            </td>
-          </tr>`;
-      }).join('');
-    }
-
-    function renderLunchStockManager() {
-      const container = document.getElementById('lunch-stock-fields');
-      if (!container) return;
-      const stock = loadLunchStock();
-      container.innerHTML = LUNCH_DISHES.map((dish, idx) => `
-        <label for="stock-${idx}">${escapeHtml(dish)}
-          <input id="stock-${idx}" data-stock-dish="${escapeHtml(dish)}" type="number" min="0" step="1" value="${Number.isFinite(getStockValue(stock, dish)) ? Number(getStockValue(stock, dish)) : ''}" placeholder="unbegrenzt">
-        </label>
-      `).join('');
-    }
-
-    function collectLunchSettings() {
-      const plan = {};
-      const stock = {};
-      const rows = [];
-      LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
-        const dishInput = document.querySelector(`[data-plan-dish="${day}"]`);
-        const stockInput = document.querySelector(`[data-plan-stock="${day}"]`);
-        const priceInput = document.querySelector(`[data-plan-price="${day}"]`);
-        const inactiveInput = document.querySelector(`[data-plan-inactive="${day}"]`);
-        const dish = (dishInput?.value || '').trim();
-        const price = Number(priceInput?.value || 0);
-        const isActive = !(inactiveInput?.checked);
-        const availabilityRaw = (stockInput?.value || '').trim();
-        plan[day] = { dish, price, weekday, isActive };
-        let quantityAvailable = null;
-        if (availabilityRaw !== '' && dish && isActive) {
-          const n = Math.max(0, Math.floor(Number(availabilityRaw)));
-          if (Number.isFinite(n)) {
-            stock[normalizeStockKey(dish)] = n;
-            quantityAvailable = n;
-          }
-        }
-        rows.push({
-          day_name: day,
-          weekday,
-          dish,
-          unit_price: price,
-          quantity_available: quantityAvailable,
-          is_active: !!dish && isActive
-        });
-      });
-      return { plan, stock, rows };
-    }
-
-    let lunchSaveInFlight = false;
-
-    async function persistLunchSettings({ silent = false } = {}) {
-      const feedback = document.getElementById('lunch-settings-feedback');
-      const saveBtn = document.getElementById('lunch-settings-save');
-
-      if (lunchSaveInFlight) return false;
-      lunchSaveInFlight = true;
-      if (saveBtn) saveBtn.disabled = true;
-      if (!silent && feedback) {
-        feedback.className = 'lunch-feedback feedback-success';
-        feedback.textContent = 'Speichern läuft …';
-      }
-
-      try {
-        const { plan, stock, rows } = collectLunchSettings();
-        const normalizedPlan = normalizeLunchPlan(plan);
-
-        if (supabaseClient) {
-          const { error } = await supabaseClient
-            .from('lunch_menu_items')
-            .upsert(rows, { onConflict: 'day_name' });
-          if (error) throw error;
-        }
-
-        saveLunchPlan(normalizedPlan);
-        saveLunchStock(stock);
-        renderLunchSettingsManager();
-
-        if (!silent && feedback) {
-          feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = '✓ Gespeichert';
-        }
-        return true;
-      } catch (err) {
-        console.error('Speichern fehlgeschlagen:', err);
-        if (feedback) {
-          feedback.className = 'lunch-feedback';
-          feedback.textContent = `Fehler: ${err?.message || 'Unbekannt'}`;
-        }
-        return false;
-      } finally {
-        lunchSaveInFlight = false;
-        if (saveBtn) saveBtn.disabled = false;
-      }
-    }
-
-    document.getElementById('lunch-stock-save')?.addEventListener('click', async () => {
-      const ok = await persistLunchSettings({ silent: false });
-      if (!ok) return;
-      const feedback = document.getElementById('lunch-stock-feedback');
-      if (feedback) {
-        feedback.className = 'lunch-feedback feedback-success';
-        feedback.textContent = 'Bestände gespeichert.';
-      }
-    });
-
-    document.getElementById('lunch-stock-reset')?.addEventListener('click', async () => {
-      document.querySelectorAll('[data-stock-dish]').forEach(input => {
-        input.value = '';
-      });
-      const ok = await persistLunchSettings({ silent: false });
-      if (!ok) return;
-      const feedback = document.getElementById('lunch-stock-feedback');
-      if (feedback) {
-        feedback.className = 'lunch-feedback feedback-success';
-        feedback.textContent = 'Alle Gerichte auf unbegrenzt gesetzt.';
-      }
-    });
-
-    document.getElementById('lunch-settings-save')?.addEventListener('click', () => {
-      persistLunchSettings({ silent: false }).catch(console.error);
-    });
-
-    document.getElementById('lunch-settings-reset')?.addEventListener('click', async () => {
-      const feedback = document.getElementById('lunch-settings-feedback');
-      try {
-        if (supabaseClient) {
-          const rows = Object.entries(DEFAULT_LUNCH_PLAN).map(([day, item]) => ({
-            day_name: day,
-            weekday: item.weekday,
-            dish: item.dish,
-            unit_price: item.price,
-            quantity_available: null,
-            is_active: item.isActive !== false
-          }));
-          const { error } = await supabaseClient.from('lunch_menu_items').upsert(rows, { onConflict: 'day_name' });
-          if (error) throw error;
-          saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
-          saveLunchStock({});
-          renderLunchSettingsManager();
-          syncLunchMenuFromSupabase().catch(console.error);
-        } else {
-          saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
-          saveLunchStock({});
-          renderLunchSettingsManager();
-        }
-        if (feedback) {
-          feedback.className = 'lunch-feedback feedback-success';
-          feedback.textContent = 'Wochenplan und Bestände auf Standard zurückgesetzt.';
-        }
-      } catch (error) {
-        if (feedback) {
-          feedback.className = 'lunch-feedback';
-          feedback.textContent = `Zurücksetzen fehlgeschlagen: ${error?.message || 'Unbekannter Fehler'}`;
-        }
-      }
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify({}) }));
-    });
-
-    document.getElementById('lunch-plan-save')?.addEventListener('click', () => {
-      const plan = {};
-      LUNCH_WEEKDAYS.forEach(({ day, weekday }) => {
-        const dishInput = document.querySelector(`[data-plan-dish="${day}"]`);
-        const priceInput = document.querySelector(`[data-plan-price="${day}"]`);
-        plan[day] = {
-          dish: (dishInput?.value || '').trim(),
-          price: Number(priceInput?.value || 0),
-          weekday
-        };
-      });
-      saveLunchPlan(normalizeLunchPlan(plan));
-      renderLunchPlanManager();
-      const feedback = document.getElementById('lunch-plan-feedback');
-      if (feedback) {
-        feedback.className = 'lunch-feedback feedback-success';
-        feedback.textContent = 'Wochenplan gespeichert.';
-      }
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify(normalizeLunchPlan(plan)) }));
-    });
-
-    document.getElementById('lunch-plan-reset')?.addEventListener('click', () => {
-      saveLunchPlan({ ...DEFAULT_LUNCH_PLAN });
-      renderLunchPlanManager();
-      const feedback = document.getElementById('lunch-plan-feedback');
-      if (feedback) {
-        feedback.className = 'lunch-feedback feedback-success';
-        feedback.textContent = 'Wochenplan auf Standard zurückgesetzt.';
-      }
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_PLAN_KEY, newValue: JSON.stringify({ ...DEFAULT_LUNCH_PLAN }) }));
-    });
-
     // Autosave intentionally disabled to avoid slow/failing rapid network writes.
 
     adminAuthForm?.addEventListener('submit', async (event) => {
@@ -1258,7 +869,6 @@ Dein Team von Simonsbrotkörbchen</textarea>
     });
 
     renderTables();
-    renderLunchSettingsManager();
     showTab('pending');
 
     if (!window.SB_SUPABASE?.isConfigured?.() || !supabaseClient) {
@@ -1336,36 +946,6 @@ Dein Team von Simonsbrotkörbchen</textarea>
     /* ===== Abstimmung Admin ===== */
     const VOTES_KEY = 'sb_votes';
 
-    function loadVotesAdmin() {
-      return JSON.parse(localStorage.getItem(VOTES_KEY) || '[]');
-    }
-    function saveVotesAdmin(v) {
-      localStorage.setItem(VOTES_KEY, JSON.stringify(v));
-    }
-
-    function renderAdminVotes() {
-      const container = document.getElementById('admin-votes-list');
-      if (!container) return;
-      const votes = loadVotesAdmin();
-      if (!votes.length) {
-        container.innerHTML = '<p style="color:var(--clr-text-muted);font-size:0.9rem">Noch keine Abstimmungen erstellt.</p>';
-        return;
-      }
-      container.innerHTML = '';
-      votes.forEach((vote, idx) => {
-        const totalVotes = Object.values(vote.votes || {}).reduce((s, n) => s + n, 0);
-        const div = document.createElement('div');
-        div.className = 'admin-vote-card';
-        const dishes = (vote.dishes || []).map(d => {
-          const count = (vote.votes || {})[d] || 0;
-          const pct = totalVotes ? Math.round(count / totalVotes * 100) : 0;
-          return `<li>${escapeHtml(d)}: <strong>${count} Stimmen</strong> (${pct}%)</li>`;
-        }).join('');
-        div.innerHTML = `
-          <div class="admin-vote-card-header">
-            <div>
-              <strong>${escapeHtml(vote.title || '')}</strong>
-              <span class="vote-status-badge ${vote.active ? 'badge-active' : 'badge-ended'}">${vote.active ? 'Aktiv' : 'Beendet'}</span>
             </div>
             <div class="table-actions">
               ${vote.active
