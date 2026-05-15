@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simonsbrotkörbchen – Vorbestellung & Abholung</title>
+  <title>Simonsbrotkörbchen – Bestellung &amp; Abholung</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
         <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
         <span class="brand-copy">
           <span class="brand-title">Simonsbrotkörbchen</span>
-          <span class="brand-subtitle">Vorbestellung &amp; Abholung in Düsseldorf</span>
+          <span class="brand-subtitle">Bestellung &amp; Abholung in Düsseldorf</span>
         </span>
       </a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
@@ -39,7 +39,7 @@
     <section class="section" id="produkte">
       <div class="container">
         <div class="section-header">
-          <span class="eyebrow">Online vorbestellen</span>
+          <span class="eyebrow">Online bestellen</span>
           <h2>Ofenwarme Brötchen und belegte Klassiker bequem online zur Abholung reservieren.</h2>
           <p>Du bestellst online und holst deine Auswahl anschließend in unserer Filiale ab – mit den gleichen Produkten und Preisen wie vor Ort.</p>
         </div>
@@ -81,10 +81,10 @@
           <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
           <span class="brand-copy">
             <span class="brand-title">Simonsbrotkörbchen</span>
-            <span class="brand-subtitle">Traditionell gebacken. Modern vorbestellt.</span>
+            <span class="brand-subtitle">Traditionell gebacken. Modern bestellt.</span>
           </span>
         </a>
-        <p class="footer-text">Vorbestellungen für Privatpersonen, Teams und Veranstaltungen – direkt zur Abholung in der Filiale.</p>
+        <p class="footer-text">Bestellungen für Privatpersonen, Teams und Veranstaltungen – direkt zur Abholung in der Filiale.</p>
       </div>
       <div>
         <h4 class="footer-heading">Navigation</h4>
@@ -101,7 +101,7 @@
         <ul class="footer-links">
           <li>Abholung Mo – Fr: 05:30 – 15:30 Uhr</li>
           <li>Abholung Sa: 06:30 – 12:00 Uhr</li>
-          <li>Vorbestellung am selben Tag möglich</li>
+          <li>Bestellung am selben Tag möglich</li>
         </ul>
       </div>
       <div>
@@ -147,7 +147,7 @@
         </div>
         <fieldset class="fieldset" id="fulfillment-fieldset">
           <legend>Bestellart</legend>
-          <p class="checkout-hint" style="margin:0;">Ausschließlich Vorbestellung zur Abholung in der Filiale.</p>
+          <p class="checkout-hint" style="margin:0;">Ausschließlich Bestellung zur Abholung in der Filiale.</p>
           <input type="hidden" name="fulfillment" value="pickup">
         </fieldset>
         <div class="form-grid fulfillment-grid" data-fulfillment="pickup">
@@ -2627,7 +2627,7 @@
       if (!elements.cartNote) return;
       const isDelivery = state.fulfillment === 'delivery';
       if (!isDelivery) {
-        elements.cartNote.textContent = 'Vorbestellung zur Abholung in der Filiale.';
+        elements.cartNote.textContent = 'Bestellung zur Abholung in der Filiale.';
         elements.cartNote.classList.remove('cart-note-warning');
         return;
       }

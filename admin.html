@@ -34,7 +34,7 @@
       <div class="section-header">
         <span class="eyebrow">Bestellübersicht</span>
         <h1>Offene Bestellungen &amp; Abholstatus</h1>
-        <p>Verwalte eingehende Vorbestellungen und Mittagstisch-Reservierungen, markiere Abholungen als erledigt und erstelle Ausdrucke für dein Team.</p>
+        <p>Verwalte eingehende Bestellungen und Mittagstisch-Reservierungen, markiere Abholungen als erledigt und erstelle Ausdrucke für dein Team.</p>
       </div>
 
       <div class="checkout-page-card" id="admin-auth-card">
@@ -243,7 +243,7 @@
                   <option value="newsletter">Nur Newsletter-Abonnenten</option>
                   <option value="active7">Aktive Kunden (letzte 7 Tage)</option>
                   <option value="inactive14">Inaktive Kunden (&gt;14 Tage)</option>
-                  <option value="orderAbandoners">Abbrecher Vorbestellung</option>
+                  <option value="orderAbandoners">Abbrecher Bestellung</option>
                   <option value="reservationAbandoners">Abbrecher Reservierung</option>
                 </select>
 
@@ -261,7 +261,7 @@
                 <select id="newsletter-block">
                   <option value="">Bitte wählen</option>
                   <option value="wir haben diese Woche neue Mittagsgerichte für dich vorbereitet.">Mittagstisch-Update</option>
-                  <option value="dein Lieblingssortiment ist frisch verfügbar – jetzt bequem vorbestellen.">Vorbestellung</option>
+                  <option value="dein Lieblingssortiment ist frisch verfügbar – jetzt bequem bestellen.">Bestellung</option>
                   <option value="als Dankeschön für deine Treue haben wir ein kleines Extra für dich.">Dankeschön</option>
                   <option value="wir vermissen dich – schau gerne wieder vorbei, es lohnt sich.">Reaktivierung</option>
                 </select>
@@ -298,7 +298,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
             <div class="analytics-kpis" id="analytics-kpis"></div>
             <div class="analytics-charts">
               <div class="analytics-card">
-                <h3>Schritt-Abbrüche (Vorbestellung)</h3>
+                <h3>Schritt-Abbrüche (Bestellung)</h3>
                 <div id="analytics-order-dropoff" class="analytics-bars"></div>
               </div>
               <div class="analytics-card">
@@ -326,7 +326,7 @@ Dein Team von Simonsbrotkörbchen</textarea>
       <span>© 2026 Simonsbrotkörbchen · Adminbereich</span>
       <div class="footer-bottom-links">
         <a href="index.html">Zur Website</a>
-        <a href="shop.html">Vorbestellung öffnen</a>
+        <a href="shop.html">Bestellung öffnen</a>
       </div>
     </div>
   </footer>
@@ -1582,11 +1582,11 @@ Dein Team von Simonsbrotkörbchen</textarea>
       const reservationConversion = a.totalVisits ? (a.totalReservations / a.totalVisits) * 100 : 0;
       kpi.innerHTML = `
         <article class="analytics-kpi"><h4>Besuche</h4><p>${a.totalVisits}</p></article>
-        <article class="analytics-kpi"><h4>Vorbestellungen</h4><p>${a.totalOrders}</p></article>
+        <article class="analytics-kpi"><h4>Bestellungen</h4><p>${a.totalOrders}</p></article>
         <article class="analytics-kpi"><h4>Reservierungen</h4><p>${a.totalReservations}</p></article>
-        <article class="analytics-kpi"><h4>Conversion Vorbestellung</h4><p>${orderConversion.toFixed(1)}%</p></article>
+        <article class="analytics-kpi"><h4>Conversion Bestellung</h4><p>${orderConversion.toFixed(1)}%</p></article>
         <article class="analytics-kpi"><h4>Conversion Reservierung</h4><p>${reservationConversion.toFixed(1)}%</p></article>
-        <article class="analytics-kpi"><h4>Abbruch Vorbestellung</h4><p>${Math.max(0, a.orderAbortRate).toFixed(1)}%</p></article>
+        <article class="analytics-kpi"><h4>Abbruch Bestellung</h4><p>${Math.max(0, a.orderAbortRate).toFixed(1)}%</p></article>
         <article class="analytics-kpi"><h4>Abbruch Reservierung</h4><p>${Math.max(0, a.reservationAbortRate).toFixed(1)}%</p></article>
       `;
 

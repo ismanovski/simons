@@ -45,8 +45,8 @@
           <div class="wunschzettel-form-col">
             <form class="wunschzettel-form" id="wunschzettel-form" novalidate>
               <div class="form-grid form-grid-2">
-                <label for="wz-firstname">Vorname
-                  <input type="text" id="wz-firstname" name="firstname" autocomplete="given-name" required>
+                <label for="wz-firstname">Vorname (optional)
+                  <input type="text" id="wz-firstname" name="firstname" autocomplete="given-name">
                 </label>
                 <label for="wz-lastname">Nachname (optional)
                   <input type="text" id="wz-lastname" name="lastname" autocomplete="family-name">
@@ -65,18 +65,6 @@
             </form>
           </div>
 
-          <div class="wunschzettel-stats-col">
-            <div class="wunschzettel-counter">
-              <span class="wz-count" id="wz-count">0</span>
-              <span class="wz-count-label">Gerichtswünsche bereits eingereicht</span>
-            </div>
-            <div class="wunschzettel-list-preview">
-              <h4>Aktuelle Wünsche</h4>
-              <ul class="wz-preview-list" id="wz-preview-list">
-                <li class="wz-empty">Noch keine Wünsche vorhanden. Sei der Erste!</li>
-              </ul>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -106,10 +94,10 @@
             <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
             <span class="brand-copy">
               <span class="brand-title">Simonsbrotkörbchen</span>
-              <span class="brand-subtitle">Traditionell gebacken. Modern vorbestellt.</span>
+              <span class="brand-subtitle">Traditionell gebacken. Modern bestellt.</span>
             </span>
           </a>
-          <p class="footer-text">Vorbestellung und Abholung in Düsseldorf – regional, frisch und mit viel Liebe zum Detail.</p>
+          <p class="footer-text">Bestellung und Abholung in Düsseldorf – regional, frisch und mit viel Liebe zum Detail.</p>
         </div>
         <nav class="footer-nav" aria-label="Footer Navigation">
           <h4 class="footer-heading">Navigation</h4>
@@ -223,8 +211,8 @@
         const wish      = data.get('wish')?.toString().trim() || '';
         const message   = data.get('message')?.toString().trim() || '';
 
-        if (!firstname || !wish) {
-          if (feedback) feedback.textContent = 'Bitte gib deinen Vornamen und deinen Gerichtswunsch ein.';
+        if (!wish) {
+          if (feedback) feedback.textContent = 'Bitte gib deinen Gerichtswunsch ein.';
           return;
         }
 
@@ -243,7 +231,7 @@
         renderWishStats();
         if (feedback) {
           feedback.classList.add('feedback-success');
-          feedback.textContent = `✓ Danke, ${firstname}! Dein Wunsch „${wish}" wurde eingereicht.`;
+          feedback.textContent = `✓ Danke${firstname ? ', ' + firstname : ''}! Dein Wunsch „${wish}" wurde eingereicht.`;
         }
       });
 
