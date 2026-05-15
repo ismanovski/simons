@@ -1136,34 +1136,25 @@ Dein Team von Simonsbrotkörbchen</textarea>
       return true;
     }
 
-    document.getElementById('lunch-stock-save')?.addEventListener('click', () => {
-      const inputs = Array.from(document.querySelectorAll('[data-stock-dish]'));
-      const next = {};
-      inputs.forEach(input => {
-        const dish = input.dataset.stockDish;
-        const raw = (input.value || '').trim();
-        if (raw === '') return;
-        const n = Math.max(0, Math.floor(Number(raw)));
-        if (Number.isFinite(n)) next[normalizeStockKey(dish)] = n;
-      });
-      saveLunchStock(next);
+    document.getElementById('lunch-stock-save')?.addEventListener('click', async () => {
+      await persistLunchSettings({ silent: false });
       const feedback = document.getElementById('lunch-stock-feedback');
       if (feedback) {
         feedback.className = 'lunch-feedback feedback-success';
         feedback.textContent = 'Bestände gespeichert.';
       }
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(next) }));
     });
 
-    document.getElementById('lunch-stock-reset')?.addEventListener('click', () => {
-      saveLunchStock({});
-      renderLunchStockManager();
+    document.getElementById('lunch-stock-reset')?.addEventListener('click', async () => {
+      document.querySelectorAll('[data-stock-dish]').forEach(input => {
+        input.value = '';
+      });
+      await persistLunchSettings({ silent: false });
       const feedback = document.getElementById('lunch-stock-feedback');
       if (feedback) {
         feedback.className = 'lunch-feedback feedback-success';
         feedback.textContent = 'Alle Gerichte auf unbegrenzt gesetzt.';
       }
-      window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify({}) }));
     });
 
     document.getElementById('lunch-settings-save')?.addEventListener('click', async () => {
@@ -1241,21 +1232,11 @@ Dein Team von Simonsbrotkörbchen</textarea>
     document.getElementById('lunch-stock-fields')?.addEventListener('input', () => {
       clearTimeout(lunchStockSaveTimer);
       lunchStockSaveTimer = setTimeout(() => {
-        const inputs = Array.from(document.querySelectorAll('[data-stock-dish]'));
-        const next = {};
-        inputs.forEach(input => {
-          const dish = input.dataset.stockDish;
-          const raw = (input.value || '').trim();
-          if (raw === '') return;
-          const n = Math.max(0, Math.floor(Number(raw)));
-          if (Number.isFinite(n)) next[normalizeStockKey(dish)] = n;
-        });
-        saveLunchStock(next);
-        window.dispatchEvent(new StorageEvent('storage', { key: LUNCH_STOCK_KEY, newValue: JSON.stringify(next) }));
+        persistLunchSettings({ silent: true }).catch(console.error);
       }, 500);
     });
     document.getElementById('lunch-stock-fields')?.addEventListener('change', () => {
-      document.getElementById('lunch-stock-save')?.click();
+      persistLunchSettings({ silent: true }).catch(console.error);
     });
 
     adminAuthForm?.addEventListener('submit', async (event) => {
