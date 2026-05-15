@@ -380,8 +380,8 @@ Dein Team von Simonsbrotkörbchen</textarea>
     const supabaseClient = window.supabase?.createClient && window.SB_SUPABASE?.isConfigured?.()
       ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey, {
           auth: {
-            persistSession: false,
-            autoRefreshToken: false,
+            persistSession: true,
+            autoRefreshToken: true,
             detectSessionInUrl: false
           }
         })
@@ -1235,33 +1235,36 @@ Dein Team von Simonsbrotkörbchen</textarea>
       const password = document.getElementById('admin-password')?.value || '';
       setAdminFeedback('Anmeldung läuft ...');
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-      if (error) {
-        setAdminFeedback('Login fehlgeschlagen. Bitte Daten prüfen.');
-        return;
-      }
-      setAdminAuthenticated(!!data?.session);
       try {
-        await hydrateAdminFromSupabase();
-        showTab('pending');
-      } catch (syncError) {
-        console.error('Adminbereich konnte nach dem Login nicht geladen werden:', syncError);
-      }
-      setAdminFeedback('Anmeldung erfolgreich.', true);
-    });
+        if (!supabaseClient) throw new Error('Supabase nicht verbunden – Seite neu laden.');
 
-    adminLogoutBtn?.addEventListener('click', async () => {
-      await supabaseClient?.auth?.signOut?.();
-    });
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        if (!sessionData?.session) throw new Error('Keine Admin-Session – bitte neu einloggen.');
 
-    window.addEventListener('pagehide', () => {
-      supabaseClient?.auth?.signOut?.();
-    });
+        const { plan, stock, rows } = collectLunchSettings();
+        const normalizedPlan = normalizeLunchPlan(plan);
 
-    renderTables();
-    renderLunchSettingsManager();
-    showTab('pending');
+        const { error } = await supabaseClient
+          .from('lunch_menu_items')
+          .upsert(rows, { onConflict: 'day_name' });
+        if (error) throw error;
 
-    if (!window.SB_SUPABASE?.isConfigured?.() || !supabaseClient) {
+        saveLunchPlan(normalizedPlan);
+        saveLunchStock(stock);
+        renderLunchSettingsManager();
+
+        if (!silent && feedback) {
+          feedback.className   = 'lunch-feedback feedback-success';
+          feedback.textContent = '✓ Gespeichert – Kundenseite aktualisiert sich automatisch.';
+        }
+        return true;
+      } catch (err) {
+        console.error('Speichern fehlgeschlagen:', err);
+        if (feedback) {
+          feedback.className   = 'lunch-feedback';
+          feedback.textContent = '⚠️ ' + (err?.message || 'Unbekannter Fehler');
+        }
+        return false;
       setAdminAuthenticated(false);
       setAdminFeedback('Supabase ist noch nicht konfiguriert. Öffne assets/js/supabase-config.js und trage Projekt-URL + Anon-Key ein.');
     } else {

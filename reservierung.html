@@ -471,77 +471,83 @@
         localStorage.setItem(LUNCH_PLAN_KEY, JSON.stringify(plan || {}));
       }
 
-      async function fetchLunchMenuRowsViaEndpoint() {
-        const endpoints = [
-          '/.netlify/functions/get-lunch-menu',
-          'https://simons-brotkoerbchen.de/.netlify/functions/get-lunch-menu'
-        ];
-        for (const endpoint of endpoints) {
-          try {
-            const res = await fetch(endpoint, { method: 'GET', cache: 'no-store' });
-            if (!res.ok) continue;
+      // ── Wochenplan Live-Sync ─────────────────────────────────────────────
+      // Strategie: direkte Supabase REST API (kein SDK nötig, kein Auth nötig
+      // solange RLS anon-select erlaubt ODER Netlify-Funktion mit service key).
+
+      const SUPABASE_REST_URL = (() => {
+        const cfg = window.SB_SUPABASE_CONFIG || {};
+        if (!cfg.url) return null;
+        return cfg.url.replace(/\/$/, '') +
+          '/rest/v1/lunch_menu_items?select=day_name,weekday,dish,unit_price,quantity_available,is_active&order=weekday.asc';
+      })();
+      const SUPABASE_ANON_KEY = (window.SB_SUPABASE_CONFIG || {}).anonKey || '';
+
+      async function fetchMenuRows() {
+        // 1. Netlify-Funktion (service role key → RLS umgehen)
+        try {
+          const res = await fetch('/.netlify/functions/get-lunch-menu', { cache: 'no-store' });
+          if (res.ok) {
             const payload = await res.json();
             if (payload?.ok && Array.isArray(payload.rows)) return payload.rows;
-          } catch {
-            // try next endpoint
           }
-        }
-        // Direkter Supabase REST Fallback
-        try {
-          const cfg = window.SB_SUPABASE_CONFIG || {};
-          if (cfg.url && cfg.anonKey) {
-            const url = `${cfg.url.replace(/\/$/, '')}/rest/v1/lunch_menu_items?select=day_name,weekday,dish,unit_price,quantity_available,is_active&order=weekday.asc`;
-            const res = await fetch(url, {
-              headers: { apikey: cfg.anonKey, Authorization: `Bearer ${cfg.anonKey}` },
+        } catch {}
+
+        // 2. Direkt Supabase REST (anon key)
+        if (SUPABASE_REST_URL && SUPABASE_ANON_KEY) {
+          try {
+            const res = await fetch(SUPABASE_REST_URL, {
+              headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY },
               cache: 'no-store'
             });
             if (res.ok) {
               const rows = await res.json();
               if (Array.isArray(rows)) return rows;
             }
-          }
-        } catch {}
+          } catch {}
+        }
+
         return null;
       }
 
-      async function syncLunchDataFromSupabase() {
-        const rows = await fetchLunchMenuRowsViaEndpoint();
-        if (!rows) return false;
-
-        const plan = { ...DEFAULT_LUNCH_PLAN };
+      function applyMenuRows(rows) {
+        if (!Array.isArray(rows) || !rows.length) return;
+        const plan  = { ...DEFAULT_LUNCH_PLAN };
         const stock = {};
         rows.forEach(row => {
           if (!row?.day_name) return;
           const dish = String(row.dish || '').trim();
           plan[row.day_name] = {
             dish,
-            price: Number(row.unit_price) || 0,
-            weekday: Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1,
+            price:    Number(row.unit_price) || 0,
+            weekday:  Number(row.weekday) || DEFAULT_LUNCH_PLAN[row.day_name]?.weekday || 1,
             isActive: row.is_active !== false
           };
           if (dish && row.is_active !== false && row.quantity_available != null) {
             stock[normalizeStockKey(dish)] = Math.max(0, Number(row.quantity_available) || 0);
           }
         });
-
         saveLunchPlan(plan);
         saveLunchStock(stock);
+      }
+
+      async function syncLunchDataFromSupabase() {
+        const rows = await fetchMenuRows();
+        if (!rows) return false;
+        applyMenuRows(rows);
         return true;
       }
 
-      function subscribeLunchMenuRealtime() {
-        // Nur polling, kein Realtime-SDK nötig
-      }
+      function subscribeLunchMenuRealtime() { /* polling used instead */ }
 
       function startLunchMenuSyncFallback() {
-        // Alle 4 Sekunden vom Server holen und UI aktualisieren
+        // Alle 5 Sekunden aktualisieren
         setInterval(async () => {
-          try {
-            await syncLunchDataFromSupabase();
-            refreshLunchPlan();
-          } catch {}
-        }, 4000);
+          const rows = await fetchMenuRows();
+          if (rows) { applyMenuRows(rows); refreshLunchPlan(); }
+        }, 5000);
       }
+      // ────────────────────────────────────────────────────────────────────
 
       function mapSupabaseOrderToReservation(row) {
         if (!row) return null;
@@ -1329,9 +1335,10 @@
         modal.addEventListener('click', e => { if (e.target === modal) closeModal(); }, { once: true });
       });
 
-      syncLunchDataFromSupabase()
-        .then(() => refreshLunchPlan())
-        .catch(err => console.error('Initialer Sync fehlgeschlagen:', err));
+      // Beim Laden: sofort vom Server holen und UI aktualisieren
+      fetchMenuRows().then(rows => {
+        if (rows) { applyMenuRows(rows); refreshLunchPlan(); }
+      }).catch(() => {});
 
       subscribeLunchMenuRealtime();
       startLunchMenuSyncFallback();
