@@ -155,6 +155,20 @@
                   <textarea id="lunch-notes" name="notes" rows="2" placeholder="z. B. Abholung durch Kollegin, Allergie-Hinweise …"></textarea>
                 </label>
 
+                <div id="lunch-paypal-config-hint" class="checkout-hint" hidden>
+                  PayPal ist noch nicht verbunden. Bitte Konfiguration prüfen.
+                </div>
+
+                <label class="contract-check" for="lunch-terms">
+                  <input type="checkbox" id="lunch-terms" name="terms" required>
+                  Ich akzeptiere die <a href="agb.html" target="_blank" rel="noopener noreferrer">AGB</a>.
+                </label>
+
+                <label class="contract-check" for="lunch-contract">
+                  <input type="checkbox" id="lunch-contract" name="contract" required>
+                  Ich bestätige: Mit Klick auf „Zahlungspflichtig bestellen" gebe ich eine verbindliche, zahlungspflichtige Bestellung ab.
+                </label>
+
                 <fieldset class="fieldset lunch-payment-fieldset">
                   <legend>Zahlungsart</legend>
                   <label class="radio">
@@ -168,20 +182,7 @@
                   </label>
                 </fieldset>
 
-                <div id="lunch-paypal-config-hint" class="checkout-hint" hidden>
-                  PayPal ist noch nicht verbunden. Bitte Konfiguration prüfen.
-                </div>
                 <div id="lunch-paypal-button-container" hidden></div>
-
-                <label class="contract-check" for="lunch-terms">
-                  <input type="checkbox" id="lunch-terms" name="terms" required>
-                  Ich akzeptiere die <a href="agb.html" target="_blank" rel="noopener noreferrer">AGB</a>.
-                </label>
-
-                <label class="contract-check" for="lunch-contract">
-                  <input type="checkbox" id="lunch-contract" name="contract" required>
-                  Ich bestätige: Mit Klick auf „Zahlungspflichtig bestellen" gebe ich eine verbindliche, zahlungspflichtige Bestellung ab.
-                </label>
 
                 <div class="checkout-actions-row">
                   <button class="btn btn-secondary" type="button" id="lunch-back-to-step-1">Zurück</button>
@@ -437,6 +438,8 @@
       const receiptDeliveryFee = document.getElementById('lunch-receipt-delivery-fee');
       const receiptMinOrder = document.getElementById('lunch-receipt-min-order');
       const receiptBwNote = document.getElementById('lunch-bw-receipt-note');
+      const lunchTerms = document.getElementById('lunch-terms');
+      const lunchContract = document.getElementById('lunch-contract');
       const paypalHint = document.getElementById('lunch-paypal-config-hint');
       const paypalContainer = document.getElementById('lunch-paypal-button-container');
       const fmt         = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -457,10 +460,19 @@
         return menu ? qty * (Number(menu.price) || 0) : 0;
       }
 
+      function areLunchTermsAccepted() {
+        return !!(lunchTerms?.checked && lunchContract?.checked);
+      }
+
       function refreshLunchPaypalVisibility() {
-        const isPaypal = getSelectedPaymentMethod() === 'PayPal';
-        if (paypalContainer) paypalContainer.hidden = !isPaypal;
-        if (paypalHint) paypalHint.hidden = !isPaypal || !!lunchPaypalClientId;
+        const accepted = areLunchTermsAccepted();
+        if (paypalContainer) {
+          paypalContainer.hidden = !lunchPaypalClientId;
+          paypalContainer.style.pointerEvents = accepted ? 'auto' : 'none';
+          paypalContainer.style.opacity = accepted ? '1' : '0.45';
+          paypalContainer.style.filter = accepted ? 'none' : 'grayscale(0.2)';
+        }
+        if (paypalHint) paypalHint.hidden = !!lunchPaypalClientId;
       }
 
       function resetLunchPaypalApproval() {
@@ -519,6 +531,9 @@
           lunchPaypalReady = true;
           window.paypal.Buttons({
             createOrder: async () => {
+              if (!areLunchTermsAccepted()) {
+                throw new Error('Bitte zuerst AGB und Bestellbestätigung akzeptieren.');
+              }
               try {
                 resetLunchPaypalApproval();
                 return await createLunchPaypalOrderOnServer(getCurrentLunchTotal());
@@ -540,6 +555,10 @@
                   feedback.classList.add('feedback-success');
                   feedback.textContent = 'PayPal-Zahlung bestätigt. Du kannst jetzt bestellen.';
                 }
+                if (form) {
+                  form.dataset.paymentMethod = 'PayPal';
+                  form.requestSubmit();
+                }
               } catch (error) {
                 lunchPaypalApproved = false;
                 console.error('Lunch PayPal capture failed:', error);
@@ -558,6 +577,7 @@
               }
             }
           }).render('#lunch-paypal-button-container');
+          refreshLunchPaypalVisibility();
         };
         document.head.appendChild(script);
       }
@@ -1047,6 +1067,8 @@
         if (receiptBwNote) {
           receiptBwNote.hidden = !(mode === 'delivery' && bundeswehrVerified);
         }
+        if (submitBtn) submitBtn.disabled = !!submitBtn.disabled || !areLunchTermsAccepted();
+        refreshLunchPaypalVisibility();
       }
 
       dayField?.addEventListener('change', () => {
@@ -1097,6 +1119,14 @@
           bwCodeFeedback.textContent = 'Vorteile aktiv: Liefergebühr 0,00 € und Mindestbestellwert 0,00 €.';
         }
         renderPickupTimeOptions();
+        updateForm();
+      });
+      lunchTerms?.addEventListener('change', () => {
+        resetLunchPaypalApproval();
+        updateForm();
+      });
+      lunchContract?.addEventListener('change', () => {
+        resetLunchPaypalApproval();
         updateForm();
       });
       fulfillmentRadios.forEach(radio => radio.addEventListener('change', () => {
@@ -1191,7 +1221,7 @@
         const deliveryNumberValue = data.get('deliveryNumber')?.toString().trim() || '';
         const deliveryZipValue = data.get('deliveryZip')?.toString().trim() || '';
         const deliveryCityValue = data.get('deliveryCity')?.toString().trim() || '';
-        const paymentMethod = data.get('paymentMethod')?.toString() || 'Vor Ort';
+        const paymentMethod = (form?.dataset?.paymentMethod || data.get('paymentMethod')?.toString() || 'Vor Ort').toString();
         const termsOk      = data.get('terms') === 'on';
         const contractOk   = data.get('contract') === 'on';
 
@@ -1354,6 +1384,7 @@
         });
 
         form.reset();
+        if (form) form.dataset.paymentMethod = '';
         if (qtyField) qtyField.value = '1';
         resetBundeswehrState();
         renderPickupTimeOptions();
