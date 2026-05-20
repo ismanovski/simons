@@ -3,28 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin – Simonsbrotkörbchen</title>
+  <title>Admin – Bestellungen</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="admin-body">
   <header class="site-header admin-header" data-header>
     <div class="container header-layout">
       <a class="brand" href="index.html">
-        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+        <img class="brand-logo" src="logo simons weiß.png" alt="Simonsbrotkörbchen Logo">
         <span class="brand-copy">
           <span class="brand-title">Simonsbrotkörbchen</span>
           <span class="brand-subtitle">Adminbereich</span>
         </span>
       </a>
-      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
-        <span class="sr-only">Menü öffnen</span>
-        <span class="nav-toggle-bar"></span>
-        <span class="nav-toggle-bar"></span>
-        <span class="nav-toggle-bar"></span>
-      </button>
       <nav class="site-nav" id="primary-navigation" data-nav>
         <a class="nav-link" href="index.html">Zur Website</a>
-        <button class="btn btn-outline" type="button" id="admin-logout-btn" hidden>Logout</button>
       </nav>
     </div>
   </header>
@@ -32,628 +25,242 @@
   <main class="section admin-section">
     <div class="container">
       <div class="section-header">
-        <span class="eyebrow">Bestellübersicht</span>
-        <h1>Offene Bestellungen &amp; Abholstatus</h1>
-        <p>Verwalte eingehende Bestellungen und Mittagstisch-Reservierungen, markiere Abholungen als erledigt und erstelle Ausdrucke für dein Team.</p>
+        <span class="eyebrow">Übersicht</span>
+        <h1>Alle getätigten Bestellungen</h1>
+        <p>Hier landen alle lokal gespeicherten Shop-Bestellungen und Mittagstisch-Reservierungen.</p>
       </div>
 
-      <div class="checkout-page-card" id="admin-auth-card">
-        <h2 style="margin:0;">Admin-Login</h2>
-        <p class="checkout-hint">Melde dich mit deinem Supabase-Adminkonto an. Erst nach erfolgreichem Login werden offene Bestellungen, abgeschlossene Bestellungen und alle weiteren Admin-Inhalte sichtbar. Verwende dafür die E-Mail und das Passwort deines Supabase-Users.</p>
-        <form id="admin-auth-form" class="form-grid form-grid-2" style="margin-top:0.5rem;">
-          <label for="admin-email">E-Mail
-            <input type="email" id="admin-email" autocomplete="username" required>
-          </label>
-          <label for="admin-password">Passwort
-            <input type="password" id="admin-password" autocomplete="current-password" required>
-          </label>
-          <div class="table-actions" style="grid-column:1 / -1; justify-content:flex-start;">
-            <button class="btn btn-primary" type="submit">Einloggen</button>
-          </div>
-        </form>
-        <p class="lunch-feedback" id="admin-auth-feedback" aria-live="polite"></p>
-      </div>
-
-      <div class="admin-panel" id="admin-dashboard" hidden style="display:none;">
-        <div class="tab-bar" role="tablist">
-          <button class="chip is-active" role="tab" aria-selected="true" data-tab-target="pending">Offene Bestellungen</button>
-          <button class="chip" role="tab" aria-selected="false" data-tab-target="sent">Abgeschlossene Bestellungen</button>
-          <button class="chip" role="tab" aria-selected="false" data-tab-target="lunch-pending">Mittagstisch-Reservierungen</button>
-          <button class="chip" role="tab" aria-selected="false" data-tab-target="lunch-done">Abgeholte Mittagstisch-Reservierungen</button>
-          <button class="chip" role="tab" aria-selected="false" data-tab-target="wunschzettel">Wunschzettel</button>
-          <button class="chip" role="tab" aria-selected="false" data-tab-target="abstimmung">Abstimmung</button>
-          <button class="chip" role="tab" aria-selected="false" data-tab-target="newsletter">Newsletter</button>
-          <button class="chip" role="tab" aria-selected="false" data-tab-target="analyse">Analyse</button>
+      <div class="admin-panel">
+        <div class="tab-bar" role="tablist" aria-label="Admin Reiter">
+          <button class="chip is-active" type="button" data-tab-target="overview" role="tab" aria-selected="true">Übersicht</button>
+          <button class="chip" type="button" data-tab-target="open-orders" role="tab" aria-selected="false">Offene Bestellungen</button>
+          <button class="chip" type="button" data-tab-target="done-orders" role="tab" aria-selected="false">Abgeschlossene Bestellungen</button>
+          <button class="chip" type="button" data-tab-target="contacts" role="tab" aria-selected="false">Kundenkontakte</button>
+          <button class="chip" type="button" data-tab-target="weekplan" role="tab" aria-selected="false">Wochenplan</button>
+          <button class="chip" type="button" data-tab-target="kassenabschluss" role="tab" aria-selected="false">Kassenabschluss</button>
+          <button class="chip" type="button" data-tab-target="wunschzettel" role="tab" aria-selected="false">Wunschzettel</button>
         </div>
 
-        <div class="admin-filters" aria-label="Filter für Mittagstisch-Reservierungen">
-          <label for="lunch-filter-search">Suche</label>
-          <input type="text" id="lunch-filter-search" placeholder="ID, Name, E-Mail, Telefon, Gericht">
-
-          <label for="lunch-filter-day">Wochentag</label>
-          <select id="lunch-filter-day">
-            <option value="">Alle Tage</option>
-            <option value="Montag">Montag</option>
-            <option value="Dienstag">Dienstag</option>
-            <option value="Mittwoch">Mittwoch</option>
-            <option value="Donnerstag">Donnerstag</option>
-            <option value="Freitag">Freitag</option>
-          </select>
-
-          <label for="lunch-filter-date">Abholdatum</label>
-          <input type="date" id="lunch-filter-date">
-
-          <button class="btn btn-secondary" type="button" id="lunch-filter-reset">Filter zurücksetzen</button>
-        </div>
-
-        <div class="tab-panel is-active" id="pending" role="tabpanel">
+        <section class="tab-panel is-active" id="overview" role="tabpanel">
           <div class="table-wrapper">
-            <table class="data-table" id="pending-table">
+            <table class="data-table">
               <thead>
                 <tr>
+                  <th>Kennzahl</th>
+                  <th>Wert</th>
+                </tr>
+              </thead>
+              <tbody id="overview-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="open-orders" role="tabpanel" hidden>
+          <div class="admin-filters" style="margin-bottom:0.75rem;">
+            <label for="search-open-orders">Suche</label>
+            <input type="text" id="search-open-orders" placeholder="Vorname, Nachname, Bestellnummer, Abholcode, Betrag">
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table" id="open-orders-table">
+              <thead>
+                <tr>
+                  <th>Typ</th>
                   <th>ID</th>
-                  <th>Datum / Uhrzeit</th>
+                  <th>Datum</th>
                   <th>Kunde</th>
-                  <th>Gesamtbetrag (€)</th>
-                  <th>Zahlungsart</th>
-                  <th>Aktionen</th>
+                  <th>Details</th>
+                  <th>Gesamt (€)</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
           </div>
-        </div>
+        </section>
 
-        <div class="tab-panel" id="sent" role="tabpanel" hidden>
+        <section class="tab-panel" id="done-orders" role="tabpanel" hidden>
+          <div class="admin-filters" style="margin-bottom:0.75rem;">
+            <label for="search-done-orders">Suche</label>
+            <input type="text" id="search-done-orders" placeholder="Vorname, Nachname, Bestellnummer, Abholcode, Betrag">
+          </div>
           <div class="table-wrapper">
-            <table class="data-table" id="sent-table">
+            <table class="data-table" id="done-orders-table">
               <thead>
                 <tr>
+                  <th>Typ</th>
                   <th>ID</th>
-                  <th>Datum / Uhrzeit</th>
+                  <th>Datum</th>
                   <th>Kunde</th>
-                  <th>Gesamtbetrag (€)</th>
-                  <th>Zahlungsart</th>
-                  <th>Aktionen</th>
+                  <th>Details</th>
+                  <th>Gesamt (€)</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
           </div>
-        </div>
+        </section>
 
-        <div class="tab-panel" id="lunch-pending" role="tabpanel" hidden>
+        <section class="tab-panel" id="contacts" role="tabpanel" hidden>
+          <div class="admin-filters" style="margin-bottom:0.75rem;">
+            <label for="search-contacts">Suche</label>
+            <input type="text" id="search-contacts" placeholder="Vorname, Nachname, Bestellnummer, Abholcode, Betrag">
+          </div>
           <div class="table-wrapper">
-            <table class="data-table" id="lunch-pending-table">
+            <table class="data-table" id="contacts-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Reserviert am</th>
-                  <th>Kunde</th>
-                  <th>Mittagstisch</th>
-                  <th>Vertrag</th>
-                  <th>Aktionen</th>
+                  <th>Name</th>
+                  <th>Telefon</th>
+                  <th>E-Mail</th>
+                  <th>Anzahl Bestellungen</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
           </div>
-        </div>
+        </section>
 
-        <div class="tab-panel" id="lunch-done" role="tabpanel" hidden>
-          <div class="table-wrapper">
-            <table class="data-table" id="lunch-done-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Reserviert am</th>
-                  <th>Kunde</th>
-                  <th>Mittagstisch</th>
-                  <th>Vertrag</th>
-                  <th>Aktionen</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+        <section class="tab-panel" id="weekplan" role="tabpanel" hidden>
+          <div class="admin-lunch-plan">
+            <div class="admin-lunch-plan-head">
+              <div>
+                <span class="eyebrow">Wochenplan</span>
+                <h2>Mittagstisch für Montag bis Freitag</h2>
+                <p>Inaktiv bedeutet: Gericht leer, Preis leer und Vorrat 0. Leerer Vorrat steht für unbegrenzt.</p>
+              </div>
+              <div class="table-actions">
+                <button class="btn btn-primary" type="button" id="weekplan-save-btn">Plan speichern</button>
+              </div>
+            </div>
+
+            <div class="checkout-hint" id="weekplan-feedback" aria-live="polite"></div>
+
+            <div class="table-wrapper">
+              <table class="data-table admin-weekplan-table" id="weekplan-table">
+                <thead>
+                  <tr>
+                    <th>Tag</th>
+                    <th>Inaktiv</th>
+                    <th>Gericht</th>
+                    <th>Vorrat</th>
+                    <th>Preis (€)</th>
+                  </tr>
+                </thead>
+                <tbody id="weekplan-body"></tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <div class="tab-panel" id="wunschzettel" role="tabpanel" hidden>
-          <div class="admin-wz-layout">
-            <div>
-              <h3 style="margin-bottom:1rem">Eingegangene Wunschzettel</h3>
+        </section>
+
+        <section class="tab-panel" id="kassenabschluss" role="tabpanel" hidden>
+          <div style="max-width:720px;">
+            <h2 style="margin-bottom:0.25rem;">Kassenabschluss</h2>
+            <p style="color:#666;font-size:0.9rem;margin-bottom:1rem;">X-Bericht: Zwischenstand ohne Rücksetzen &nbsp;|&nbsp; Z-Bericht: Tagesabschluss (wird archiviert)</p>
+
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.25rem;align-items:flex-end;">
+              <label style="font-size:0.875rem;font-weight:600;">Zeitraum von
+                <input type="date" id="ka-from" style="display:block;margin-top:0.25rem;">
+              </label>
+              <label style="font-size:0.875rem;font-weight:600;">bis
+                <input type="date" id="ka-to" style="display:block;margin-top:0.25rem;">
+              </label>
+              <button class="btn btn-secondary" type="button" id="ka-xbericht-btn">X-Bericht erstellen</button>
+              <button class="btn btn-primary" type="button" id="ka-zbericht-btn">Z-Abschluss durchführen</button>
+            </div>
+
+            <div id="ka-report-box" hidden style="border:1px solid #ddd;border-radius:8px;padding:1.25rem;background:#fafafa;margin-bottom:1.5rem;">
+              <div id="ka-report-content"></div>
+              <div style="margin-top:1rem;display:flex;gap:0.5rem;">
+                <button class="btn btn-secondary" type="button" id="ka-print-btn">Drucken / PDF</button>
+              </div>
+            </div>
+
+            <h3 style="margin-bottom:0.5rem;">Z-Abschluss-Archiv</h3>
+            <div class="table-wrapper">
+              <table class="data-table" id="ka-archive-table">
+                <thead>
+                  <tr>
+                    <th>Z-Nr.</th>
+                    <th>Datum</th>
+                    <th>Zeitraum</th>
+                    <th>Vorgänge</th>
+                    <th>Umsatz brutto</th>
+                    <th>MwSt. 7%</th>
+                  </tr>
+                </thead>
+                <tbody id="ka-archive-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="wunschzettel" role="tabpanel" hidden>
+          <div style="max-width:800px;">
+
+            <h2 style="margin-bottom:0.25rem;">Eingegangene Gerichtswünsche</h2>
+            <p style="color:#666;font-size:0.9rem;margin-bottom:1rem;">Alle Wünsche aus dem Wunschzettel-Formular, nach Häufigkeit sortiert.</p>
+            <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+              <button class="btn btn-secondary" type="button" id="wz-admin-clear-btn">Alle Wünsche löschen</button>
+            </div>
+            <div class="table-wrapper" style="margin-bottom:2rem;">
+              <table class="data-table" id="wz-admin-table">
+                <thead><tr><th>Gericht</th><th>Stimmen</th><th>Zuletzt</th><th>Einsender</th></tr></thead>
+                <tbody id="wz-admin-body"></tbody>
+              </table>
+            </div>
+
+            <h2 style="margin-bottom:0.25rem;">Umfrage für die Startseite</h2>
+            <p style="color:#666;font-size:0.9rem;margin-bottom:1rem;">Starte eine Abstimmung – Besucher können auf der Gerichtswunsch-Seite abstimmen.</p>
+
+            <div style="border:1px solid #ddd;border-radius:8px;padding:1.25rem;margin-bottom:1.5rem;background:#fafafa;">
+              <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+                <label style="font-size:0.875rem;font-weight:600;flex:1;min-width:180px;">Umfrage-Titel
+                  <input type="text" id="vote-admin-title" placeholder="z.B. Was kommt nächste Woche?" style="display:block;width:100%;margin-top:0.25rem;">
+                </label>
+                <label style="font-size:0.875rem;font-weight:600;">Läuft bis
+                  <input type="date" id="vote-admin-endsAt" style="display:block;margin-top:0.25rem;">
+                </label>
+              </div>
+              <label style="font-size:0.875rem;font-weight:600;display:block;margin-bottom:0.5rem;">Gerichte (eines pro Zeile)
+                <textarea id="vote-admin-dishes" rows="5" placeholder="Pasta Bolognese&#10;Käsespätzle&#10;Hähnchen Curry" style="display:block;width:100%;margin-top:0.25rem;font-family:inherit;padding:0.4rem 0.5rem;border:1px solid #ccc;border-radius:4px;"></textarea>
+              </label>
+              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.75rem;">
+                <button class="btn btn-primary" type="button" id="vote-admin-start-btn">Umfrage starten</button>
+                <button class="btn btn-secondary" type="button" id="vote-admin-stop-btn">Aktive Umfrage beenden</button>
+              </div>
+              <p id="vote-admin-feedback" style="margin-top:0.5rem;font-size:0.875rem;"></p>
+            </div>
+
+            <div id="vote-admin-results-box" hidden style="border:1px solid #ddd;border-radius:8px;padding:1.25rem;background:#fafafa;">
+              <h3 id="vote-admin-results-title" style="margin-bottom:0.75rem;"></h3>
               <div class="table-wrapper">
-                <table class="data-table" id="wz-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Eingereicht am</th>
-                      <th>Name</th>
-                      <th>Gerichtswunsch</th>
-                      <th>Nachricht</th>
-                      <th>Aktionen</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
+                <table class="data-table">
+                  <thead><tr><th>Gericht</th><th>Stimmen</th><th>Anteil</th></tr></thead>
+                  <tbody id="vote-admin-results-body"></tbody>
                 </table>
               </div>
             </div>
+
           </div>
+        </section>
+
+        <div style="margin-top:1.5rem;">
+          <button class="btn btn-secondary" type="button" id="clear-admin-data-btn">Lokale Admin-Daten leeren</button>
         </div>
 
-        <div class="tab-panel" id="abstimmung" role="tabpanel" hidden>
-          <div class="admin-vote-layout">
-            <div class="admin-vote-create">
-              <h3>Neue Abstimmung erstellen</h3>
-              <form id="vote-create-form" class="vote-create-form">
-                <label for="vote-title-input">Titel der Abstimmung
-                  <input type="text" id="vote-title-input" placeholder="z. B. Abstimmung KW 24" required>
-                </label>
-                <label for="vote-ends">Läuft bis
-                  <input type="date" id="vote-ends" required>
-                </label>
-                <label>Gerichte zur Auswahl (je eine Zeile)
-                  <textarea id="vote-dishes" rows="5" placeholder="Pasta Bolognese&#10;Käsespätzle&#10;Schnitzel" required></textarea>
-                </label>
-                <button class="btn btn-primary" type="submit">Abstimmung starten</button>
-                <p class="lunch-feedback" id="vote-create-feedback" aria-live="polite"></p>
-              </form>
-            </div>
-            <div class="admin-vote-list">
-              <h3>Aktive &amp; vergangene Abstimmungen</h3>
-              <div id="admin-votes-list"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-panel" id="newsletter" role="tabpanel" hidden>
-          <div class="admin-newsletter-layout">
-            <div class="admin-newsletter-editor">
-              <h3>Newsletter erstellen</h3>
-              <form id="newsletter-form" class="newsletter-form" novalidate>
-                <label for="newsletter-segment">Empfängergruppe</label>
-                <select id="newsletter-segment" required>
-                  <option value="all">Alle registrierten Kunden</option>
-                  <option value="newsletter">Nur Newsletter-Abonnenten</option>
-                  <option value="active7">Aktive Kunden (letzte 7 Tage)</option>
-                  <option value="inactive14">Inaktive Kunden (&gt;14 Tage)</option>
-                  <option value="orderAbandoners">Abbrecher Bestellung</option>
-                  <option value="reservationAbandoners">Abbrecher Reservierung</option>
-                </select>
-
-                <label for="newsletter-subject">Betreff</label>
-                <input type="text" id="newsletter-subject" placeholder="z. B. Frische Angebote für diese Woche" required>
-
-                <label for="newsletter-greeting">Grußformel</label>
-                <select id="newsletter-greeting">
-                  <option value="Hallo {{firstName}},">Hallo {{firstName}},</option>
-                  <option value="Guten Tag {{firstName}} {{lastName}},">Guten Tag {{firstName}} {{lastName}},</option>
-                  <option value="Liebe Kundin, lieber Kunde,">Liebe Kundin, lieber Kunde,</option>
-                </select>
-
-                <label for="newsletter-block">Textbaustein</label>
-                <select id="newsletter-block">
-                  <option value="">Bitte wählen</option>
-                  <option value="wir haben diese Woche neue Mittagsgerichte für dich vorbereitet.">Mittagstisch-Update</option>
-                  <option value="dein Lieblingssortiment ist frisch verfügbar – jetzt bequem bestellen.">Bestellung</option>
-                  <option value="als Dankeschön für deine Treue haben wir ein kleines Extra für dich.">Dankeschön</option>
-                  <option value="wir vermissen dich – schau gerne wieder vorbei, es lohnt sich.">Reaktivierung</option>
-                </select>
-
-                <label for="newsletter-body">Nachricht</label>
-                <textarea id="newsletter-body" rows="7" placeholder="Eigener Newsletter-Text ..." required></textarea>
-
-                <label for="newsletter-image">Bild-URL (optional)</label>
-                <input type="url" id="newsletter-image" placeholder="https://...">
-
-                <label for="newsletter-signature">Signatur</label>
-                <textarea id="newsletter-signature" rows="3">Herzliche Grüße
-Dein Team von Simonsbrotkörbchen</textarea>
-
-                <div class="table-actions">
-                  <button class="btn btn-secondary" type="button" id="newsletter-preview-btn">Vorschau aktualisieren</button>
-                  <button class="btn btn-primary" type="submit">Newsletter versenden</button>
-                </div>
-                <p class="lunch-feedback" id="newsletter-feedback" aria-live="polite"></p>
-              </form>
-            </div>
-
-            <div class="admin-newsletter-preview">
-              <h3>Vorschau</h3>
-              <div id="newsletter-preview" class="newsletter-preview-card"></div>
-              <h4 style="margin-top:1rem">Versandhistorie</h4>
-              <div id="newsletter-history"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="tab-panel" id="analyse" role="tabpanel" hidden>
-          <div class="admin-analytics-layout">
-            <div class="analytics-kpis" id="analytics-kpis"></div>
-            <div class="analytics-charts">
-              <div class="analytics-card">
-                <h3>Schritt-Abbrüche (Bestellung)</h3>
-                <div id="analytics-order-dropoff" class="analytics-bars"></div>
-              </div>
-              <div class="analytics-card">
-                <h3>Schritt-Abbrüche (Reservierung)</h3>
-                <div id="analytics-res-dropoff" class="analytics-bars"></div>
-              </div>
-              <div class="analytics-card">
-                <h3>Seiten mit längster Verweildauer (Sekunden)</h3>
-                <div id="analytics-time-pages" class="analytics-bars"></div>
-              </div>
-              <div class="analytics-card">
-                <h3>Besuche pro Seite</h3>
-                <div id="analytics-visits-pages" class="analytics-bars"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <p class="lunch-feedback" id="admin-feedback" aria-live="polite"></p>
       </div>
     </div>
   </main>
 
-  <footer class="site-footer admin-footer">
-    <div class="container footer-bottom">
-      <span>© 2026 Simonsbrotkörbchen · Adminbereich</span>
-      <div class="footer-bottom-links">
-        <a href="index.html">Zur Website</a>
-        <a href="shop.html">Bestellung öffnen</a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/js/supabase-config.js"></script>
-  <script src="assets/js/site-core.js"></script>
   <script>
-    (function(){
-      const navToggle = document.querySelector('[data-nav-toggle]');
-      const nav = document.querySelector('[data-nav]');
-      if (navToggle && nav) {
-        navToggle.addEventListener('click', () => {
-          const isOpen = nav.classList.toggle('is-open');
-          navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-          document.body.classList.toggle('nav-open', isOpen);
-        });
-      }
-    })();
-
-    let orders = JSON.parse(localStorage.getItem('orders')) || [];
-    let sentOrders = JSON.parse(localStorage.getItem('sentOrders')) || [];
-    let lunchReservations = JSON.parse(localStorage.getItem('sb_lunch_reservations')) || [];
-    let lunchReservationsDone = JSON.parse(localStorage.getItem('sb_lunch_reservations_done')) || [];
-    const supabaseConfig = window.SB_SUPABASE?.config || {};
-    const supabaseClient = window.supabase?.createClient && window.SB_SUPABASE?.isConfigured?.()
-      ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey, {
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: false
-          }
-        })
-      : null;
-    let adminSubscription = null;
-
-    const tabButtons = document.querySelectorAll('[data-tab-target]');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-    const lunchFilterSearch = document.getElementById('lunch-filter-search');
-    const lunchFilterDay = document.getElementById('lunch-filter-day');
-    const lunchFilterDate = document.getElementById('lunch-filter-date');
-    const lunchFilterReset = document.getElementById('lunch-filter-reset');
-    const adminAuthCard = document.getElementById('admin-auth-card');
-    const adminDashboard = document.getElementById('admin-dashboard');
-    const adminAuthForm = document.getElementById('admin-auth-form');
-    const adminAuthFeedback = document.getElementById('admin-auth-feedback');
-    const adminLogoutBtn = document.getElementById('admin-logout-btn');
-
-    function cleanTimeValue(value) {
-      return String(value || '').slice(0, 5);
-    }
-
-    function saveLunchMirror(pending, done) {
-      localStorage.setItem('sb_lunch_reservations', JSON.stringify(pending || []));
-      localStorage.setItem('sb_lunch_reservations_done', JSON.stringify(done || []));
-    }
-
-    function mapSupabaseOrderToLegacy(row) {
-      if (!row) return null;
-      const pickupTime = cleanTimeValue(row.pickup_time);
-      const pickupDate = typeof row.pickup_date === 'string' ? row.pickup_date : '';
-      return {
-        id: row.internal_number,
-        internalNumber: row.internal_number,
-        pickupCode: row.pickup_code,
-        createdAt: row.created_at,
-        completedAt: row.completed_at,
-        customer: {
-          name: row.customer_name || `${row.firstname || ''} ${row.lastname || ''}`.trim(),
-          firstname: row.firstname || '',
-          lastname: row.lastname || '',
-          phone: row.phone || '',
-          email: row.email || ''
-        },
-        reservation: {
-          day: row.day_name,
-          pickupDate,
-          pickupTime,
-          fulfillment: row.fulfillment,
-          dish: row.dish,
-          unitPrice: Number(row.unit_price) || 0,
-          quantity: Number(row.quantity) || 1,
-          total: Number(row.total) || 0,
-          notes: row.notes || '',
-          paymentMethod: row.payment_method || 'Vor Ort',
-          bundeswehrDelivery: !!row.bundeswehr_delivery,
-          location: row.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf',
-          deliveryAddress: row.fulfillment === 'delivery'
-            ? {
-                street: row.delivery_street || '',
-                number: row.delivery_number || '',
-                zip: row.delivery_zip || '',
-                city: row.delivery_city || ''
-              }
-            : null
-        },
-        contract: {
-          agbAccepted: !!row.agb_accepted,
-          bindingReservationAccepted: !!row.contract_accepted,
-          concluded: !!row.contract_concluded,
-          text: row.contract_text || 'Mit Reservierung wurde ein Kaufvertrag abgeschlossen.'
-        },
-        status: row.status || 'reserviert'
-      };
-    }
-
-    function toDateFromISO(value) {
-      if (!value) return null;
-      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        const [year, month, day] = value.split('-').map(Number);
-        if (!Number.isNaN(year) && !Number.isNaN(month) && !Number.isNaN(day)) {
-          return new Date(year, month - 1, day);
-        }
-      }
-      const parsed = new Date(value);
-      return Number.isNaN(parsed.getTime()) ? null : parsed;
-    }
-
-    function formatDateGerman(value, options = { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }) {
-      const date = toDateFromISO(value);
-      return date ? date.toLocaleDateString('de-DE', options) : value || '';
-    }
-
-    function formatFulfillmentSummary(fulfillment) {
-      if (!fulfillment) return '–';
-      if (fulfillment.type === 'delivery') {
-        const dateLabel = fulfillment.date ? formatDateGerman(fulfillment.date, { weekday: 'short', day: '2-digit', month: '2-digit' }) : 'Sonntag';
-        const slot = fulfillment.slot ? fulfillment.slot.replace('-', '–') + ' Uhr' : '';
-        return `Lieferung: ${dateLabel}${slot ? ' · ' + slot : ''}`;
-      }
-      if (fulfillment.type === 'pickup') {
-        const dateLabel = fulfillment.date ? formatDateGerman(fulfillment.date, { weekday: 'short', day: '2-digit', month: '2-digit' }) : '';
-        const timeLabel = fulfillment.time ? ` · ${fulfillment.time} Uhr` : '';
-        return (`Abholung: ${dateLabel}${timeLabel}`).trim();
-      }
-      return '–';
-    }
-
-    function formatFulfillmentDetails(fulfillment) {
-      if (!fulfillment) return '';
-      if (fulfillment.type === 'delivery') {
-        const lines = [];
-        if (fulfillment.date) lines.push(`Lieferung am: ${formatDateGerman(fulfillment.date)}`);
-        if (fulfillment.slot) lines.push(`Zeitfenster: ${fulfillment.slot.replace('-', '–')} Uhr`);
-        if (typeof fulfillment.deliveryFee === 'number') lines.push(`Liefergebühr: ${fulfillment.deliveryFee.toFixed(2)} €`);
-        return lines.join('\n');
-      }
-      if (fulfillment.type === 'pickup') {
-        const lines = [];
-        if (fulfillment.date) lines.push(`Abholung am: ${formatDateGerman(fulfillment.date)}`);
-        if (fulfillment.time) lines.push(`Abholzeit: ${fulfillment.time} Uhr`);
-        return lines.join('\n');
-      }
-      return '';
-    }
-
-    async function syncLunchReservationsFromSupabase() {
-      if (!supabaseClient) return false;
-      const { data, error } = await supabaseClient
-        .from('lunch_orders')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const mapped = (data || []).map(mapSupabaseOrderToLegacy).filter(Boolean);
-      lunchReservations = mapped.filter(entry => entry.status !== 'abgeholt');
-      lunchReservationsDone = mapped.filter(entry => entry.status === 'abgeholt');
-      saveLunchMirror(lunchReservations, lunchReservationsDone);
-      renderTables();
-      return true;
-    }
-
-    function setAdminFeedback(message, success = false) {
-      if (!adminAuthFeedback) return;
-      adminAuthFeedback.className = success ? 'lunch-feedback feedback-success' : 'lunch-feedback';
-      adminAuthFeedback.textContent = message || '';
-    }
-
-    function setAdminAuthenticated(isAuthenticated) {
-      if (adminAuthCard) adminAuthCard.hidden = isAuthenticated;
-      if (adminAuthCard) adminAuthCard.style.display = isAuthenticated ? 'none' : '';
-      if (adminDashboard) adminDashboard.hidden = !isAuthenticated;
-      if (adminDashboard) adminDashboard.style.display = isAuthenticated ? '' : 'none';
-      if (adminLogoutBtn) adminLogoutBtn.hidden = !isAuthenticated;
-    }
-
-    function subscribeAdminRealtime() {
-      if (!supabaseClient) return;
-      adminSubscription?.unsubscribe?.();
-      adminSubscription = supabaseClient
-        .channel('admin-lunch-live')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'lunch_orders' }, () => {
-          syncLunchReservationsFromSupabase().catch(console.error);
-        })
-        .subscribe();
-    }
-
-    async function hydrateAdminFromSupabase() {
-      await syncLunchReservationsFromSupabase();
-      subscribeAdminRealtime();
-    }
-
-    function showTab(targetId) {
-      tabButtons.forEach(button => {
-        const isActive = button.dataset.tabTarget === targetId;
-        button.classList.toggle('is-active', isActive);
-        button.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      });
-
-      tabPanels.forEach(panel => {
-        const isActive = panel.id === targetId;
-        panel.classList.toggle('is-active', isActive);
-        panel.toggleAttribute('hidden', !isActive);
-      });
-
-      if (targetId === 'analyse') {
-        renderAnalytics();
-      }
-      if (targetId === 'newsletter') {
-        renderNewsletterPreview();
-        renderNewsletterHistory();
-      }
-    }
-
-    tabButtons.forEach(button => button.addEventListener('click', () => {
-      showTab(button.dataset.tabTarget);
-    }));
-
-    function renderTables() {
-      const pendingBody = document.querySelector('#pending-table tbody');
-      pendingBody.innerHTML = '';
-      if (!orders.length) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6" class="empty-row">Aktuell liegen keine offenen Bestellungen vor.</td>';
-        pendingBody.appendChild(row);
-      } else {
-        orders.forEach(order => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${order.id}</td>
-            <td>${new Date(order.date).toLocaleString('de-DE')}</td>
-            <td>
-              <strong>${order.customer.name}</strong><br>
-              <small>${order.customer.address || '–'}</small>
-              ${order.customer.postalCode ? `<br><small>PLZ: ${order.customer.postalCode}</small>` : ''}
-            </td>
-            <td>${order.total.toFixed(2)}</td>
-            <td>${order.paymentMethod}<br><small>${formatFulfillmentSummary(order.fulfillment)}</small></td>
-            <td class="table-actions">
-              <button class="btn btn-secondary" data-action="print" data-id="${order.id}">Drucken</button>
-              <button class="btn btn-primary" data-action="sent" data-id="${order.id}">Als versendet markieren</button>
-            </td>`;
-          pendingBody.appendChild(tr);
-        });
-      }
-
-      const sentBody = document.querySelector('#sent-table tbody');
-      sentBody.innerHTML = '';
-      if (!sentOrders.length) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6" class="empty-row">Noch keine versendeten Bestellungen.</td>';
-        sentBody.appendChild(row);
-      } else {
-        sentOrders.forEach(order => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${order.id}</td>
-            <td>${new Date(order.date).toLocaleString('de-DE')}</td>
-            <td>
-              <strong>${order.customer.name}</strong><br>
-              <small>${order.customer.address || '–'}</small>
-              ${order.customer.postalCode ? `<br><small>PLZ: ${order.customer.postalCode}</small>` : ''}
-            </td>
-            <td>${order.total.toFixed(2)}</td>
-            <td>${order.paymentMethod}<br><small>${formatFulfillmentSummary(order.fulfillment)}</small></td>
-            <td class="table-actions">
-              <button class="btn btn-secondary" data-action="print" data-id="${order.id}" data-sent="true">Drucken</button>
-            </td>`;
-          sentBody.appendChild(tr);
-        });
-      }
-
-      const filteredLunchPending = getFilteredLunchList(lunchReservations);
-      const filteredLunchDone = getFilteredLunchList(lunchReservationsDone);
-
-      const lunchPendingBody = document.querySelector('#lunch-pending-table tbody');
-      lunchPendingBody.innerHTML = '';
-      if (!filteredLunchPending.length) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6" class="empty-row">Keine offenen Mittagstisch-Reservierungen für den aktuellen Filter.</td>';
-        lunchPendingBody.appendChild(row);
-      } else {
-        filteredLunchPending.forEach(reservation => {
-          const tr = document.createElement('tr');
-          const contractText = reservation.contract?.concluded
-            ? 'Kaufvertrag abgeschlossen'
-            : 'unvollständig';
-          tr.innerHTML = `
-            <td>${escapeHtml(reservation.id || '')}</td>
-            <td>${new Date(reservation.createdAt || Date.now()).toLocaleString('de-DE')}</td>
-            <td>
-              <strong>${escapeHtml(reservation.customer?.name || '')}</strong><br>
-              <small>${escapeHtml(reservation.customer?.phone || '–')}</small><br>
-              <small>${escapeHtml(reservation.customer?.email || '–')}</small>
-            </td>
-            <td>
-              <strong>${escapeHtml(reservation.reservation?.dish || '')}</strong><br>
-              <small>${escapeHtml(reservation.reservation?.day || '')}, ${escapeHtml(formatDateGerman(reservation.reservation?.pickupDate, { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }))}</small><br>
-              <small>${escapeHtml(reservation.reservation?.pickupTime || '')} Uhr · ${escapeHtml(String(reservation.reservation?.quantity || 1))}× · ${(reservation.reservation?.total || 0).toFixed(2)} €</small><br>
-              <small>Abholcode: <strong>${escapeHtml(reservation.pickupCode || '–')}</strong></small>
-            </td>
-            <td><small>${escapeHtml(contractText)}</small></td>
-            <td class="table-actions">
-              <button class="btn btn-secondary" data-action="lunch-print" data-id="${escapeHtml(reservation.id || '')}">Drucken</button>
-              <button class="btn btn-primary" data-action="lunch-done" data-id="${escapeHtml(reservation.id || '')}">Als abgeholt markieren</button>
-            </td>`;
-          lunchPendingBody.appendChild(tr);
-        });
-      }
-
-      const lunchDoneBody = document.querySelector('#lunch-done-table tbody');
-      lunchDoneBody.innerHTML = '';
-      if (!filteredLunchDone.length) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6" class="empty-row">Keine abgeholten Mittagstisch-Reservierungen für den aktuellen Filter.</td>';
-        lunchDoneBody.appendChild(row);
-      } else {
-        filteredLunchDone.forEach(reservation => {
-          const tr = document.createElement('tr');
-          const contractText = reservation.contract?.concluded
-            ? 'Kaufvertrag abgeschlossen'
-            : 'unvollständig';
-          tr.innerHTML = `
-            <td>${escapeHtml(reservation.id || '')}</td>
-            <td>${new Date(reservation.createdAt || Date.now()).toLocaleString('de-DE')}</td>
-            <td>
-              <strong>${escapeHtml(reservation.customer?.name || '')}</strong><br>
-              <small>${escapeHtml(reservation.customer?.phone || '–')}</small><br>
-              <small>${escapeHtml(reservation.customer?.email || '–')}</small>
-            </td>
-            <td>
-              <strong>${escapeHtml(reservation.reservation?.dish || '')}</strong><br>
-              <small>${escapeHtml(reservation.reservation?.day || '')}, ${escapeHtml(formatDateGerman(reservation.reservation?.pickupDate, { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }))}</small><br>
-              <small>${escapeHtml(reservation.reservation?.pickupTime || '')} Uhr · ${escapeHtml(String(reservation.reservation?.quantity || 1))}× · ${(reservation.reservation?.total || 0).toFixed(2)} €</small><br>
-              <small>Abholcode: <strong>${escapeHtml(reservation.pickupCode || '–')}</strong></small>
-            </td>
-            <td><small>${escapeHtml(contractText)}</small></td>
-            <td class="table-actions">
-              <button class="btn btn-secondary" data-action="lunch-print" data-id="${escapeHtml(reservation.id || '')}" data-lunch-done="true">Drucken</button>
-            </td>`;
-          lunchDoneBody.appendChild(tr);
-        });
+    function readJson(key, fallback = []) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch {
+        return fallback;
       }
     }
 
@@ -666,569 +273,773 @@ Dein Team von Simonsbrotkörbchen</textarea>
         .replace(/'/g, '&#39;');
     }
 
-    function getFilteredLunchList(source) {
-      const query = (lunchFilterSearch?.value || '').trim().toLocaleLowerCase('de-DE');
-      const day = (lunchFilterDay?.value || '').trim();
-      const date = (lunchFilterDate?.value || '').trim();
+    function toDateString(value) {
+      const d = new Date(value || Date.now());
+      return Number.isNaN(d.getTime()) ? '–' : d.toLocaleString('de-DE');
+    }
 
-      return source.filter(entry => {
-        const reservation = entry.reservation || {};
-        const customer = entry.customer || {};
-        if (day && reservation.day !== day) return false;
-        if (date && reservation.pickupDate !== date) return false;
-        if (!query) return true;
+    function formatMoney(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n.toFixed(2) : '0.00';
+    }
 
+    function normalize(value) {
+      return String(value || '')
+        .toLocaleLowerCase('de-DE')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+    }
+
+    let expandedContactKey = null;
+
+    const ADMIN_LUNCH_PLAN_KEY = 'sb_lunch_weekplan';
+    const ADMIN_LUNCH_STOCK_KEY = 'sb_lunch_stock';
+    const WEEKDAY_ORDER = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'];
+    const DEFAULT_LUNCH_PLAN = {
+      Montag:    { dish: 'Nudelgulasch',               price: 7.90, weekday: 1, isActive: true },
+      Dienstag:  { dish: 'Hähnchen mit Reis',          price: 8.90, weekday: 2, isActive: true },
+      Mittwoch:  { dish: 'Linsensuppe',                price: 6.90, weekday: 3, isActive: true },
+      Donnerstag:{ dish: 'Frikadellen mit Kartoffeln', price: 8.50, weekday: 4, isActive: true },
+      Freitag:   { dish: 'Börek mit Salat',            price: 7.50, weekday: 5, isActive: true }
+    };
+
+    function normalizeStockKey(value) {
+      return String(value || '')
+        .trim()
+        .toLocaleLowerCase('de-DE')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-');
+    }
+
+    function getStockValue(stock, dish) {
+      const normalized = normalizeStockKey(dish);
+      const exact = Number(stock[dish]);
+      if (Number.isFinite(exact)) return exact;
+      const normalizedValue = Number(stock[normalized]);
+      if (Number.isFinite(normalizedValue)) return normalizedValue;
+      return NaN;
+    }
+
+    function loadWeekPlan() {
+      const stored = readJson(ADMIN_LUNCH_PLAN_KEY, null);
+      const plan = {};
+      WEEKDAY_ORDER.forEach(day => {
+        const base = DEFAULT_LUNCH_PLAN[day] || { dish: '', price: 0, weekday: WEEKDAY_ORDER.indexOf(day) + 1, isActive: true };
+        const incoming = stored && typeof stored === 'object' ? stored[day] : null;
+        const dish = String(incoming?.dish ?? base.dish ?? '').trim();
+        const price = Number.isFinite(Number(incoming?.price)) ? Number(incoming.price) : Number(base.price) || 0;
+        const isActive = incoming?.isActive !== false && !!dish;
+        plan[day] = {
+          dish,
+          price,
+          weekday: base.weekday,
+          isActive
+        };
+      });
+      return plan;
+    }
+
+    function loadWeekStock() {
+      return readJson(ADMIN_LUNCH_STOCK_KEY, {});
+    }
+
+    function saveWeekPlan(plan) {
+      localStorage.setItem(ADMIN_LUNCH_PLAN_KEY, JSON.stringify(plan || {}));
+    }
+
+    function saveWeekStock(stock) {
+      localStorage.setItem(ADMIN_LUNCH_STOCK_KEY, JSON.stringify(stock || {}));
+    }
+
+    function formatPlanPrice(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n.toFixed(2) : '0.00';
+    }
+
+    function updateWeekplanFeedback(message, isSuccess = false) {
+      const feedback = document.getElementById('weekplan-feedback');
+      if (!feedback) return;
+      feedback.classList.toggle('feedback-success', !!isSuccess);
+      feedback.classList.toggle('checkout-hint-warning', !isSuccess && !!message);
+      feedback.textContent = message || '';
+    }
+
+    function renderWeekPlanEditor() {
+      const tbody = document.getElementById('weekplan-body');
+      if (!tbody) return;
+
+      const plan = loadWeekPlan();
+      const stock = loadWeekStock();
+
+      tbody.innerHTML = WEEKDAY_ORDER.map(day => {
+        const entry = plan[day] || DEFAULT_LUNCH_PLAN[day];
+        const stockValue = entry?.dish ? getStockValue(stock, entry.dish) : NaN;
+        const stockFieldValue = Number.isFinite(stockValue) ? String(stockValue) : '';
+        const isInactive = entry?.isActive === false || !String(entry?.dish || '').trim();
+        const priceFieldValue = isInactive ? '' : formatPlanPrice(entry?.price || 0);
+        return `
+          <tr data-weekday="${escapeHtml(day)}">
+            <td><strong>${escapeHtml(day)}</strong></td>
+            <td>
+              <label class="admin-weekplan-toggle">
+                <input type="checkbox" data-weekplan-field="inactive" ${isInactive ? 'checked' : ''}>
+                Inaktiv
+              </label>
+            </td>
+            <td>
+              <input type="text" data-weekplan-field="dish" value="${escapeHtml(entry?.dish || '')}" placeholder="Gericht eingeben">
+            </td>
+            <td>
+              <input type="number" min="0" step="1" data-weekplan-field="stock" value="${escapeHtml(stockFieldValue)}" placeholder="leer = unbegrenzt">
+            </td>
+            <td>
+              <input type="number" min="0" step="0.10" data-weekplan-field="price" value="${escapeHtml(priceFieldValue)}">
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      updateWeekplanFeedback('Änderungen werden gespeichert, sobald du Felder bearbeitest.');
+    }
+
+    function persistWeekPlanFromEditor() {
+      const rows = document.querySelectorAll('#weekplan-body tr[data-weekday]');
+      const plan = {};
+      const stock = {};
+
+      rows.forEach(row => {
+        const day = row.dataset.weekday;
+        const inactive = row.querySelector('[data-weekplan-field="inactive"]');
+        const dishInput = row.querySelector('[data-weekplan-field="dish"]');
+        const stockInput = row.querySelector('[data-weekplan-field="stock"]');
+        const priceInput = row.querySelector('[data-weekplan-field="price"]');
+        if (!day || !dishInput || !stockInput || !priceInput || !inactive) return;
+
+        if (inactive.checked) {
+          dishInput.value = '';
+          stockInput.value = '0';
+          priceInput.value = '0.00';
+        }
+
+        const dish = String(dishInput.value || '').trim();
+        const price = Number(priceInput.value) || 0;
+        const stockRaw = String(stockInput.value || '').trim();
+        const isActive = !inactive.checked && !!dish;
+
+        plan[day] = {
+          dish,
+          price,
+          weekday: DEFAULT_LUNCH_PLAN[day]?.weekday || WEEKDAY_ORDER.indexOf(day) + 1,
+          isActive
+        };
+
+        if (isActive && stockRaw !== '') {
+          const stockValue = Math.max(0, Number(stockRaw) || 0);
+          stock[normalizeStockKey(dish)] = stockValue;
+        }
+      });
+
+      saveWeekPlan(plan);
+      saveWeekStock(stock);
+      updateWeekplanFeedback('Wochenplan gespeichert.', true);
+    }
+
+    function handleWeekplanFieldChange(event) {
+      const target = event.target.closest('[data-weekplan-field]');
+      if (!target) return;
+      const row = target.closest('tr[data-weekday]');
+      if (!row) return;
+
+      const inactive = row.querySelector('[data-weekplan-field="inactive"]');
+      const dishInput = row.querySelector('[data-weekplan-field="dish"]');
+      const stockInput = row.querySelector('[data-weekplan-field="stock"]');
+      const priceInput = row.querySelector('[data-weekplan-field="price"]');
+
+      if (target.dataset.weekplanField === 'inactive' && inactive?.checked) {
+        if (dishInput) dishInput.value = '';
+        if (stockInput) stockInput.value = '0';
+        if (priceInput) priceInput.value = '';
+      }
+
+      if (target.dataset.weekplanField === 'dish' && dishInput && dishInput.value.trim()) {
+        if (inactive) inactive.checked = false;
+      }
+
+      if (target.dataset.weekplanField === 'dish' && dishInput && !dishInput.value.trim() && inactive?.checked) {
+        if (stockInput) stockInput.value = '0';
+        if (priceInput) priceInput.value = '';
+      }
+
+      if (target.dataset.weekplanField === 'stock' && inactive?.checked && stockInput) {
+        stockInput.value = '0';
+      }
+
+      persistWeekPlanFromEditor();
+    }
+
+    function splitName(name, fallbackFirst = '', fallbackLast = '') {
+      const clean = String(name || '').trim();
+      if (!clean) return { firstName: String(fallbackFirst || ''), lastName: String(fallbackLast || '') };
+      const parts = clean.split(/\s+/);
+      return {
+        firstName: String(fallbackFirst || parts[0] || ''),
+        lastName: String(fallbackLast || (parts.slice(1).join(' ') || ''))
+      };
+    }
+
+    function collectAllOrders() {
+      const openShop = readJson('orders');
+      const doneShop = readJson('sentOrders');
+      const lunchOpen = readJson('sb_lunch_reservations');
+      const lunchDone = readJson('sb_lunch_reservations_done');
+
+      const shopRows = [
+        ...openShop.map(order => ({
+          type: 'Shop',
+          id: order?.id || '–',
+          date: order?.date || order?.createdAt,
+          customer: order?.customer?.name || '–',
+          firstName: splitName(order?.customer?.name, order?.customer?.firstname, '').firstName,
+          lastName: splitName(order?.customer?.name, '', order?.customer?.lastname).lastName,
+          phone: order?.customer?.phone || '–',
+          email: order?.customer?.email || '–',
+          pickupCode: order?.pickupCode || '–',
+          details: (order?.items || []).map(item => `${item.qty || 1}× ${item.name || 'Artikel'}`).join(', ') || '–',
+          total: order?.total || 0,
+          status: 'Offen'
+        })),
+        ...doneShop.map(order => ({
+          type: 'Shop',
+          id: order?.id || '–',
+          date: order?.date || order?.createdAt,
+          customer: order?.customer?.name || '–',
+          firstName: splitName(order?.customer?.name, order?.customer?.firstname, '').firstName,
+          lastName: splitName(order?.customer?.name, '', order?.customer?.lastname).lastName,
+          phone: order?.customer?.phone || '–',
+          email: order?.customer?.email || '–',
+          pickupCode: order?.pickupCode || '–',
+          details: (order?.items || []).map(item => `${item.qty || 1}× ${item.name || 'Artikel'}`).join(', ') || '–',
+          total: order?.total || 0,
+          status: 'Abgeschlossen'
+        }))
+      ];
+
+      const lunchRows = [
+        ...lunchOpen.map(res => ({
+          type: 'Mittagstisch',
+          id: res?.id || res?.internalNumber || '–',
+          date: res?.createdAt,
+          customer: res?.customer?.name || '–',
+          firstName: splitName(res?.customer?.name, res?.customer?.firstname, '').firstName,
+          lastName: splitName(res?.customer?.name, '', res?.customer?.lastname).lastName,
+          phone: res?.customer?.phone || '–',
+          email: res?.customer?.email || '–',
+          pickupCode: res?.pickupCode || '–',
+          details: `${res?.reservation?.day || '–'} · ${res?.reservation?.dish || '–'} · ${res?.reservation?.quantity || 1}×`,
+          total: res?.reservation?.total || 0,
+          status: 'Reserviert'
+        })),
+        ...lunchDone.map(res => ({
+          type: 'Mittagstisch',
+          id: res?.id || res?.internalNumber || '–',
+          date: res?.createdAt,
+          customer: res?.customer?.name || '–',
+          firstName: splitName(res?.customer?.name, res?.customer?.firstname, '').firstName,
+          lastName: splitName(res?.customer?.name, '', res?.customer?.lastname).lastName,
+          phone: res?.customer?.phone || '–',
+          email: res?.customer?.email || '–',
+          pickupCode: res?.pickupCode || '–',
+          details: `${res?.reservation?.day || '–'} · ${res?.reservation?.dish || '–'} · ${res?.reservation?.quantity || 1}×`,
+          total: res?.reservation?.total || 0,
+          status: 'Abgeholt'
+        }))
+      ];
+
+      const all = [...shopRows, ...lunchRows].sort((a, b) => {
+        const da = new Date(a.date || 0).getTime();
+        const db = new Date(b.date || 0).getTime();
+        return db - da;
+      });
+
+      const open = all.filter(row => row.status === 'Offen' || row.status === 'Reserviert');
+      const done = all.filter(row => row.status === 'Abgeschlossen' || row.status === 'Abgeholt');
+      return { all, open, done };
+    }
+
+    function filterRows(rows, query) {
+      const q = normalize(query);
+      if (!q) return rows;
+      return rows.filter(row => {
         const haystack = [
-          entry.id,
-          customer.name,
-          customer.email,
-          customer.phone,
-          reservation.dish,
-          reservation.day,
-          reservation.pickupDate
-        ].join(' ').toLocaleLowerCase('de-DE');
-
-        return haystack.includes(query);
+          row.firstName,
+          row.lastName,
+          row.customer,
+          row.id,
+          row.pickupCode,
+          formatMoney(row.total),
+          row.details
+        ].map(normalize).join(' ');
+        return haystack.includes(q);
       });
     }
 
-    function printOrder(id, inSent = false) {
-      const list = inSent ? sentOrders : orders;
-      const order = list.find(item => String(item.id) === String(id));
-      if (!order) return;
-      let content = `Bestellung ${order.id}\n`; 
-      content += `Datum: ${new Date(order.date).toLocaleString('de-DE')}\n`;
-      content += `Kunde: ${order.customer.name}\n`;
-      content += `Adresse: ${order.customer.address}\n`;
-      if (order.customer.postalCode) content += `PLZ: ${order.customer.postalCode}\n`;
-      if (order.customer.phone) content += `Telefon: ${order.customer.phone}\n`;
-      if (order.customer.email) content += `E-Mail: ${order.customer.email}\n`;
-      if (order.pickupCode) content += `Abholcode: ${order.pickupCode}\n`;
-      content += `Zahlungsart: ${order.paymentMethod}\n`;
-      const fulfillmentSummary = formatFulfillmentSummary(order.fulfillment);
-      if (fulfillmentSummary && fulfillmentSummary !== '–') content += `${fulfillmentSummary}\n`;
-      const fulfillmentDetails = formatFulfillmentDetails(order.fulfillment);
-      if (fulfillmentDetails) content += `${fulfillmentDetails}\n`;
-      if (order.notes) content += `Hinweis: ${order.notes}\n`;
-      content += `\nArtikel:\n`;
-      order.items.forEach(item => {
-        content += `${item.qty} × ${item.name} — ${item.price.toFixed(2)} €\n`;
-        if (item.extras && item.extras.length) {
-          content += `    Extras: ${item.extras.join(', ')}\n`;
-        }
-      });
-      if (typeof order.deliveryFee === 'number' && order.deliveryFee > 0) {
-        content += `\nLiefergebühr: ${order.deliveryFee.toFixed(2)} €`;
-      }
-      content += `\nGesamt: ${order.total.toFixed(2)} €`;
-
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) return;
-      printWindow.document.write(`<pre>${content}</pre>`);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-    }
-
-    function markSent(id) {
-      const index = orders.findIndex(order => String(order.id) === String(id));
-      if (index === -1) return;
-      const [moved] = orders.splice(index, 1);
-      sentOrders.push(moved);
-      localStorage.setItem('orders', JSON.stringify(orders));
-      localStorage.setItem('sentOrders', JSON.stringify(sentOrders));
-      renderTables();
-      showTab('pending');
-    }
-
-    function printLunchReservation(id, inDone = false) {
-      const source = inDone ? lunchReservationsDone : lunchReservations;
-      const reservation = source.find(item => String(item.id) === String(id));
-      if (!reservation) return;
-
-      const lunch = reservation.reservation || {};
-      const customer = reservation.customer || {};
-      let content = `Mittagstisch-Reservierung ${reservation.id}\n`;
-      content += `Reserviert am: ${new Date(reservation.createdAt || Date.now()).toLocaleString('de-DE')}\n`;
-      content += `Status: ${reservation.status || (inDone ? 'abgeholt' : 'reserviert')}\n`;
-      content += `\nKunde:\n`;
-      content += `Name: ${customer.name || ''}\n`;
-      content += `Telefon: ${customer.phone || ''}\n`;
-      content += `E-Mail: ${customer.email || ''}\n`;
-      content += `\nReservierung:\n`;
-      content += `Tag: ${lunch.day || ''}\n`;
-      content += `Datum: ${formatDateGerman(lunch.pickupDate)}\n`;
-      content += `Abholzeit: ${lunch.pickupTime || ''} Uhr\n`;
-      content += `Gericht: ${lunch.dish || ''}\n`;
-      content += `Menge: ${lunch.quantity || 1}\n`;
-      content += `Einzelpreis: ${typeof lunch.unitPrice === 'number' ? lunch.unitPrice.toFixed(2) : '0.00'} €\n`;
-      content += `Gesamt: ${typeof lunch.total === 'number' ? lunch.total.toFixed(2) : '0.00'} €\n`;
-      content += `Abholort: ${lunch.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf'}\n`;
-      if (reservation.pickupCode) content += `Abholcode: ${reservation.pickupCode}\n`;
-      if (lunch.notes) content += `Hinweis: ${lunch.notes}\n`;
-      content += `\nVertrag:\n`;
-      content += `${reservation.contract?.text || 'Mit Reservierung wurde ein Kaufvertrag abgeschlossen.'}`;
-
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) return;
-      printWindow.document.write(`<pre>${content}</pre>`);
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-    }
-
-    async function markLunchDone(id) {
-      if (supabaseClient) {
-        const { error } = await supabaseClient
-          .from('lunch_orders')
-          .update({ status: 'abgeholt', completed_at: new Date().toISOString() })
-          .eq('internal_number', String(id));
-        if (error) throw error;
-        await syncLunchReservationsFromSupabase();
-      } else {
-        const index = lunchReservations.findIndex(entry => String(entry.id) === String(id));
-        if (index === -1) return;
-        const [moved] = lunchReservations.splice(index, 1);
-        moved.status = 'abgeholt';
-        moved.completedAt = new Date().toISOString();
-        lunchReservationsDone.push(moved);
-        localStorage.setItem('sb_lunch_reservations', JSON.stringify(lunchReservations));
-        localStorage.setItem('sb_lunch_reservations_done', JSON.stringify(lunchReservationsDone));
-        renderTables();
-      }
-      showTab('lunch-pending');
-    }
-
-    document.addEventListener('click', (event) => {
-      const actionButton = event.target.closest('[data-action]');
-      if (!actionButton) return;
-      const idRaw = actionButton.dataset.id;
-      const action = actionButton.dataset.action;
-      if (action === 'print') {
-        const inSent = actionButton.dataset.sent === 'true';
-        printOrder(idRaw, inSent);
-      }
-      if (action === 'sent') {
-        markSent(idRaw);
-      }
-      if (action === 'lunch-print') {
-        const inDone = actionButton.dataset.lunchDone === 'true';
-        printLunchReservation(idRaw, inDone);
-      }
-      if (action === 'lunch-done') {
-        markLunchDone(idRaw).catch(error => {
-          console.error('Mittagstisch-Status konnte nicht aktualisiert werden:', error);
-        });
-      }
-    });
-
-    [lunchFilterSearch, lunchFilterDay, lunchFilterDate].forEach(control => {
-      control?.addEventListener('input', renderTables);
-      control?.addEventListener('change', renderTables);
-    });
-
-    lunchFilterReset?.addEventListener('click', () => {
-      if (lunchFilterSearch) lunchFilterSearch.value = '';
-      if (lunchFilterDay) lunchFilterDay.value = '';
-      if (lunchFilterDate) lunchFilterDate.value = '';
-      renderTables();
-    });
-
-    // Autosave intentionally disabled to avoid slow/failing rapid network writes.
-
-    adminAuthForm?.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      if (!window.SB_SUPABASE?.isConfigured?.() || !supabaseClient) {
-        setAdminFeedback('Bitte trage zuerst URL und Anon-Key in assets/js/supabase-config.js ein.');
-        return;
-      }
-      const email = document.getElementById('admin-email')?.value?.trim();
-      const password = document.getElementById('admin-password')?.value || '';
-      setAdminFeedback('Anmeldung läuft ...');
-      try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) {
-          const message = String(error?.message || 'Login fehlgeschlagen').trim();
-          setAdminFeedback(message, false);
-          return;
-        }
-        setAdminAuthenticated(!!data?.session);
-        try {
-          await hydrateAdminFromSupabase();
-          showTab('pending');
-        } catch (syncError) {
-          console.error('Adminbereich konnte nach dem Login nicht geladen werden:', syncError);
-        }
-        setAdminFeedback('Anmeldung erfolgreich.', true);
-      } catch (error) {
-        const message = String(error?.message || 'Login fehlgeschlagen').trim();
-        setAdminFeedback(message, false);
-        return;
-      }
-    });
-
-    adminLogoutBtn?.addEventListener('click', async () => {
-      await supabaseClient?.auth?.signOut?.();
-    });
-
-    renderTables();
-    showTab('pending');
-
-    if (!window.SB_SUPABASE?.isConfigured?.() || !supabaseClient) {
-      setAdminAuthenticated(false);
-      setAdminFeedback('Supabase ist noch nicht konfiguriert. Öffne assets/js/supabase-config.js und trage Projekt-URL + Anon-Key ein.');
-    } else {
-      supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-        setAdminAuthenticated(!!session);
-        if (session) {
-          setAdminFeedback('');
-          try {
-            await hydrateAdminFromSupabase();
-          } catch (error) {
-            console.error('Supabase Admin Sync fehlgeschlagen:', error);
-          }
-        } else {
-          adminSubscription?.unsubscribe?.();
-          adminSubscription = null;
-        }
-      });
-
-      supabaseClient.auth.getSession().then(async ({ data }) => {
-        const session = data?.session || null;
-        setAdminAuthenticated(!!session);
-        if (!session) return;
-        try {
-          await hydrateAdminFromSupabase();
-        } catch (error) {
-          console.error('Supabase Admin Initialisierung fehlgeschlagen:', error);
-        }
-      });
-    }
-
-    /* ===== Wunschzettel ===== */
-    const WZ_KEY = 'sb_wunschzettel';
-
-    function renderWunschzettel() {
-      const list = JSON.parse(localStorage.getItem(WZ_KEY) || '[]');
-      const tbody = document.querySelector('#wz-table tbody');
+    function renderRows(tableSelector, rows, emptyText) {
+      const tbody = document.querySelector(`${tableSelector} tbody`);
       if (!tbody) return;
       tbody.innerHTML = '';
-      if (!list.length) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="6" class="empty-row">Noch keine Wunschzettel eingereicht.</td>';
-        tbody.appendChild(row);
+
+      if (!rows.length) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="6" class="empty-row">${escapeHtml(emptyText)}</td>`;
+        tbody.appendChild(tr);
         return;
       }
-      list.forEach((entry, idx) => {
+
+      rows.forEach(row => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${escapeHtml(entry.id || '')}</td>
-          <td>${new Date(entry.createdAt || Date.now()).toLocaleString('de-DE')}</td>
-          <td><strong>${escapeHtml(entry.firstname || '')} ${escapeHtml(entry.lastname || '')}</strong></td>
-          <td><strong>${escapeHtml(entry.wish || '')}</strong></td>
-          <td>${escapeHtml(entry.message || '–')}</td>
-          <td class="table-actions">
-            <button class="btn btn-secondary" type="button" data-action="wz-delete" data-idx="${idx}">Löschen</button>
-          </td>`;
+          <td>${escapeHtml(row.type)}</td>
+          <td>${escapeHtml(row.id)}</td>
+          <td>${escapeHtml(toDateString(row.date))}</td>
+          <td>${escapeHtml(row.customer)}</td>
+          <td>${escapeHtml(row.details)}</td>
+          <td>${escapeHtml(formatMoney(row.total))}</td>`;
         tbody.appendChild(tr);
       });
     }
 
-    document.addEventListener('click', (event) => {
-      const btn = event.target.closest('[data-action="wz-delete"]');
-      if (!btn) return;
-      const idx = Number(btn.dataset.idx);
-      const list = JSON.parse(localStorage.getItem(WZ_KEY) || '[]');
-      list.splice(idx, 1);
-      localStorage.setItem(WZ_KEY, JSON.stringify(list));
-      renderWunschzettel();
-    });
-
-    renderWunschzettel();
-
-    /* ===== Abstimmung Admin ===== */
-    const VOTES_KEY = 'sb_votes';
-
-            </div>
-            <div class="table-actions">
-              ${vote.active
-                ? `<button class="btn btn-secondary" type="button" data-action="vote-end" data-idx="${idx}">Beenden</button>`
-                : `<button class="btn btn-primary" type="button" data-action="vote-activate" data-idx="${idx}">Wieder aktivieren</button>`
-              }
-              <button class="btn btn-outline" type="button" data-action="vote-delete" data-idx="${idx}">Löschen</button>
-            </div>
-          </div>
-          <ul style="margin-top:0.75rem;font-size:0.88rem;display:grid;gap:0.3rem">${dishes}</ul>
-          <p style="font-size:0.8rem;color:var(--clr-text-muted);margin-top:0.5rem">Gesamt: ${totalVotes} Stimmen · Endet: ${vote.endsAt || '–'}</p>`;
-        container.appendChild(div);
-      });
+    function renderOverview(openRows, doneRows, allRows) {
+      const tbody = document.getElementById('overview-body');
+      if (!tbody) return;
+      const totalRevenue = allRows.reduce((sum, row) => sum + (Number(row.total) || 0), 0);
+      tbody.innerHTML = `
+        <tr><td>Offene Vorgänge</td><td>${openRows.length}</td></tr>
+        <tr><td>Abgeschlossene Vorgänge</td><td>${doneRows.length}</td></tr>
+        <tr><td>Alle Vorgänge gesamt</td><td>${allRows.length}</td></tr>
+        <tr><td>Gesamtumsatz (lokal)</td><td>${formatMoney(totalRevenue)} €</td></tr>
+      `;
     }
 
-    document.getElementById('vote-create-form')?.addEventListener('submit', event => {
-      event.preventDefault();
-      const title    = document.getElementById('vote-title-input')?.value.trim();
-      const endsAt   = document.getElementById('vote-ends')?.value;
-      const dishesRaw = document.getElementById('vote-dishes')?.value.trim();
-      const feedback  = document.getElementById('vote-create-feedback');
+    function getLast4WeeksRows(rows) {
+      const now = Date.now();
+      const fourWeeksMs = 28 * 24 * 60 * 60 * 1000;
+      return rows.filter(row => {
+        const time = new Date(row.date || 0).getTime();
+        return Number.isFinite(time) && (now - time) <= fourWeeksMs;
+      }).sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+    }
 
-      if (!title || !endsAt || !dishesRaw) {
-        if (feedback) feedback.textContent = 'Bitte alle Felder ausfüllen.';
-        return;
-      }
-      const dishes = dishesRaw.split('\n').map(s => s.trim()).filter(Boolean);
-      if (dishes.length < 2) {
-        if (feedback) feedback.textContent = 'Bitte mindestens 2 Gerichte eintragen.';
-        return;
+    function buildContactDetailHtml(contactName, recentRows) {
+      if (!recentRows.length) {
+        return `<div class="empty-row" style="padding:1rem 0;">Für ${escapeHtml(contactName)} gibt es in den letzten 4 Wochen keine Bestellungen.</div>`;
       }
 
-      const votes = loadVotesAdmin();
-      // Deactivate any currently active vote
-      votes.forEach(v => { v.active = false; });
-      votes.push({
-        id: `VOTE-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-        title, dishes, endsAt,
-        active: true,
-        votes: {}
-      });
-      saveVotesAdmin(votes);
-      event.target.reset();
-      if (feedback) { feedback.classList.add('feedback-success'); feedback.textContent = '✓ Abstimmung gestartet!'; }
-      renderAdminVotes();
-    });
+      const lines = recentRows.map(row => `
+        <tr>
+          <td>${escapeHtml(row.id)}</td>
+          <td>${escapeHtml(toDateString(row.date))}</td>
+          <td>${escapeHtml(row.type)}</td>
+          <td>${escapeHtml(row.details)}</td>
+          <td>${escapeHtml(row.pickupCode || '–')}</td>
+          <td>${escapeHtml(formatMoney(row.total))}</td>
+        </tr>
+      `).join('');
 
-    document.addEventListener('click', event => {
-      const btn = event.target.closest('[data-action="vote-end"],[data-action="vote-activate"],[data-action="vote-delete"]');
-      if (!btn) return;
-      const idx    = Number(btn.dataset.idx);
-      const action = btn.dataset.action;
-      const votes  = loadVotesAdmin();
-      if (action === 'vote-end')      { votes[idx].active = false; }
-      if (action === 'vote-activate') { votes.forEach(v => { v.active = false; }); votes[idx].active = true; }
-      if (action === 'vote-delete')   { votes.splice(idx, 1); }
-      saveVotesAdmin(votes);
-      renderAdminVotes();
-    });
-
-    /* ===== Newsletter ===== */
-    const NEWSLETTER_HISTORY_KEY = 'sb_newsletter_history';
-
-    function getNewsletterHistory() {
-      return JSON.parse(localStorage.getItem(NEWSLETTER_HISTORY_KEY) || '[]');
-    }
-
-    function saveNewsletterHistory(history) {
-      localStorage.setItem(NEWSLETTER_HISTORY_KEY, JSON.stringify(history));
-    }
-
-    function fillTemplate(text, user) {
-      return String(text || '')
-        .replaceAll('{{firstName}}', user?.firstName || 'Kundin/Kunde')
-        .replaceAll('{{lastName}}', user?.lastName || '');
-    }
-
-    function getNewsletterFormData() {
-      return {
-        segment: document.getElementById('newsletter-segment')?.value || 'all',
-        subject: document.getElementById('newsletter-subject')?.value.trim() || '',
-        greeting: document.getElementById('newsletter-greeting')?.value || 'Hallo {{firstName}},',
-        block: document.getElementById('newsletter-block')?.value || '',
-        body: document.getElementById('newsletter-body')?.value.trim() || '',
-        image: document.getElementById('newsletter-image')?.value.trim() || '',
-        signature: document.getElementById('newsletter-signature')?.value.trim() || ''
-      };
-    }
-
-    function renderNewsletterPreview() {
-      const preview = document.getElementById('newsletter-preview');
-      if (!preview) return;
-      const data = getNewsletterFormData();
-      const sample = { firstName: 'Max', lastName: 'Mustermann' };
-      const greeting = fillTemplate(data.greeting, sample);
-      const body = [data.block, data.body].filter(Boolean).join('\n\n');
-
-      preview.innerHTML = `
-        <div class="newsletter-mail">
-          <p><strong>Betreff:</strong> ${escapeHtml(data.subject || '—')}</p>
-          <hr>
-          <p>${escapeHtml(greeting)}</p>
-          <p style="white-space:pre-line">${escapeHtml(body || '—')}</p>
-          ${data.image ? `<p><img src="${escapeHtml(data.image)}" alt="Newsletter Bild" style="max-width:100%;border-radius:10px"></p>` : ''}
-          <p style="white-space:pre-line">${escapeHtml(data.signature || '')}</p>
-        </div>`;
-    }
-
-    function renderNewsletterHistory() {
-      const el = document.getElementById('newsletter-history');
-      if (!el) return;
-      const history = getNewsletterHistory().slice().reverse();
-      if (!history.length) {
-        el.innerHTML = '<p style="font-size:0.9rem;color:var(--clr-text-muted)">Noch kein Newsletter versendet.</p>';
-        return;
-      }
-      el.innerHTML = history.map(item => `
-        <div class="admin-vote-card">
-          <strong>${escapeHtml(item.subject)}</strong>
-          <p style="margin:0.35rem 0 0">Segment: ${escapeHtml(item.segment)} · Empfänger: ${item.recipientCount}</p>
-          <small>${new Date(item.sentAt).toLocaleString('de-DE')}</small>
+      return `
+        <div style="font-weight:700;margin-bottom:0.5rem;">Bestellungen der letzten 4 Wochen: ${escapeHtml(contactName)}</div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Bestellnummer</th>
+                <th>Datum</th>
+                <th>Typ</th>
+                <th>Details</th>
+                <th>Abholcode</th>
+                <th>Gesamt (€)</th>
+              </tr>
+            </thead>
+            <tbody>${lines}</tbody>
+          </table>
         </div>
+      `;
+    }
+
+    function renderContacts(allRows, contactsQuery = '') {
+      const tbody = document.querySelector('#contacts-table tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const grouped = new Map();
+      allRows.forEach(row => {
+        const name = String(row.customer || '').trim();
+        if (!name || name === '–') return;
+        const key = `${normalize(row.firstName)}|${normalize(row.lastName)}|${normalize(name)}`;
+        const entry = grouped.get(key) || {
+          key,
+          name,
+          firstName: row.firstName || '',
+          lastName: row.lastName || '',
+          phone: row.phone || '–',
+          email: row.email || '–',
+          count: 0,
+          rows: []
+        };
+        entry.count += 1;
+        entry.rows.push(row);
+        if (entry.phone === '–' && row.phone && row.phone !== '–') entry.phone = row.phone;
+        if (entry.email === '–' && row.email && row.email !== '–') entry.email = row.email;
+        grouped.set(key, entry);
+      });
+
+      let rows = [...grouped.values()].sort((a, b) => b.count - a.count);
+      if (contactsQuery) {
+        rows = rows.filter(entry => {
+          const filteredRows = filterRows(entry.rows, contactsQuery);
+          return filteredRows.length > 0 || normalize(entry.name).includes(normalize(contactsQuery));
+        });
+      }
+      if (!rows.length) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="4" class="empty-row">Noch keine Kundendaten vorhanden.</td>';
+        tbody.appendChild(tr);
+        expandedContactKey = null;
+        return;
+      }
+
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.dataset.contactKey = row.key;
+        tr.style.cursor = 'pointer';
+        tr.innerHTML = `
+          <td>${escapeHtml(row.name)}</td>
+          <td>${escapeHtml(row.phone)}</td>
+          <td>${escapeHtml(row.email)}</td>
+          <td>${row.count}</td>`;
+        tr.addEventListener('click', () => {
+          expandedContactKey = expandedContactKey === row.key ? null : row.key;
+          renderAll();
+        });
+        tbody.appendChild(tr);
+
+        if (expandedContactKey === row.key) {
+          const detailTr = document.createElement('tr');
+          const detailTd = document.createElement('td');
+          detailTd.colSpan = 4;
+          const contactRows = filterRows(row.rows, contactsQuery);
+          const recentRows = getLast4WeeksRows(contactRows);
+          detailTd.innerHTML = buildContactDetailHtml(row.name, recentRows);
+          detailTr.appendChild(detailTd);
+          tbody.appendChild(detailTr);
+        }
+      });
+    }
+
+    function renderAll() {
+      const feedback = document.getElementById('admin-feedback');
+      const { all, open, done } = collectAllOrders();
+      const openQuery = document.getElementById('search-open-orders')?.value || '';
+      const doneQuery = document.getElementById('search-done-orders')?.value || '';
+      const contactsQuery = document.getElementById('search-contacts')?.value || '';
+
+      const openFiltered = filterRows(open, openQuery);
+      const doneFiltered = filterRows(done, doneQuery);
+
+      renderOverview(openFiltered, doneFiltered, all);
+      renderRows('#open-orders-table', openFiltered, 'Keine offenen Bestellungen vorhanden.');
+      renderRows('#done-orders-table', doneFiltered, 'Keine abgeschlossenen Bestellungen vorhanden.');
+      renderContacts(all, contactsQuery);
+      if (feedback) feedback.textContent = `${all.length} Einträge geladen. (gefiltert: ${openFiltered.length + doneFiltered.length})`;
+    }
+
+    function showTab(targetId) {
+      document.querySelectorAll('[data-tab-target]').forEach(btn => {
+        const active = btn.dataset.tabTarget === targetId;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        const active = panel.id === targetId;
+        panel.classList.toggle('is-active', active);
+        panel.toggleAttribute('hidden', !active);
+      });
+      if (targetId === 'weekplan') renderWeekPlanEditor();
+      if (targetId === 'wunschzettel') {
+        renderWzAdmin();
+        renderVoteAdminResults();
+      }
+      if (targetId === 'kassenabschluss') {
+        // Heute als Standard vorbelegen
+        const today = new Date().toISOString().slice(0, 10);
+        const kaFrom = document.getElementById('ka-from');
+        const kaTo   = document.getElementById('ka-to');
+        if (kaFrom && !kaFrom.value) kaFrom.value = today;
+        if (kaTo   && !kaTo.value)   kaTo.value   = today;
+        kaRenderArchive();
+      }
+    }
+
+    document.querySelectorAll('[data-tab-target]').forEach(btn => {
+      btn.addEventListener('click', () => showTab(btn.dataset.tabTarget));
+    });
+
+    document.getElementById('clear-admin-data-btn')?.addEventListener('click', () => {
+      const keys = ['orders', 'sentOrders', 'sb_lunch_reservations', 'sb_lunch_reservations_done'];
+      keys.forEach(key => localStorage.removeItem(key));
+      renderAll();
+    });
+
+    document.getElementById('weekplan-save-btn')?.addEventListener('click', persistWeekPlanFromEditor);
+
+    document.getElementById('weekplan-body')?.addEventListener('input', handleWeekplanFieldChange);
+    document.getElementById('weekplan-body')?.addEventListener('change', handleWeekplanFieldChange);
+
+    document.getElementById('search-open-orders')?.addEventListener('input', renderAll);
+    document.getElementById('search-done-orders')?.addEventListener('input', renderAll);
+    document.getElementById('search-contacts')?.addEventListener('input', renderAll);
+
+    // ── Wunschzettel + Umfrage ──────────────────────────────────────────────
+    const WZ_KEY   = 'sb_wunschzettel';
+    const VOTE_KEY = 'sb_votes';
+
+    function loadWishes() { return readJson(WZ_KEY, []); }
+    function loadVotes()  { return readJson(VOTE_KEY, []); }
+    function saveVotes(v) { localStorage.setItem(VOTE_KEY, JSON.stringify(v)); }
+
+    function renderWzAdmin() {
+      const tbody = document.getElementById('wz-admin-body');
+      if (!tbody) return;
+      const list = loadWishes();
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-row">Noch keine Wünsche eingegangen.</td></tr>';
+        return;
+      }
+      const groups = {};
+      list.forEach(entry => {
+        const key = String(entry.wish || '').trim().toLowerCase();
+        if (!key) return;
+        const g = groups[key] || { wish: entry.wish, count: 0, last: '', senders: [] };
+        g.count++;
+        if (!g.last || entry.createdAt > g.last) g.last = entry.createdAt;
+        const name = [entry.firstname, entry.lastname].filter(Boolean).join(' ');
+        if (name && !g.senders.includes(name)) g.senders.push(name);
+        groups[key] = g;
+      });
+      const sorted = Object.values(groups).sort((a, b) => b.count - a.count);
+      tbody.innerHTML = sorted.map(g => `
+        <tr>
+          <td>${escapeHtml(g.wish)}</td>
+          <td><strong>${g.count}</strong></td>
+          <td>${g.last ? escapeHtml(new Date(g.last).toLocaleDateString('de-DE')) : '–'}</td>
+          <td style="font-size:0.8rem;color:#666;">${escapeHtml(g.senders.slice(0,3).join(', ') + (g.senders.length > 3 ? ` +${g.senders.length-3}` : ''))}</td>
+        </tr>
       `).join('');
     }
 
-    document.getElementById('newsletter-preview-btn')?.addEventListener('click', renderNewsletterPreview);
-
-    document.getElementById('newsletter-block')?.addEventListener('change', event => {
-      const body = document.getElementById('newsletter-body');
-      const value = event.target.value || '';
-      if (!body || !value) return;
-      if (!body.value.trim()) body.value = value;
-      else body.value = `${value}\n\n${body.value.trim()}`;
-      renderNewsletterPreview();
-    });
-
-    document.getElementById('newsletter-form')?.addEventListener('submit', event => {
-      event.preventDefault();
-      const feedback = document.getElementById('newsletter-feedback');
-      if (feedback) {
-        feedback.textContent = '';
-        feedback.classList.remove('feedback-success');
-      }
-
-      const data = getNewsletterFormData();
-      if (!data.subject || !data.body) {
-        if (feedback) feedback.textContent = 'Bitte Betreff und Nachricht ausfüllen.';
-        return;
-      }
-
-      const recipients = window.SBPlatform?.getAudience?.(data.segment) || [];
-      const personalized = recipients.map(user => ({
-        email: user.email,
-        subject: data.subject,
-        greeting: fillTemplate(data.greeting, user),
-        body: [data.block, data.body].filter(Boolean).join('\n\n'),
-        signature: data.signature,
-        image: data.image
-      }));
-
-      const history = getNewsletterHistory();
-      history.push({
-        id: `NEWS-${Date.now()}`,
-        sentAt: new Date().toISOString(),
-        segment: data.segment,
-        subject: data.subject,
-        recipientCount: personalized.length,
-        payload: personalized
-      });
-      saveNewsletterHistory(history);
-      window.SBPlatform?.trackEvent?.('newsletter_sent', {
-        segment: data.segment,
-        recipientCount: personalized.length,
-        subject: data.subject
-      });
-
-      if (feedback) {
-        feedback.classList.add('feedback-success');
-        feedback.textContent = `Newsletter versendet: ${personalized.length} Empfänger.`;
-      }
-      renderNewsletterPreview();
-      renderNewsletterHistory();
-    });
-
-    /* ===== Analyse ===== */
-    function computeAnalytics() {
-      const data = window.SBPlatform?.getAnalytics?.() || { visits: [], events: [] };
-      const visits = data.visits || [];
-      const events = data.events || [];
-      const allOrders = (JSON.parse(localStorage.getItem('orders') || '[]').length + JSON.parse(localStorage.getItem('sentOrders') || '[]').length);
-      const allReservations = (JSON.parse(localStorage.getItem('sb_lunch_reservations') || '[]').length + JSON.parse(localStorage.getItem('sb_lunch_reservations_done') || '[]').length);
-
-      const checkoutStarts = events.filter(e => e.type === 'shop_checkout_opened').length;
-      const checkoutDone = events.filter(e => e.type === 'shop_order_submitted').length;
-      const reservationStarts = events.filter(e => e.type === 'reservation_started').length;
-      const reservationDone = events.filter(e => e.type === 'reservation_submitted').length;
-
-      const orderDropEvents = events.filter(e => e.type === 'shop_checkout_dropoff');
-      const reservationDropEvents = events.filter(e => e.type === 'reservation_dropoff');
-
-      const toMap = (arr, key) => arr.reduce((acc, item) => {
-        const k = item?.payload?.[key] || 'unbekannt';
-        acc[k] = (acc[k] || 0) + 1;
-        return acc;
-      }, {});
-
-      const timeByPage = visits.reduce((acc, visit) => {
-        acc[visit.page] = (acc[visit.page] || 0) + Number(visit.durationSec || 0);
-        return acc;
-      }, {});
-
-      const visitByPage = visits.reduce((acc, visit) => {
-        acc[visit.page] = (acc[visit.page] || 0) + 1;
-        return acc;
-      }, {});
-
-      return {
-        totalVisits: visits.length,
-        totalOrders: allOrders,
-        totalReservations: allReservations,
-        checkoutStarts,
-        checkoutDone,
-        reservationStarts,
-        reservationDone,
-        orderAbortRate: checkoutStarts ? ((checkoutStarts - checkoutDone) / checkoutStarts) * 100 : 0,
-        reservationAbortRate: reservationStarts ? ((reservationStarts - reservationDone) / reservationStarts) * 100 : 0,
-        orderDropMap: toMap(orderDropEvents, 'step'),
-        reservationDropMap: toMap(reservationDropEvents, 'step'),
-        timeByPage,
-        visitByPage
-      };
+    function renderVoteAdminResults() {
+      const box   = document.getElementById('vote-admin-results-box');
+      const title = document.getElementById('vote-admin-results-title');
+      const tbody = document.getElementById('vote-admin-results-body');
+      if (!box || !tbody) return;
+      const votes = loadVotes();
+      const active = votes.find(v => v.active);
+      if (!active) { box.hidden = true; return; }
+      box.hidden = false;
+      if (title) title.textContent = `Aktive Umfrage: „${active.title || ''}" – Ergebnisse`;
+      const dishes = active.dishes || [];
+      const voteData = active.votes || {};
+      const total = Object.values(voteData).reduce((s, n) => s + n, 0);
+      const sorted = [...dishes].sort((a, b) => (voteData[b] || 0) - (voteData[a] || 0));
+      tbody.innerHTML = sorted.length ? sorted.map(dish => {
+        const count = voteData[dish] || 0;
+        const pct = total ? Math.round((count / total) * 100) : 0;
+        return `<tr><td>${escapeHtml(dish)}</td><td><strong>${count}</strong></td><td>${pct}&thinsp;%</td></tr>`;
+      }).join('') : '<tr><td colspan="3" class="empty-row">Keine Gerichte definiert.</td></tr>';
     }
 
-    function renderBars(targetId, sourceMap) {
-      const container = document.getElementById(targetId);
-      if (!container) return;
-      const entries = Object.entries(sourceMap || {}).sort((a, b) => b[1] - a[1]).slice(0, 10);
-      if (!entries.length) {
-        container.innerHTML = '<p style="font-size:0.9rem;color:var(--clr-text-muted)">Keine Daten vorhanden.</p>';
-        return;
-      }
-      const max = Math.max(...entries.map(([, value]) => value), 1);
-      container.innerHTML = entries.map(([label, value]) => {
-        const width = Math.max(4, Math.round((value / max) * 100));
-        return `
-          <div class="analytics-bar-row">
-            <span class="analytics-bar-label">${escapeHtml(label)}</span>
-            <div class="analytics-bar-track"><span class="analytics-bar-fill" style="width:${width}%"></span></div>
-            <span class="analytics-bar-value">${value}</span>
-          </div>`;
-      }).join('');
+    document.getElementById('wz-admin-clear-btn')?.addEventListener('click', () => {
+      if (!confirm('Wirklich alle Gerichtswünsche löschen?')) return;
+      localStorage.removeItem(WZ_KEY);
+      renderWzAdmin();
+    });
+
+    document.getElementById('vote-admin-start-btn')?.addEventListener('click', () => {
+      const titleVal  = document.getElementById('vote-admin-title')?.value.trim();
+      const endsAt    = document.getElementById('vote-admin-endsAt')?.value;
+      const dishesRaw = document.getElementById('vote-admin-dishes')?.value || '';
+      const dishes    = dishesRaw.split('\n').map(s => s.trim()).filter(Boolean);
+      const feedback  = document.getElementById('vote-admin-feedback');
+      if (!titleVal) { if (feedback) { feedback.style.color='#c0392b'; feedback.textContent = 'Bitte einen Titel eingeben.'; } return; }
+      if (dishes.length < 2) { if (feedback) { feedback.style.color='#c0392b'; feedback.textContent = 'Mindestens 2 Gerichte eingeben.'; } return; }
+      const votes = loadVotes();
+      votes.forEach(v => v.active = false);
+      votes.push({ id: `vote-${Date.now()}`, title: titleVal, endsAt: endsAt || null, dishes, votes: {}, active: true, createdAt: new Date().toISOString() });
+      saveVotes(votes);
+      if (feedback) { feedback.style.color='#2e5e2e'; feedback.textContent = `✓ Umfrage „${titleVal}" gestartet.`; }
+      renderVoteAdminResults();
+    });
+
+    document.getElementById('vote-admin-stop-btn')?.addEventListener('click', () => {
+      const votes = loadVotes();
+      const hadActive = votes.some(v => v.active);
+      votes.forEach(v => v.active = false);
+      saveVotes(votes);
+      const feedback = document.getElementById('vote-admin-feedback');
+      if (feedback) { feedback.style.color = hadActive ? '#2e5e2e' : '#888'; feedback.textContent = hadActive ? '✓ Umfrage beendet.' : 'Keine aktive Umfrage.'; }
+      renderVoteAdminResults();
+    });
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── Kassenabschluss (X/Z-Bericht) ────────────────────────────────────
+    const KA_ARCHIVE_KEY = 'sb_kassenabschluss_archiv';
+    const KA_ZBERICHT_COUNTER_KEY = 'sb_z_counter';
+
+    function loadKaArchive() {
+      return readJson(KA_ARCHIVE_KEY, []);
     }
 
-    function renderAnalytics() {
-      const kpi = document.getElementById('analytics-kpis');
-      if (!kpi) return;
-      const a = computeAnalytics();
-      const orderConversion = a.totalVisits ? (a.totalOrders / a.totalVisits) * 100 : 0;
-      const reservationConversion = a.totalVisits ? (a.totalReservations / a.totalVisits) * 100 : 0;
-      kpi.innerHTML = `
-        <article class="analytics-kpi"><h4>Besuche</h4><p>${a.totalVisits}</p></article>
-        <article class="analytics-kpi"><h4>Bestellungen</h4><p>${a.totalOrders}</p></article>
-        <article class="analytics-kpi"><h4>Reservierungen</h4><p>${a.totalReservations}</p></article>
-        <article class="analytics-kpi"><h4>Conversion Bestellung</h4><p>${orderConversion.toFixed(1)}%</p></article>
-        <article class="analytics-kpi"><h4>Conversion Reservierung</h4><p>${reservationConversion.toFixed(1)}%</p></article>
-        <article class="analytics-kpi"><h4>Abbruch Bestellung</h4><p>${Math.max(0, a.orderAbortRate).toFixed(1)}%</p></article>
-        <article class="analytics-kpi"><h4>Abbruch Reservierung</h4><p>${Math.max(0, a.reservationAbortRate).toFixed(1)}%</p></article>
+    function saveKaArchive(archive) {
+      localStorage.setItem(KA_ARCHIVE_KEY, JSON.stringify(archive));
+    }
+
+    function getNextZNumber() {
+      const current = Number(localStorage.getItem(KA_ZBERICHT_COUNTER_KEY) || '0');
+      const next = current + 1;
+      localStorage.setItem(KA_ZBERICHT_COUNTER_KEY, String(next));
+      return next;
+    }
+
+    function kaGetDateRange() {
+      const from = document.getElementById('ka-from')?.value;
+      const to   = document.getElementById('ka-to')?.value;
+      const today = new Date().toISOString().slice(0, 10);
+      const fromDate = from ? new Date(from + 'T00:00:00') : new Date(today + 'T00:00:00');
+      const toDate   = to   ? new Date(to   + 'T23:59:59') : new Date(today + 'T23:59:59');
+      return { fromDate, toDate, fromStr: from || today, toStr: to || today };
+    }
+
+    function kaFilterRows(allRows, fromDate, toDate) {
+      return allRows.filter(row => {
+        const t = new Date(row.date || 0).getTime();
+        return t >= fromDate.getTime() && t <= toDate.getTime();
+      });
+    }
+
+    function kaBuildStats(rows) {
+      let brutto = 0, liefergebuehr = 0, barCount = 0, paypalCount = 0, lieferungCount = 0, abholungCount = 0;
+      rows.forEach(row => {
+        brutto += Number(row.total) || 0;
+      });
+      // MwSt. 7% (Lebensmittel) auf Nettobetrag
+      const mwstSatz = 0.07;
+      const netto = brutto / (1 + mwstSatz);
+      const mwst  = brutto - netto;
+      return { count: rows.length, brutto, netto, mwst, mwstSatz };
+    }
+
+    function kaFormatMoney(value) {
+      return Number(value).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    }
+
+    function kaBuildReportHtml(type, fromStr, toStr, stats, zNumber) {
+      const now = new Date().toLocaleString('de-DE');
+      const label = type === 'Z' ? `Z-Abschluss Nr. ${zNumber}` : 'X-Bericht (Zwischenstand)';
+      const zeitraum = fromStr === toStr ? fromStr : `${fromStr} bis ${toStr}`;
+      return `
+        <div style="font-family:monospace;font-size:0.9rem;line-height:1.7;">
+          <div style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">Simonsbrotkörbchen</div>
+          <div><strong>${label}</strong></div>
+          <div>Erstellt: ${now}</div>
+          <div>Zeitraum: ${zeitraum}</div>
+          <hr style="border:none;border-top:1px dashed #aaa;margin:0.75rem 0;">
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td>Anzahl Vorgänge</td><td style="text-align:right;">${stats.count}</td></tr>
+            <tr><td>Umsatz Netto</td><td style="text-align:right;">${kaFormatMoney(stats.netto)}</td></tr>
+            <tr><td>MwSt. 7 %</td><td style="text-align:right;">${kaFormatMoney(stats.mwst)}</td></tr>
+            <tr style="font-weight:700;border-top:1px solid #ccc;"><td>Umsatz Brutto</td><td style="text-align:right;">${kaFormatMoney(stats.brutto)}</td></tr>
+          </table>
+          <hr style="border:none;border-top:1px dashed #aaa;margin:0.75rem 0;">
+          <div style="font-size:0.75rem;color:#888;">Beleg nur für interne Zwecke. Alle Beträge inkl. 7% MwSt.</div>
+        </div>
       `;
-
-      renderBars('analytics-order-dropoff', a.orderDropMap);
-      renderBars('analytics-res-dropoff', a.reservationDropMap);
-      renderBars('analytics-time-pages', a.timeByPage);
-      renderBars('analytics-visits-pages', a.visitByPage);
     }
 
-    renderAdminVotes();
-    renderNewsletterPreview();
-    renderNewsletterHistory();
-    renderAnalytics();
+    function kaRenderArchive() {
+      const tbody = document.getElementById('ka-archive-body');
+      if (!tbody) return;
+      const archive = loadKaArchive();
+      if (!archive.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-row">Noch kein Z-Abschluss durchgeführt.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = archive.slice().reverse().map(entry => `
+        <tr>
+          <td>${escapeHtml(String(entry.zNumber || '–'))}</td>
+          <td>${escapeHtml(toDateString(entry.createdAt))}</td>
+          <td>${escapeHtml(entry.zeitraum || '–')}</td>
+          <td>${escapeHtml(String(entry.count || 0))}</td>
+          <td>${escapeHtml(kaFormatMoney(entry.brutto))}</td>
+          <td>${escapeHtml(kaFormatMoney(entry.mwst))}</td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('ka-xbericht-btn')?.addEventListener('click', () => {
+      const { fromDate, toDate, fromStr, toStr } = kaGetDateRange();
+      const { all } = collectAllOrders();
+      const rows = kaFilterRows(all, fromDate, toDate);
+      const stats = kaBuildStats(rows);
+      const box = document.getElementById('ka-report-box');
+      document.getElementById('ka-report-content').innerHTML = kaBuildReportHtml('X', fromStr, toStr, stats, null);
+      box.hidden = false;
+    });
+
+    document.getElementById('ka-zbericht-btn')?.addEventListener('click', () => {
+      if (!confirm('Z-Abschluss durchführen? Dieser Vorgang wird im Archiv gespeichert.')) return;
+      const { fromDate, toDate, fromStr, toStr } = kaGetDateRange();
+      const { all } = collectAllOrders();
+      const rows = kaFilterRows(all, fromDate, toDate);
+      const stats = kaBuildStats(rows);
+      const zNumber = getNextZNumber();
+      const zeitraum = fromStr === toStr ? fromStr : `${fromStr} bis ${toStr}`;
+      const archive = loadKaArchive();
+      archive.push({
+        zNumber,
+        createdAt: new Date().toISOString(),
+        zeitraum,
+        count: stats.count,
+        brutto: stats.brutto,
+        netto: stats.netto,
+        mwst: stats.mwst
+      });
+      saveKaArchive(archive);
+      const box = document.getElementById('ka-report-box');
+      document.getElementById('ka-report-content').innerHTML = kaBuildReportHtml('Z', fromStr, toStr, stats, zNumber);
+      box.hidden = false;
+      kaRenderArchive();
+    });
+
+    document.getElementById('ka-print-btn')?.addEventListener('click', () => {
+      const content = document.getElementById('ka-report-content')?.innerHTML || '';
+      const win = window.open('', '_blank', 'width=480,height=600');
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Kassenabschluss</title><style>body{font-family:monospace;padding:2rem;font-size:14px;}hr{border:none;border-top:1px dashed #aaa;}table{width:100%;}td:last-child{text-align:right;}</style></head><body>${content}</body></html>`);
+      win.document.close();
+      win.focus();
+      win.print();
+    });
+    // ─────────────────────────────────────────────────────────────────────
+
+    window.addEventListener('storage', event => {
+      if (event.key === ADMIN_LUNCH_PLAN_KEY || event.key === ADMIN_LUNCH_STOCK_KEY) {
+        renderWeekPlanEditor();
+      }
+      renderAll();
+    });
+    showTab('overview');
+    renderWeekPlanEditor();
+    renderAll();
   </script>
 </body>
 </html>

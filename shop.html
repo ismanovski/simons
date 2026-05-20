@@ -42,6 +42,19 @@
           <span class="eyebrow">Online bestellen</span>
           <h2>Ofenwarme Brötchen und belegte Klassiker bequem online zur Abholung reservieren.</h2>
           <p>Du bestellst online und holst deine Auswahl anschließend in unserer Filiale ab – mit den gleichen Produkten und Preisen wie vor Ort.</p>
+          <div id="shop-bw-box">
+            <button class="btn" type="button" id="shop-bw-toggle-btn" aria-pressed="false">
+              <img src="bundeswehr_logo.png" alt="Bundeswehr" class="bundeswehr-inline-logo">
+              Bundeswehr Mitarbeiter vom Mörsenbroicher Weg? Jetzt Vorteile sichern!
+            </button>
+            <div id="shop-bw-code-panel" hidden>
+              <label for="shop-bw-code-input">Code eingeben
+                <input type="text" id="shop-bw-code-input" placeholder="FRÜHSTÜCKSWEHR" autocomplete="off" maxlength="24" style="text-transform:uppercase;">
+              </label>
+              <button class="btn btn-outline" type="button" id="shop-bw-code-verify">Code prüfen</button>
+            </div>
+            <p class="checkout-hint" id="shop-bw-code-feedback"></p>
+          </div>
         </div>
 
         <div class="catalog-layout">
@@ -78,7 +91,7 @@
     <div class="container footer-grid">
       <div>
         <a class="brand brand-footer" href="index.html">
-          <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+          <img class="brand-logo" src="logo simons weiß.png" alt="Simonsbrotkörbchen Logo">
           <span class="brand-copy">
             <span class="brand-title">Simonsbrotkörbchen</span>
             <span class="brand-subtitle">Traditionell gebacken. Modern bestellt.</span>
@@ -253,15 +266,13 @@
         schnickSchnack: 'data/wunschbroetchen/schnick_schnack.csv',
         belag: 'data/wunschbroetchen/belag.csv'
       },
-      salate: 'data/salate.csv',
       extras: 'data/extras.csv'
     };
     const CATEGORY_DEFINITIONS = [
-      { id: '2', name: 'Belegte Brötchen', image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80' },
-      { id: '7', name: 'Frischgepresste Säfte', image: 'https://images.unsplash.com/photo-1580915411954-282cb1c92795?auto=format&fit=crop&w=800&q=80' },
-      { id: '9', name: 'Salate', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80' },
+      { id: '2', name: 'Belegte Brötchen', image: 'artikelbilder/käse.png' },
+      { id: '7', name: 'Frischgepresste Säfte', image: 'artikelbilder/o-saft.png' },
       { id: '6', name: 'Softgetränke', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80' },
-      { id: '10', name: 'Extras', image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=800&q=80' }
+      { id: '10', name: 'Extras', image: 'artikelbilder/obstbecher.png' }
     ];
     const CATEGORY_IMAGE_MAP = CATEGORY_DEFINITIONS.reduce((acc, def) => {
       if (def.image) acc[def.name] = def.image;
@@ -286,6 +297,49 @@
       'Laugenbrötchen': 'laugenbrötchen.jpg',
       'Laugenecke': 'Laugenecke.jpg',
       'laugenecke': 'Laugenecke.jpg'
+    };
+    const BELEGTE_IMAGES = {
+      'käse': 'artikelbilder/käse.png',
+      'salami': 'artikelbilder/salami.png',
+      'fleischwurst': 'artikelbilder/fleischwurst.png',
+      'schinken': 'artikelbilder/kochschinken.png',
+      'kochschinken': 'artikelbilder/kochschinken.png',
+      'ei': 'artikelbilder/ei.png',
+      'leberwurst': 'artikelbilder/leberwurst.png',
+      'frischkäse': 'artikelbilder/frischkäse.png',
+      'rohrschinken': 'artikelbilder/Rohrschinken.png',
+      'brie': 'artikelbilder/brie.png',
+      'putenbrust': 'artikelbilder/Putenbrust.png',
+      'pute': 'artikelbilder/Putenbrust.png',
+      'mett': 'artikelbilder/mettwurst.png',
+      'mettwurst': 'artikelbilder/mettwurst.png',
+      'frikadelle': 'artikelbilder/frikadelle.png',
+      'thunfisch': 'artikelbilder/thunfisch.png',
+      'lachs': 'artikelbilder/lachs.png',
+      'schnitzel': 'artikelbilder/schnitzel.png',
+      'mozzarella': 'artikelbilder/mozarella.png',
+      'mozarella': 'artikelbilder/mozarella.png',
+      'rührei': 'artikelbilder/rührei.png',
+      'ruehrei': 'artikelbilder/rührei.png'
+    };
+    const JUICE_IMAGES = {
+      'mai saft': 'artikelbilder/MAI.png',
+      'mai zitrone orange': 'artikelbilder/Mai zitrone orange.png',
+      'limette gurke orange': 'artikelbilder/limette gurke orange.png',
+      'waserm apfel zitrone': 'artikelbilder/wassermelone apfel zitrone.png',
+      'wassermelone apfel zitrone': 'artikelbilder/wassermelone apfel zitrone.png',
+      'o saft': 'artikelbilder/o-saft.png',
+      'orange zitrone': 'artikelbilder/o-saft.png',
+      'apfel saft': 'artikelbilder/apfel.png',
+      'apfel limette': 'artikelbilder/apfel.png',
+      'karotten saft': 'artikelbilder/karotte.png',
+      'karotte saft': 'artikelbilder/karotte.png'
+    };
+    const EXTRAS_IMAGES = {
+      'obstbecher': 'artikelbilder/obstbecher.png',
+      'obstplatte': 'artikelbilder/obstplatte.png',
+      'rohkostbecher': 'artikelbilder/rohkostbecher.png',
+      'rohkostplatte': 'artikelbilder/rohkostplatte.png'
     };
     let AUFSTRICH_OPTIONS = [
       { name: 'Nichts', price: 0 },
@@ -321,15 +375,10 @@
       { name: 'Scheibe Ei', price: 0.10 }
     ];
     let EXTRAS_PRODUCTS = [
-      { id: 'extras-obstbecher', name: 'Obstbecher', price: 2.50, image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=800&q=80', options: [{ name: 'mit Zitrone', price: 0.30 }, { name: 'mit Limette', price: 0.30 }] },
-      { id: 'extras-obstplatte', name: 'Obstplatte', price: 5.50, image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=800&q=80', options: [{ name: 'mit Zitrone', price: 0.30 }, { name: 'mit Limette', price: 0.30 }] },
-      { id: 'extras-rohkostbecher', name: 'Rohkostbecher', price: 2.50, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80', options: [{ name: 'mit Kräutercreme', price: 0.50 }] },
-      { id: 'extras-rohkostplatte', name: 'Rohkostplatte', price: 5.50, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80', options: [{ name: 'mit Kräutercreme', price: 0.50 }] }
-    ];
-    let SALATE_PRODUCTS = [
-      { id: 'salat-gemischt', name: 'Gemischter Salat', price: 4.50, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80' },
-      { id: 'salat-tomaten', name: 'Tomatensalat', price: 3.90, image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80' },
-      { id: 'salat-gurken', name: 'Gurkensalat', price: 3.50, image: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80' }
+      { id: 'extras-obstbecher', name: 'Obstbecher', price: 2.50, image: 'artikelbilder/obstbecher.png', options: [{ name: 'mit Zitrone', price: 0.30 }, { name: 'mit Limette', price: 0.30 }] },
+      { id: 'extras-obstplatte', name: 'Obstplatte', price: 5.50, image: 'artikelbilder/obstplatte.png', options: [{ name: 'mit Zitrone', price: 0.30 }, { name: 'mit Limette', price: 0.30 }] },
+      { id: 'extras-rohkostbecher', name: 'Rohkostbecher', price: 2.50, image: 'artikelbilder/rohkostbecher.png', options: [{ name: 'mit Kräutercreme', price: 0.50 }] },
+      { id: 'extras-rohkostplatte', name: 'Rohkostplatte', price: 5.50, image: 'artikelbilder/rohkostplatte.png', options: [{ name: 'mit Kräutercreme', price: 0.50 }] }
     ];
     const FALLBACK_IMAGES = [
       'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80',
@@ -337,6 +386,8 @@
       'https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&w=800&q=80'
     ];
     const ALLOWED_POSTCODES = ['40470', '40468', '40476', '40237', '40235', '40629', '40470'];
+    const BUNDESWEHR_CODE = 'FRÜHSTÜCKSWEHR';
+    const BUNDESWEHR_VERIFIED_KEY = 'sb_bundeswehr_verified';
     const MIN_ORDER_VALUE = 10;
     const DELIVERY_FEE = 2.9;
     const STORAGE_KEYS = {
@@ -404,6 +455,11 @@
       cartToggleButtons: document.querySelectorAll('[data-cart-toggle]'),
       cartCloseButton: document.querySelector('[data-cart-close]'),
       checkoutBtn: document.getElementById('checkout-btn'),
+      bwToggleBtn: document.getElementById('shop-bw-toggle-btn'),
+      bwCodePanel: document.getElementById('shop-bw-code-panel'),
+      bwCodeInput: document.getElementById('shop-bw-code-input'),
+      bwCodeVerify: document.getElementById('shop-bw-code-verify'),
+      bwCodeFeedback: document.getElementById('shop-bw-code-feedback'),
       checkoutModal: document.getElementById('checkout-modal'),
       checkoutCloseButtons: document.querySelectorAll('[data-checkout-close]'),
       checkoutForm: document.getElementById('checkout-form'),
@@ -451,6 +507,31 @@
     const calendars = {};
     const holidayCache = new Map();
     let preloadedSetApplied = false;
+    let bundeswehrVerified = localStorage.getItem(BUNDESWEHR_VERIFIED_KEY) === '1';
+
+    function setBundeswehrFeedback(message, success = false) {
+      if (!elements.bwCodeFeedback) return;
+      elements.bwCodeFeedback.classList.toggle('feedback-success', !!success);
+      elements.bwCodeFeedback.classList.toggle('checkout-hint-warning', !success && !!message);
+      elements.bwCodeFeedback.textContent = message || '';
+    }
+
+    function applyBundeswehrState() {
+      if (elements.bwToggleBtn) {
+        elements.bwToggleBtn.setAttribute('aria-pressed', bundeswehrVerified ? 'true' : 'false');
+      }
+      if (elements.bwCodePanel) {
+        elements.bwCodePanel.hidden = true;
+      }
+      if (elements.bwCodeInput) {
+        elements.bwCodeInput.value = '';
+      }
+      if (bundeswehrVerified) {
+        setBundeswehrFeedback('Vorteile aktiv. Der Code wurde gespeichert.', true);
+      } else {
+        setBundeswehrFeedback('');
+      }
+    }
 
     if (elements.grid) {
       elements.grid.innerHTML = '<div class="empty-state"><p>Sortiment wird geladen …</p></div>';
@@ -611,33 +692,15 @@
       BELAG_OPTIONS = parseSimpleListCsv(belagText).map(x => ({ name: x.name, price: x.price }));
     }
 
-    async function loadSalateList() {
-      const text = await fetchTextOrThrow(DATA_SOURCES.salate);
-      const list = parseSimpleListCsv(text);
-      if (!list.length) return;
-      const salatImages = [
-        'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80'
-      ];
-      SALATE_PRODUCTS = list.map((item, i) => ({
-        id: `salat-${i + 1}`,
-        name: item.name,
-        price: item.price,
-        image: salatImages[i % salatImages.length]
-      }));
-    }
-
     async function loadExtrasList() {
       const text = await fetchTextOrThrow(DATA_SOURCES.extras);
       const list = parseSimpleListCsv(text);
       if (!list.length) return;
-      const extrasImage = 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=800&q=80';
       EXTRAS_PRODUCTS = list.map((item, i) => ({
         id: `extras-${i + 1}`,
         name: item.name,
         price: item.price,
-        image: extrasImage,
+        image: getExtraImage(item.name),
         options: []
       }));
     }
@@ -646,7 +709,6 @@
       const [entries] = await Promise.all([
         loadCatalogEntries(),
         loadWunschLists(),
-        loadSalateList(),
         loadExtrasList()
       ]);
       return entries;
@@ -673,6 +735,42 @@
     elements.cartToggleButtons?.forEach(button => button.addEventListener('click', toggleCart));
     elements.cartCloseButton?.addEventListener('click', closeCart);
     elements.checkoutBtn?.addEventListener('click', openCheckout);
+    elements.bwToggleBtn?.addEventListener('click', () => {
+      if (bundeswehrVerified) {
+        bundeswehrVerified = false;
+        localStorage.removeItem(BUNDESWEHR_VERIFIED_KEY);
+        applyBundeswehrState();
+        setBundeswehrFeedback('Bundeswehr-Vorteile deaktiviert.');
+        return;
+      }
+      if (elements.bwCodePanel) {
+        elements.bwCodePanel.hidden = !elements.bwCodePanel.hidden;
+      }
+      setBundeswehrFeedback('');
+    });
+    elements.bwCodeInput?.addEventListener('input', () => {
+      const target = elements.bwCodeInput;
+      if (!target) return;
+      const pos = target.selectionStart;
+      target.value = target.value.toLocaleUpperCase('de-DE');
+      target.setSelectionRange(pos, pos);
+      if (elements.bwCodeFeedback?.textContent) setBundeswehrFeedback('');
+    });
+    elements.bwCodeVerify?.addEventListener('click', () => {
+      const input = (elements.bwCodeInput?.value || '').trim().toLocaleUpperCase('de-DE');
+      const expected = BUNDESWEHR_CODE.toLocaleUpperCase('de-DE');
+      if (input !== expected) {
+        bundeswehrVerified = false;
+        localStorage.removeItem(BUNDESWEHR_VERIFIED_KEY);
+        if (elements.bwToggleBtn) elements.bwToggleBtn.setAttribute('aria-pressed', 'false');
+        setBundeswehrFeedback('Code ungültig. Bitte erneut eingeben.');
+        return;
+      }
+      bundeswehrVerified = true;
+      localStorage.setItem(BUNDESWEHR_VERIFIED_KEY, '1');
+      applyBundeswehrState();
+      setBundeswehrFeedback('Vorteile aktiviert. Du kannst jetzt normal weiter bestellen.', true);
+    });
     elements.checkoutCloseButtons?.forEach(button => button.addEventListener('click', closeCheckout));
     elements.checkoutForm?.addEventListener('submit', placeOrder);
     elements.deliverySlotSelect?.addEventListener('change', () => clearFieldInvalid(elements.deliverySlotSelect));
@@ -737,6 +835,7 @@
     });
 
     renderCart();
+    applyBundeswehrState();
     if (viewportWatcher.matches) {
       closeCart();
     } else {
@@ -821,23 +920,18 @@
       state.broetchenTypes.sort((a, b) => a.order - b.order || a.price - b.price || a.name.localeCompare(b.name, 'de'));
 
       juiceGroups.forEach((variants, key) => {
-        if (variants.length < 2) {
-          variants.forEach(variant => {
-            const def = CATEGORY_DEFINITIONS.find(item => item.id === '7');
-            const image = CATEGORY_IMAGE_MAP[def.name] || FALLBACK_IMAGES[0];
-            const productId = `7-${variant.order}`;
-            const product = { id: productId, categoryId: def.id, categoryName: def.name, name: `${variant.sizeLabel} ${variant.baseName}`.trim(), price: variant.price, image, order: variant.order };
-            state.products.push(product);
-            state.productIndex.set(productId, product);
-          });
-          return;
-        }
         variants.sort((a, b) => a.order - b.order || a.price - b.price);
-        const baseName = variants[0].baseName;
+        const largeVariant = variants.find(v => v.sizeLabel === 'Groß') || variants[variants.length - 1];
+        const baseName = largeVariant.baseName;
         state.juices.push({
-          id: `juice-${key}`, baseName, displayName: toTitleCase(baseName),
-          variants: variants.map(v => ({ sizeLabel: v.sizeLabel, rawName: v.rawName, price: v.price, order: v.order })),
-          order: variants[0].order, image: CATEGORY_IMAGE_MAP['Frischgepresste Säfte'] || FALLBACK_IMAGES[0]
+          id: `juice-${key}`,
+          baseName,
+          displayName: toTitleCase(baseName),
+          sizeLabel: '0,3l',
+          rawName: largeVariant.rawName,
+          price: largeVariant.price,
+          order: largeVariant.order,
+          image: getJuiceImage(baseName)
         });
       });
 
@@ -896,9 +990,35 @@
       return null;
     }
 
+    function normalizeJuiceName(name) {
+      return String(name || '')
+        .toLocaleLowerCase('de-DE')
+        .replace(/[.,\-_/]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function getJuiceImage(baseName) {
+      const normalized = normalizeJuiceName(baseName);
+      if (normalized.includes('mai') && normalized.includes('zitrone') && normalized.includes('orange')) return 'artikelbilder/Mai zitrone orange.png';
+      if (normalized.includes('wassermelone') && normalized.includes('apfel') && normalized.includes('zitrone')) return 'artikelbilder/wassermelone apfel zitrone.png';
+      if (normalized.includes('waserm') && normalized.includes('apfel') && normalized.includes('zitrone')) return 'artikelbilder/wassermelone apfel zitrone.png';
+      if (normalized.includes('limette') && normalized.includes('gurke') && normalized.includes('orange')) return 'artikelbilder/limette gurke orange.png';
+      if (normalized.includes('karotte')) return 'artikelbilder/karotte.png';
+      if (normalized.includes('apfel')) return 'artikelbilder/apfel.png';
+      if (normalized.includes('o saft') || normalized.includes('orangensaft') || normalized.includes('orange')) return 'artikelbilder/o-saft.png';
+      if (normalized.includes('mai')) return 'artikelbilder/MAI.png';
+      return JUICE_IMAGES[normalized] || 'artikelbilder/MAI.png';
+    }
+
+    function getExtraImage(name) {
+      const key = String(name || '').trim().toLocaleLowerCase('de-DE');
+      return EXTRAS_IMAGES[key] || 'artikelbilder/obstbecher.png';
+    }
+
     function buildCategoryBar() {
       if (!elements.categoryBar) return;
-      const categories = ['Belegte Brötchen', 'Wunschbrötchen', 'Frischgepresste Säfte', 'Salate', 'Softgetränke', 'Extras'];
+      const categories = ['Belegte Brötchen', 'Wunschbrötchen', 'Frischgepresste Säfte', 'Softgetränke', 'Extras'];
       elements.categoryBar.innerHTML = categories.map(category => {
         const isActive = state.activeCategory === category;
         return `<button class="chip${isActive ? ' is-active' : ''}" data-category="${category}">${category}</button>`;
@@ -930,13 +1050,6 @@
         });
       }
 
-      if (state.activeCategory === 'Salate') {
-        SALATE_PRODUCTS.forEach(salat => {
-          const card = createSimpleStaticCard(salat, 'Salate');
-          if (card) { elements.grid.appendChild(card); hasContent = true; }
-        });
-      }
-
       if (state.activeCategory === 'Softgetränke') {
         state.products.filter(p => p.categoryId === '6').forEach(product => {
           elements.grid.appendChild(createProductCard(product));
@@ -961,7 +1074,7 @@
 
     function createProductCard(product) {
       const card = document.createElement('article');
-      card.className = 'product-card';
+      card.className = 'product-card product-card-configurable';
       const quantityId = `qty-${product.id}`;
       card.innerHTML = `
         <img src="${product.image}" alt="${product.name}">
@@ -970,14 +1083,16 @@
             <h3>${product.name}</h3>
             <span class="product-category">${product.categoryName}</span>
           </div>
-          <div class="product-meta-row">
-            <span class="product-price">${formatPrice(product.price)}</span>
-            <div class="product-add">
-              <label class="sr-only" for="${quantityId}">Menge</label>
-              <input class="quantity-input" id="${quantityId}" type="number" min="1" value="1" data-quantity>
+          <form class="config-form" novalidate>
+            <div class="config-actions">
+              <span class="config-price">${formatPrice(product.price)}</span>
+              <div class="quantity-field">
+                <label class="sr-only" for="${quantityId}">Menge</label>
+                <input class="quantity-input" id="${quantityId}" type="number" min="1" value="1" data-quantity>
+              </div>
               <button class="btn btn-secondary" type="button" data-product-id="${product.id}">In den Warenkorb</button>
             </div>
-          </div>
+          </form>
         </div>`;
       return card;
     }
@@ -986,14 +1101,14 @@
       if (!state.broetchenTypes || !state.broetchenTypes.length) return null;
 
       const wrapper = document.createElement('div');
-      wrapper.className = 'wunsch-wizard';
+      wrapper.className = 'wunsch-wizard wunsch-wizard-wide';
 
       // Schritt 1: Brötchen – Mehrfachauswahl mit Menge pro Kachel
       const step1 = document.createElement('div');
       step1.className = 'wunsch-step';
       step1.dataset.step = '1';
       step1.innerHTML = `
-        <div class="wunsch-grid">
+        <div class="wunsch-grid wunsch-grid-large">
           ${state.broetchenTypes.map(brot => `
             <div class="wunsch-tile" data-brot-name="${escapeHtml(brot.name)}" data-brot-price="${brot.price}">
               <img src="${escapeHtml(brot.image)}" alt="${escapeHtml(brot.name)}" loading="lazy">
@@ -1017,7 +1132,7 @@
       step2.dataset.step = '2';
       step2.hidden = true;
       step2.innerHTML = `
-        <div class="wunsch-grid">
+        <div class="wunsch-grid wunsch-grid-large">
           ${AUFSTRICH_OPTIONS.map((s, i) => `
             <div class="wunsch-tile${i === 0 ? ' is-selected' : ''}" data-aufstrich-name="${escapeHtml(s.name)}" data-aufstrich-price="${s.price}">
               <span class="wunsch-tile-name">${escapeHtml(s.name)}</span>
@@ -1035,7 +1150,7 @@
       step3.dataset.step = '3';
       step3.hidden = true;
       step3.innerHTML = `
-        <div class="wunsch-grid">
+        <div class="wunsch-grid wunsch-grid-large">
           ${SCHNICK_SCHNACK_OPTIONS.map(d => `
             <div class="wunsch-tile" data-deko-name="${escapeHtml(d.name)}" data-deko-price="${d.price}">
               <span class="wunsch-tile-name">${escapeHtml(d.name)}</span>
@@ -1065,7 +1180,7 @@
       step4.dataset.step = '4';
       step4.hidden = true;
       step4.innerHTML = `
-        <div class="wunsch-grid">
+        <div class="wunsch-grid wunsch-grid-large">
           ${BELAG_OPTIONS.map(b => `
             <div class="wunsch-tile" data-belag-name="${escapeHtml(b.name)}" data-belag-price="${b.price}">
               <span class="wunsch-tile-name">${escapeHtml(b.name)}</span>
@@ -1354,9 +1469,11 @@
 
     function createBelegteGroupCard(group) {
       const card = document.createElement('article');
-      card.className = 'product-card';
+      const image = getBelegteImage(group.label);
+      card.className = 'product-card product-card-belegte';
+        card.style.cursor = 'pointer';
       card.innerHTML = `
-        <img src="käsebrötchen.jpg" alt="${escapeHtml(group.label)}" loading="lazy">
+        <img src="${escapeHtml(image)}" alt="${escapeHtml(group.label)}" loading="lazy">
         <div class="product-card-body">
           <div class="product-info">
             <h3>Brötchen mit ${escapeHtml(group.label)}</h3>
@@ -1369,8 +1486,15 @@
             </div>
           </div>
         </div>`;
-      card.querySelector('button')?.addEventListener('click', () => openBelegteModal(group));
+        card.addEventListener('click', () => openBelegteModal(group));
       return card;
+    }
+
+    function getBelegteImage(label) {
+      const key = String(label || '')
+        .trim()
+        .toLocaleLowerCase('de-DE');
+      return BELEGTE_IMAGES[key] || 'artikelbilder/käse.png';
     }
 
     function openBelegteModal(group) {
@@ -1453,12 +1577,10 @@
 
     function createJuiceCard(group) {
       const card = document.createElement('article');
-      card.className = 'product-card product-card-configurable';
+      const isOSaft = normalizeJuiceName(group.baseName).includes('o saft') || normalizeJuiceName(group.baseName).includes('orangensaft');
+      card.className = `product-card product-card-configurable product-card-juice${isOSaft ? ' product-card-juice-osaft' : ' product-card-juice-smaller'}`;
       card.setAttribute('data-juice-card', group.id);
-      const selectId = `${group.id}-size`;
       const quantityId = `${group.id}-qty`;
-      const optionsMarkup = group.variants.map((variant, index) => `
-            <option value="${variant.rawName}" data-price="${variant.price}" data-label="${variant.sizeLabel}" ${index === 0 ? 'selected' : ''}>${variant.sizeLabel} (${formatPrice(variant.price)})</option>`).join('');
 
       card.innerHTML = `
         <img src="${group.image}" alt="${group.displayName}">
@@ -1469,13 +1591,11 @@
           </div>
           <form class="config-form" data-juice-form="${group.id}" aria-label="${group.displayName}">
             <div class="field-group">
-              <label for="${selectId}">Größe auswählen</label>
-              <select id="${selectId}" data-juice-select="${group.id}">
-                ${optionsMarkup}
-              </select>
+              <label>Größe</label>
+              <div class="checkout-hint">${group.sizeLabel}</div>
             </div>
             <div class="config-actions">
-              <span class="config-price" data-config-price>${formatPrice(group.variants[0].price)}</span>
+              <span class="config-price" data-config-price>${formatPrice(group.price)}</span>
               <div class="quantity-field">
                 <label class="sr-only" for="${quantityId}">Menge</label>
                 <input class="quantity-input" id="${quantityId}" type="number" min="1" value="1" data-juice-qty="${group.id}">
@@ -1485,21 +1605,12 @@
           </form>
         </div>`;
 
-      const select = card.querySelector(`[data-juice-select="${group.id}"]`);
-      const priceNode = card.querySelector('[data-config-price]');
       const quantityInput = card.querySelector(`[data-juice-qty="${group.id}"]`);
       const addButton = card.querySelector(`[data-juice-add="${group.id}"]`);
 
-      select?.addEventListener('change', () => {
-        const price = Number(select.selectedOptions[0]?.dataset.price || 0);
-        priceNode.textContent = formatPrice(price);
-      });
-
       addButton?.addEventListener('click', () => {
-        const option = select?.selectedOptions[0];
-        if (!option) return;
-        const sizeLabel = option.dataset.label || option.textContent;
-        const price = Number(option.dataset.price || 0);
+        const sizeLabel = group.sizeLabel;
+        const price = Number(group.price || 0);
         const quantity = Math.max(1, parseInt(quantityInput?.value, 10) || 1);
         const key = `${group.id}::${sizeLabel}`;
         addCartEntry(key, {

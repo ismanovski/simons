@@ -80,17 +80,6 @@
                   </label>
                 </div>
 
-                <div class="bundeswehr-box">
-                  <button class="btn btn-secondary" type="button" id="bw-toggle-btn">Mitarbeiter der Bundeswehr (Mörsenbroicher Weg)</button>
-                  <div id="bw-code-panel" hidden>
-                    <label>Code eingeben
-                      <input type="text" id="bw-code-input" placeholder="FRÜHSTÜCKSWEHR" autocomplete="off" maxlength="20">
-                    </label>
-                    <button class="btn btn-outline" type="button" id="bw-code-verify">Code prüfen</button>
-                    <p class="checkout-hint" id="bw-code-feedback"></p>
-                  </div>
-                </div>
-
                 <div id="delivery-address-fields">
                   <div class="form-grid form-grid-2">
                     <label>Straße
@@ -164,7 +153,18 @@
 
         <aside class="checkout-receipt" aria-live="polite">
           <h2>Kassenbon</h2>
+          <div id="receipt-min-order-hint" hidden style="margin:0 0 0.5rem 0;font-size:0.85rem;color:#c0392b;">
+            Mindestbestellwert für Lieferung: <strong>16,00&nbsp;€</strong>
+          </div>
           <div id="receipt-items"></div>
+          <div id="receipt-bw-benefits" hidden style="margin:0.5rem 0;padding:0.5rem 0.75rem;background:#e8f4e8;border-left:3px solid #4a7c4a;border-radius:4px;font-size:0.875rem;">
+            <strong style="color:#2e5e2e;">&#127981; Bundeswehr-Vorteile aktiv</strong>
+            <ul style="margin:0.25rem 0 0 1rem;padding:0;color:#2e5e2e;">
+              <li>Keine Liefergebühr (statt 1,90&nbsp;€)</li>
+              <li>Kein Mindestbestellwert (statt 16,00&nbsp;€)</li>
+              <li>Lieferzeit: 08:45 Uhr</li>
+            </ul>
+          </div>
           <div class="receipt-line"><span>Zwischensumme</span><strong id="receipt-subtotal">0,00 €</strong></div>
           <div class="receipt-line"><span>Liefergebühr</span><strong id="receipt-delivery">0,00 €</strong></div>
           <div class="receipt-line receipt-total"><span>Gesamt</span><strong id="receipt-total">0,00 €</strong></div>
@@ -185,6 +185,21 @@
         <div class="modal-actions">
           <button class="btn btn-secondary" type="button" id="approval-cancel">Zurück</button>
           <button class="btn btn-primary" type="button" id="approval-continue">Trotzdem bestellen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="late-fee-modal" aria-hidden="true" role="dialog" aria-labelledby="late-fee-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="late-fee-title">Bundeswehr-Bestellung zu spät</h3>
+      </div>
+      <div class="modal-body">
+        <p>Leider wurde die Bestellung für die Bundeswehr&#8209;Vorteile zum Frühstück zu spät aufgegeben. Es kommen <strong>0,90&nbsp;€ Liefergebühren</strong> auf. Bitte um Bestätigung dieser Veränderung.</p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" type="button" id="late-fee-cancel">Zurück</button>
+          <button class="btn btn-primary" type="button" id="late-fee-confirm">Bestätigen</button>
         </div>
       </div>
     </div>
@@ -211,10 +226,23 @@
     const SENT_ORDERS_KEY = 'sentOrders';
     const BREAKFAST_SEQUENCE_KEY = 'sb_breakfast_sequence';
     const PICKUP_CODE_INDEX_KEY = 'sb_pickup_code_index';
-    const BUNDESWEHR_CODE = 'FRÜHSTÜCKSWEHR';
-    const DELIVERY_FEE = 2.90;
-    const MIN_DELIVERY_VALUE = 15;
+    const BUNDESWEHR_VERIFIED_KEY = 'sb_bundeswehr_verified';
+    const DELIVERY_FEE = 1.90;
+    const MIN_DELIVERY_VALUE = 16;
+    const ALLOWED_DELIVERY_ZIPS = new Set(['40470', '40235', '40472', '40237']);
+    const BUNDESWEHR_LATE_FEE = 0.90;
+    const BUNDESWEHR_CUTOFF_MINUTES = 8 * 60 + 40; // 08:40 Uhr
+    const BUNDESWEHR_DELIVERY_ADDRESS = {
+      street: 'Mörsenbroicher Weg',
+      number: '200',
+      zip: '40470',
+      city: 'Düsseldorf'
+    };
     const numberFormatter = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function isZipInDeliveryArea(zip) {
+      return ALLOWED_DELIVERY_ZIPS.has(String(zip || '').trim());
+    }
 
     // ── E-Mail Bestätigung via Netlify Function ────────────────────────────
     // Endpoint: /.netlify/functions/send-confirmation
@@ -267,12 +295,13 @@
       mode: 'pickup',
       cart: [],
       subtotal: 0,
-      isBundeswehr: false,
-      bundeswehrVerified: false,
+      isBundeswehr: localStorage.getItem(BUNDESWEHR_VERIFIED_KEY) === '1',
+      bundeswehrVerified: localStorage.getItem(BUNDESWEHR_VERIFIED_KEY) === '1',
       paypalReady: false,
       paypalApproved: false,
       paypalClientId: '',
-      pendingOrderPayload: null
+      pendingOrderPayload: null,
+      bundeswehrLate: false
     };
 
     const el = {
@@ -288,11 +317,6 @@
       receiptDelivery: document.getElementById('receipt-delivery'),
       receiptTotal: document.getElementById('receipt-total'),
       deliveryAddressFields: document.getElementById('delivery-address-fields'),
-      bwToggleBtn: document.getElementById('bw-toggle-btn'),
-      bwCodePanel: document.getElementById('bw-code-panel'),
-      bwCodeInput: document.getElementById('bw-code-input'),
-      bwCodeVerify: document.getElementById('bw-code-verify'),
-      bwCodeFeedback: document.getElementById('bw-code-feedback'),
       deliveryTime: document.getElementById('delivery-time'),
       deliveryTimeLabel: document.getElementById('delivery-time-label'),
       checkoutStatus: document.getElementById('checkout-status'),
@@ -302,7 +326,12 @@
       approvalClose: document.getElementById('approval-close'),
       approvalCancel: document.getElementById('approval-cancel'),
       approvalContinue: document.getElementById('approval-continue'),
-      toast: document.getElementById('checkout-toast')
+      toast: document.getElementById('checkout-toast'),
+      bwBenefits: document.getElementById('receipt-bw-benefits'),
+      minOrderHint: document.getElementById('receipt-min-order-hint'),
+      lateFeeModal: document.getElementById('late-fee-modal'),
+      lateFeeCancel: document.getElementById('late-fee-cancel'),
+      lateFeeConfirm: document.getElementById('late-fee-confirm')
     };
 
     function formatPrice(value) {
@@ -360,8 +389,35 @@
 
     function getDeliveryFee() {
       if (state.mode !== 'delivery' || !state.cart.length) return 0;
-      if (state.isBundeswehr && state.bundeswehrVerified) return 0;
+      if (state.isBundeswehr && state.bundeswehrVerified) {
+        return state.bundeswehrLate ? BUNDESWEHR_LATE_FEE : 0;
+      }
       return DELIVERY_FEE;
+    }
+
+    function isBundeswehrLateNow() {
+      const now = new Date();
+      return (now.getHours() * 60 + now.getMinutes()) >= BUNDESWEHR_CUTOFF_MINUTES;
+    }
+
+    function saveCart() {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.cart));
+    }
+
+    function changeQty(index, delta) {
+      if (!state.cart[index]) return;
+      state.cart[index].qty = (Number(state.cart[index].qty) || 1) + delta;
+      if (state.cart[index].qty <= 0) {
+        state.cart.splice(index, 1);
+      }
+      saveCart();
+      renderReceipt();
+    }
+
+    function removeItem(index) {
+      state.cart.splice(index, 1);
+      saveCart();
+      renderReceipt();
     }
 
     function renderReceipt() {
@@ -369,9 +425,18 @@
       if (!state.cart.length) {
         el.receiptItems.innerHTML = '<p class="checkout-hint">Dein Warenkorb ist leer.</p>';
       } else {
-        el.receiptItems.innerHTML = state.cart.map(item => {
+        el.receiptItems.innerHTML = state.cart.map((item, i) => {
           const total = (Number(item.price) || 0) * (Number(item.qty) || 1);
-          return `<div class="receipt-item"><span>${item.qty}× ${item.name}</span><strong>${formatPrice(total)}</strong></div>`;
+          return `<div class="receipt-item" style="align-items:center;gap:0.4rem;">
+            <span style="flex:1;min-width:0;">${item.name}</span>
+            <span style="display:flex;align-items:center;gap:0.25rem;white-space:nowrap;">
+              <button type="button" onclick="changeQty(${i},-1)" style="width:1.5rem;height:1.5rem;border:1px solid #ccc;background:#fff;border-radius:4px;cursor:pointer;font-size:1rem;line-height:1;padding:0;">−</button>
+              <span style="min-width:1.2rem;text-align:center;">${item.qty}</span>
+              <button type="button" onclick="changeQty(${i},1)" style="width:1.5rem;height:1.5rem;border:1px solid #ccc;background:#fff;border-radius:4px;cursor:pointer;font-size:1rem;line-height:1;padding:0;">+</button>
+            </span>
+            <strong style="min-width:3.5rem;text-align:right;">${formatPrice(total)}</strong>
+            <button type="button" onclick="removeItem(${i})" style="width:1.5rem;height:1.5rem;border:none;background:none;cursor:pointer;color:#c0392b;font-size:1rem;line-height:1;padding:0;" title="Entfernen">&times;</button>
+          </div>`;
         }).join('');
       }
       state.subtotal = state.cart.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.qty) || 1)), 0);
@@ -379,32 +444,58 @@
       el.receiptSubtotal.textContent = formatPrice(state.subtotal);
       el.receiptDelivery.textContent = formatPrice(fee);
       el.receiptTotal.textContent = formatPrice(state.subtotal + fee);
+      if (el.bwBenefits) {
+        el.bwBenefits.hidden = !(state.mode === 'delivery' && state.bundeswehrVerified);
+      }
+      if (el.minOrderHint) {
+        const showHint = state.mode === 'delivery' && !state.bundeswehrVerified && state.subtotal < MIN_DELIVERY_VALUE;
+        el.minOrderHint.hidden = !showHint;
+      }
     }
 
     function setMode(mode) {
       state.mode = mode;
+      state.bundeswehrLate = false;
       el.modeButtons.forEach(btn => btn.classList.toggle('is-active', btn.dataset.mode === mode));
       el.modePanels.forEach(panel => {
         panel.hidden = panel.dataset.modePanel !== mode;
       });
+      if (mode === 'delivery' && state.bundeswehrVerified) {
+        setBundeswehrActive(true);
+      } else {
+        setBundeswehrActive(false);
+      }
       renderReceipt();
     }
 
     function setBundeswehrActive(active) {
       state.isBundeswehr = active;
-      if (!active) state.bundeswehrVerified = false;
-      el.deliveryAddressFields.hidden = active && state.bundeswehrVerified;
-      ['delivery-street', 'delivery-number', 'delivery-zip', 'delivery-city'].forEach(id => {
-        const field = document.getElementById(id);
+      el.deliveryAddressFields.hidden = false;
+      const deliveryStreet = document.getElementById('delivery-street');
+      const deliveryNumber = document.getElementById('delivery-number');
+      const deliveryZip = document.getElementById('delivery-zip');
+      const deliveryCity = document.getElementById('delivery-city');
+      const isBundeswehrDelivery = !!(active && state.bundeswehrVerified && state.mode === 'delivery');
+
+      [deliveryStreet, deliveryNumber, deliveryZip, deliveryCity].forEach(field => {
         if (!field) return;
-        field.required = !(active && state.bundeswehrVerified);
+        field.required = state.mode === 'delivery';
+        field.readOnly = isBundeswehrDelivery;
       });
+
+      if (isBundeswehrDelivery) {
+        if (deliveryStreet) deliveryStreet.value = BUNDESWEHR_DELIVERY_ADDRESS.street;
+        if (deliveryNumber) deliveryNumber.value = BUNDESWEHR_DELIVERY_ADDRESS.number;
+        if (deliveryZip) deliveryZip.value = BUNDESWEHR_DELIVERY_ADDRESS.zip;
+        if (deliveryCity) deliveryCity.value = BUNDESWEHR_DELIVERY_ADDRESS.city;
+      }
+
       if (active && state.bundeswehrVerified) {
-        el.deliveryTime.value = '08:40';
+        el.deliveryTime.value = '08:45';
         el.deliveryTime.readOnly = true;
-        el.deliveryTime.min = '08:40';
-        el.deliveryTime.max = '09:00';
-        el.deliveryTimeLabel.querySelector('input').title = 'Bei Bundeswehr-Lieferung fest: 08:40–09:00';
+        el.deliveryTime.min = '08:45';
+        el.deliveryTime.max = '08:45';
+        el.deliveryTimeLabel.querySelector('input').title = 'Bei Bundeswehr-Lieferung festes Zeitfenster: 08:45 Uhr';
       } else {
         el.deliveryTime.readOnly = false;
         el.deliveryTime.min = '08:00';
@@ -437,6 +528,11 @@
           showToast('Bitte alle Pflichtfelder ausfüllen.', true);
           return null;
         }
+        const pickupDay = new Date(data.date + 'T12:00:00').getDay();
+        if (pickupDay === 0) {
+          showToast('Sonntags ist keine Abholung möglich. Bitte einen anderen Tag wählen.', true);
+          return null;
+        }
         return data;
       }
 
@@ -458,11 +554,24 @@
         return null;
       }
 
-      if (!(state.isBundeswehr && state.bundeswehrVerified)) {
-        if (!data.street || !data.number || !data.zip || !data.city) {
-          showToast('Bitte vollständige Lieferadresse angeben.', true);
-          return null;
-        }
+      // Sonntags keine Lieferung
+      const deliveryDay = new Date(data.date + 'T12:00:00').getDay();
+      if (deliveryDay === 0) {
+        showToast('Sonntags liefern wir leider nicht. Bitte einen anderen Tag wählen.', true);
+        return null;
+      }
+
+      if (!data.street || !data.number || !data.zip || !data.city) {
+        showToast('Bitte vollständige Lieferadresse angeben.', true);
+        return null;
+      }
+      if (!/^\d{5}$/.test(data.zip)) {
+        showToast('Bitte gib eine gültige Postleitzahl (5 Stellen) an.', true);
+        return null;
+      }
+      if (!isZipInDeliveryArea(data.zip)) {
+        showToast('Lieferung nur in die Postleitzahlen 40470, 40235, 40472 und 40237.', true);
+        return null;
       }
 
       const totalWithRules = state.subtotal + getDeliveryFee();
@@ -674,36 +783,6 @@
 
     el.modeButtons.forEach(btn => btn.addEventListener('click', () => setMode(btn.dataset.mode)));
 
-    el.bwToggleBtn.addEventListener('click', () => {
-      el.bwCodePanel.hidden = !el.bwCodePanel.hidden;
-      if (el.bwCodePanel.hidden) {
-        state.isBundeswehr = false;
-        state.bundeswehrVerified = false;
-        setBundeswehrActive(false);
-        el.bwCodeFeedback.textContent = '';
-      } else {
-        state.isBundeswehr = true;
-      }
-    });
-
-    el.bwCodeInput.addEventListener('input', normalizeUppercaseInput);
-
-    el.bwCodeVerify.addEventListener('click', () => {
-      const code = (el.bwCodeInput.value || '').toLocaleUpperCase('de-DE').trim();
-      if (code !== BUNDESWEHR_CODE) {
-        state.bundeswehrVerified = false;
-        setBundeswehrActive(false);
-        el.bwCodeFeedback.textContent = 'Code ungültig';
-        el.bwCodeFeedback.classList.remove('feedback-success');
-        return;
-      }
-      state.bundeswehrVerified = true;
-      setBundeswehrActive(true);
-      el.bwCodeFeedback.textContent = 'Code erfolgreich aktiviert';
-      el.bwCodeFeedback.classList.add('feedback-success');
-      showToast('Bundeswehr-Modus aktiviert.');
-    });
-
     el.contactForm.addEventListener('submit', (event) => {
       event.preventDefault();
       const data = validateContactStep();
@@ -721,6 +800,27 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
+    function openLateFeeModal(onConfirm) {
+      el.lateFeeModal.classList.add('is-visible');
+      el.lateFeeModal.setAttribute('aria-hidden', 'false');
+      el.lateFeeConfirm.onclick = () => {
+        el.lateFeeModal.classList.remove('is-visible');
+        el.lateFeeModal.setAttribute('aria-hidden', 'true');
+        onConfirm();
+      };
+    }
+
+    el.lateFeeCancel.addEventListener('click', () => {
+      el.lateFeeModal.classList.remove('is-visible');
+      el.lateFeeModal.setAttribute('aria-hidden', 'true');
+    });
+    el.lateFeeModal.addEventListener('click', (event) => {
+      if (event.target === el.lateFeeModal) {
+        el.lateFeeModal.classList.remove('is-visible');
+        el.lateFeeModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+
     el.paymentForm.addEventListener('submit', (event) => {
       event.preventDefault();
       if (!state.pendingOrderPayload) {
@@ -731,6 +831,23 @@
       const selectedPayment = el.paymentForm.querySelector('input[name="payment"]:checked')?.value || 'Vor Ort';
       if (selectedPayment === 'PayPal' && !state.paypalApproved) {
         showToast('Bitte PayPal-Zahlung zuerst abschließen.', true);
+        return;
+      }
+
+      // Bundeswehr Late-Fee-Check: Prüfung zum Zeitpunkt des Abschickens
+      const isBwDelivery = state.mode === 'delivery' && state.isBundeswehr && state.bundeswehrVerified;
+      if (isBwDelivery && isBundeswehrLateNow() && !state.bundeswehrLate) {
+        openLateFeeModal(() => {
+          state.bundeswehrLate = true;
+          renderReceipt();
+          const payload = buildOrderPayload(state.pendingOrderPayload);
+          if (payload.approvalRequired) {
+            openApprovalModal();
+            el.approvalContinue.onclick = () => { closeApprovalModal(); submitOrder(payload); };
+            return;
+          }
+          submitOrder(payload);
+        });
         return;
       }
 
@@ -757,6 +874,20 @@
     setMode('pickup');
     setupPaypal().catch(() => {
       if (el.paypalHint) el.paypalHint.hidden = false;
+    });
+
+    // Sonntag sofort beim Auswählen sperren
+    ['pickup-date', 'delivery-date'].forEach(id => {
+      const input = document.getElementById(id);
+      if (!input) return;
+      input.addEventListener('change', () => {
+        if (!input.value) return;
+        const day = new Date(input.value + 'T12:00:00').getDay();
+        if (day === 0) {
+          input.value = '';
+          showToast('Sonntags haben wir geschlossen. Bitte einen anderen Tag wählen.', true);
+        }
+      });
     });
   </script>
 </body>

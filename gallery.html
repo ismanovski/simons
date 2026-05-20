@@ -31,74 +31,372 @@
     </div>
   </header>
 
-  <main>
-    <section class="hero hero-gallery">
-      <div class="container hero-content">
-        <div class="hero-copy">
-          <span class="eyebrow">Galerie</span>
-          <h1>Frühstücksmomente, die inspirieren.</h1>
-          <p>Ein Blick hinter die Kulissen unserer Backstube, Impressionen aus der Filiale und die Lieblingsmomente unserer Kundinnen und Kunden.</p>
-        </div>
-      </div>
-    </section>
+  <!-- Galerie Styles -->
+  <style>
+    /* ── Hero Terasse ───────────────────────────────────────────── */
+    .hero-gallery-full {
+      position: relative;
+      height: min(80vh, 680px);
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+    }
+    .hero-gallery-full img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 60%;
+      transform: scale(1.04);
+      transition: transform 8s ease-out;
+    }
+    .hero-gallery-full:hover img { transform: scale(1); }
+    .hero-gallery-full .hero-gl-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(30,18,8,.75) 0%, rgba(30,18,8,.1) 55%, transparent 100%);
+    }
+    .hero-gallery-full .hero-gl-copy {
+      position: relative;
+      z-index: 2;
+      padding: 2.5rem 2rem 3rem;
+      color: #fff;
+      max-width: 680px;
+    }
+    .hero-gallery-full .hero-gl-copy .eyebrow { color: #c8a96e; margin-bottom: .5rem; display: block; }
+    .hero-gallery-full .hero-gl-copy h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 .6rem; line-height: 1.15; }
+    .hero-gallery-full .hero-gl-copy p { font-size: 1.05rem; opacity: .88; margin: 0; max-width: 520px; }
 
+    /* ── Filter-Tabs ────────────────────────────────────────────── */
+    .gallery-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      justify-content: center;
+      padding: 2.2rem 1rem 0;
+    }
+    .gallery-filter button {
+      padding: .45rem 1.2rem;
+      border: 1.5px solid #d4c4a8;
+      border-radius: 999px;
+      background: #fff;
+      color: #5a3e2b;
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, color .18s, border-color .18s;
+    }
+    .gallery-filter button.active,
+    .gallery-filter button:hover {
+      background: #c8a96e;
+      border-color: #c8a96e;
+      color: #fff;
+    }
+
+    /* ── Masonry Grid ───────────────────────────────────────────── */
+    .gl-masonry {
+      columns: 3 280px;
+      column-gap: 1rem;
+      padding: 2rem 0 3rem;
+    }
+    .gl-item {
+      break-inside: avoid;
+      margin-bottom: 1rem;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      cursor: zoom-in;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s;
+    }
+    .gl-item:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 10px 32px rgba(0,0,0,.18);
+    }
+    .gl-item img {
+      width: 100%;
+      display: block;
+      transition: filter .3s;
+    }
+    .gl-item:hover img { filter: brightness(1.06); }
+    .gl-item .gl-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(30,18,8,.82), transparent);
+      color: #fff;
+      padding: 1.8rem .9rem .75rem;
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .25s, transform .25s;
+    }
+    .gl-item:hover .gl-caption { opacity: 1; transform: translateY(0); }
+    .gl-item .gl-tag {
+      position: absolute;
+      top: .7rem; left: .7rem;
+      background: #c8a96e;
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .2rem .6rem;
+      border-radius: 999px;
+    }
+
+    /* ── Lightbox ───────────────────────────────────────────────── */
+    #gl-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(10,6,2,.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    #gl-lightbox.open { opacity: 1; pointer-events: all; }
+    #gl-lightbox img {
+      max-width: min(92vw, 1100px);
+      max-height: 88vh;
+      border-radius: 10px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.6);
+      transition: transform .3s cubic-bezier(.22,1,.36,1);
+      transform: scale(.94);
+    }
+    #gl-lightbox.open img { transform: scale(1); }
+    #gl-lb-close {
+      position: absolute;
+      top: 1.2rem; right: 1.4rem;
+      background: none; border: none;
+      color: #fff; font-size: 2.2rem;
+      cursor: pointer; line-height: 1;
+      opacity: .75; transition: opacity .15s;
+    }
+    #gl-lb-close:hover { opacity: 1; }
+    #gl-lb-caption {
+      position: absolute;
+      bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.8);
+      font-size: .9rem;
+      text-align: center;
+      max-width: 600px;
+    }
+
+    /* ── Feature-Strip ──────────────────────────────────────────── */
+    .gl-feature-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0;
+      overflow: hidden;
+      border-radius: 16px;
+      margin: 0 0 3rem;
+    }
+    .gl-feature-strip .gl-feat {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+    }
+    .gl-feature-strip .gl-feat img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .5s cubic-bezier(.22,1,.36,1);
+    }
+    .gl-feature-strip .gl-feat:hover img { transform: scale(1.08); }
+    .gl-feature-strip .gl-feat .gl-feat-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(30,18,8,.78), transparent);
+      color: #fff;
+      padding: 1.4rem .9rem .7rem;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 600px) {
+      .gl-masonry { columns: 1; }
+    }
+
+    /* ── Single Window Gallery ──────────────────────────────────── */
+    .gl-window {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      aspect-ratio: 4/3;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0,0,0,.2);
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gl-window img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .gl-window img.active { 
+      display: block;
+      animation: gl-fade-in .6s cubic-bezier(.22,1,.36,1);
+    }
+
+    @keyframes gl-fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .gl-nav {
+      position: relative;
+      bottom: auto;
+      left: auto;
+      transform: none;
+      z-index: 10;
+      display: flex;
+      gap: .6rem;
+      justify-content: center;
+      margin: 0 0 1.5rem;
+    }
+    .gl-nav button {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.5);
+      background: transparent;
+      cursor: pointer;
+      transition: all .3s;
+    }
+    .gl-nav button.active {
+      background: #c8a96e;
+      border-color: #c8a96e;
+      transform: scale(1.3);
+    }
+
+    .gl-arrows {
+      position: relative;
+      top: auto;
+      transform: none;
+      z-index: 10;
+      background: none;
+      border: none;
+      font-size: 2rem;
+      color: #5a3e2b;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      opacity: .8;
+      transition: opacity .2s;
+      margin: 0 0.5rem;
+    }
+    .gl-arrows:hover { opacity: 1; }
+    .gl-arrows.prev { left: auto; }
+    .gl-arrows.next { right: auto; }
+  </style>
+
+  <main>
+    <!-- ── Single Window Gallery ── -->
     <section class="section">
       <div class="container">
         <div class="section-header">
-          <span class="eyebrow">Streifzug durchs Brotkörbchen</span>
-          <h2>Unsere Highlights</h2>
+          <span class="eyebrow">Fotostreifzug</span>
+          <h2>Unsere Auswahl im Detail.</h2>
+          <p>Klicke auf die Pfeile oder Punkte, um durch unsere Galerie zu navigieren.</p>
         </div>
-        <div class="gallery-grid">
-          <figure class="gallery-card">
-            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80" alt="Frisch gebackene Brote auf dem Auskühlregal">
-            <figcaption>Handwerkliche Brote direkt aus der Backstube.</figcaption>
-          </figure>
-          <figure class="gallery-card">
-            <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80" alt="Croissants und Gebäck auf einem Tablett">
-            <figcaption>Feines Gebäck für den süßen Start in den Tag.</figcaption>
-          </figure>
-          <figure class="gallery-card">
-            <img src="https://images.unsplash.com/photo-1505253217436-5b3a2d2a4f10?auto=format&fit=crop&w=1200&q=80" alt="Belegte Frühstückssandwiches">
-            <figcaption>Liebevoll belegte Sandwiches für das Teamfrühstück.</figcaption>
-          </figure>
-          <figure class="gallery-card">
-            <img src="https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=1200&q=80" alt="Frühstück auf einem gedeckten Tisch mit Saft und Obst">
-            <figcaption>Frische Obstteller und Säfte – saisonal und farbenfroh.</figcaption>
-          </figure>
-          <figure class="gallery-card">
-            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80" alt="Brotlaibe und Körner">
-            <figcaption>Vielfalt an Brotklassikern mit langer Teigführung.</figcaption>
-          </figure>
-          <figure class="gallery-card">
-            <img src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=1200&q=80" alt="Lieferfahrer mit Brottasche">
-            <figcaption>Frisch vorbereitet und bereit zur Abholung in der Filiale.</figcaption>
-          </figure>
+
+        <div class="gl-window" id="gl-window">
+          <!-- Images will be injected here -->
+        </div>
+        
+        <p id="gl-caption" style="text-align:center;margin:1.2rem 0 0;font-size:0.95rem;color:#5a3e2b;font-weight:600;"></p>
+        
+        <div class="gl-nav" id="gl-nav"></div>
+
+        <div style="text-align:center;margin-bottom:2rem;">
+          <button class="gl-arrows prev" onclick="glPrev()" aria-label="Vorheriges Bild">‹</button>
+          <button class="gl-arrows next" onclick="glNext()" aria-label="Nächstes Bild">›</button>
         </div>
       </div>
     </section>
 
-    <section class="section section-accent">
-      <div class="container split-layout reverse">
-        <div class="media-card">
-          <img src="https://images.unsplash.com/photo-1486427944299-d1955d23e34d?auto=format&fit=crop&w=1200&q=80" alt="Kaffeetafel mit Croissants und Blumen">
-          <span class="media-caption">Perfekt für besondere Anlässe – Brunchboxen einfach online bestellen und gesammelt abholen.</span>
-        </div>
-        <div>
-          <span class="eyebrow">Für Gastgeber:innen</span>
-          <h2>Individuelle Catering-Pakete.</h2>
-          <p>Ob Geburtstagsbrunch, Teambesprechung oder Hochzeitsmorgen – wir stellen passende Pakete ab 10 Personen zusammen. Von herzhaft bis süß, inklusive Zubehör wie Geschirr und Getränke.</p>
-          <a class="btn btn-outline" href="contact.html">Jetzt unverbindlich anfragen</a>
-        </div>
-      </div>
-    </section>
   </main>
+
+  <script>
+    const glImages = [
+      { src: 'terasse.jpg', alt: 'Unsere gemütliche Terrasse', caption: 'Die Terrasse bei Simonsbrotkörbchen – der perfekte Platz zum Frühstücken.' },
+      { src: 'Laugenecke.jpg', alt: 'Laugenecke', caption: 'Laugenecke – knusprig, goldbraun, das Simonsbrotkörbchen-Klassiker.' },
+      { src: 'dinkelbrötchen.jpg', alt: 'Dinkelbrötchen', caption: 'Dinkelbrötchen – nussig, bekömmlich und lecker.' },
+      { src: 'laugenbrötchen.jpg', alt: 'Laugenbrötchen', caption: 'Laugenbrötchen – ein Klassiker mit glänzender Kruste.' },
+      { src: 'schnittbrötchen.jpg', alt: 'Schnittbrötchen', caption: 'Schnittbrötchen – frisch geschnitten und belegt nach Wunsch.' },
+      { src: 'käsebrötchen.jpg', alt: 'Käsebrötchen', caption: 'Käsebrötchen – cremig überbacken und herrlich herzhaft.' },
+      { src: 'kartoffelbrötchen.jpg', alt: 'Kartoffelbrötchen', caption: 'Kartoffelbrötchen – besonders weich und angenehm saftig.' },
+      { src: 'mehrkornbrötchen.jpg', alt: 'Mehrkornbrötchen', caption: 'Mehrkornbrötchen – vollwertig und herrlich rustikal.' },
+      { src: 'mohnbrötchen.jpg', alt: 'Mohnbrötchen', caption: 'Mohnbrötchen – ein zeitloser Klassiker vom ersten Bissen an.' },
+      { src: 'roggenbrötchen.jpg', alt: 'Roggenbrötchen', caption: 'Roggenbrötchen – kräftig, sättigend und köstlich.' },
+      { src: 'sesambrötchen.jpg', alt: 'Sesambrötchen', caption: 'Sesambrötchen – aromatisch, knusprig und orientalisch würzig.' },
+      { src: 'wellenreiter.jpg', alt: 'Wellenreiter Brötchen', caption: 'Der Wellenreiter – unsere kreative Spezialität für Abenteurer.' }
+    ];
+
+    let glCurrent = 0;
+
+    function glRender() {
+      const window = document.getElementById('gl-window');
+      const nav = document.getElementById('gl-nav');
+      const caption = document.getElementById('gl-caption');
+      
+      // Clear window and nav
+      window.innerHTML = '';
+      nav.innerHTML = '';
+      
+      // Render images
+      glImages.forEach((img, i) => {
+        const img_el = document.createElement('img');
+        img_el.src = img.src;
+        img_el.alt = img.alt;
+        if (i === glCurrent) img_el.classList.add('active');
+        window.appendChild(img_el);
+      });
+      
+      // Update caption separately (not inside window)
+      caption.textContent = glImages[glCurrent].caption;
+      
+      // Nav buttons
+      glImages.forEach((_, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        if (i === glCurrent) btn.classList.add('active');
+        btn.onclick = () => { glCurrent = i; glRender(); };
+        nav.appendChild(btn);
+      });
+    }
+
+    function glNext() { glCurrent = (glCurrent + 1) % glImages.length; glRender(); }
+    function glPrev() { glCurrent = (glCurrent - 1 + glImages.length) % glImages.length; glRender(); }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') glNext();
+      if (e.key === 'ArrowLeft') glPrev();
+    });
+
+    glRender();
+  </script>
 
   <footer class="site-footer">
     <div class="container">
       <div class="footer-inner">
         <div class="footer-brand">
           <a class="brand brand-footer" href="index.html">
-            <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+            <img class="brand-logo" src="logo simons weiß.png" alt="Simonsbrotkörbchen Logo">
             <span class="brand-copy">
               <span class="brand-title">Simonsbrotkörbchen</span>
               <span class="brand-subtitle">Traditionell gebacken. Modern bestellt.</span>

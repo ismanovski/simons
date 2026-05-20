@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mittagessen bestellen – Simonsbrotkörbchen</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260519-modern-tiles">
 </head>
 <body>
   <header class="site-header" data-header>
@@ -70,6 +70,8 @@
                   </label>
                 </fieldset>
 
+                <div class="lunch-plan-tiles" id="lunch-plan-tiles" aria-label="Wochenplan Auswahl"></div>
+
                 <label for="lunch-day" class="sr-only">Wochentag
                   <select id="lunch-day" name="day" required>
                     <option value="">Bitte wählen</option>
@@ -83,7 +85,7 @@
 
                 <div class="form-grid form-grid-3 lunch-day-grid">
                   <label for="lunch-dish">Gericht
-                    <input type="text" id="lunch-dish" name="dish" readonly required placeholder="Wird automatisch gefüllt">
+                    <input type="text" id="lunch-dish" name="dish" readonly required>
                   </label>
                   <label for="lunch-date"><span id="lunch-date-field-label">Abholdatum</span>
                     <input type="date" id="lunch-date" name="pickupDate" readonly required>
@@ -143,6 +145,9 @@
                   </label>
                   <label for="lunch-delivery-zip">Postleitzahl
                     <input type="text" id="lunch-delivery-zip" name="deliveryZip" inputmode="numeric" pattern="[0-9]{5}">
+                    <small id="lunch-delivery-zip-feedback" class="checkout-hint checkout-hint-warning" hidden>
+                      Dieses Liefergebiet wird leider nicht beliefert.
+                    </small>
                   </label>
                   <label for="lunch-delivery-city">Stadt
                     <input type="text" id="lunch-delivery-city" name="deliveryCity" autocomplete="address-level2">
@@ -154,7 +159,7 @@
                 </label>
 
                 <div id="lunch-paypal-config-hint" class="checkout-hint" hidden>
-                  PayPal ist noch nicht verbunden. Bitte Konfiguration prüfen.
+                  PayPal ist aktuell nicht verfügbar. In der lokalen Vorschau ohne Netlify-Functions werden keine PayPal-Buttons geladen.
                 </div>
 
                 <label class="contract-check" for="lunch-terms">
@@ -214,7 +219,7 @@
       <div class="footer-inner">
         <div class="footer-brand">
           <a class="brand brand-footer" href="index.html">
-            <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+            <img class="brand-logo" src="logo simons weiß.png" alt="Simonsbrotkörbchen Logo">
             <span class="brand-copy">
               <span class="brand-title">Simonsbrotkörbchen</span>
               <span class="brand-subtitle">Traditionell gebacken. Modern bestellt.</span>
@@ -346,8 +351,9 @@
         return false;
       }
       // ─────────────────────────────────────────────────────────────────────
-      const DELIVERY_FEE = 2.90;
-      const DELIVERY_MIN_ORDER = 25;
+      const DELIVERY_FEE = 1.90;
+      const DELIVERY_MIN_ORDER = 16;
+      const ALLOWED_DELIVERY_ZIPS = new Set(['40470', '40235', '40472', '40237']);
       const LUNCH_WEEKDAYS = [
         { day: 'Montag', weekday: 1 },
         { day: 'Dienstag', weekday: 2 },
@@ -386,6 +392,7 @@
       const form        = document.getElementById('lunch-reservation-form');
       const dayField    = document.getElementById('lunch-day');
       const dishField   = document.getElementById('lunch-dish');
+      const lunchPlanTiles = document.getElementById('lunch-plan-tiles');
       const qtyField    = document.getElementById('lunch-qty');
       const timeField   = document.getElementById('lunch-time');
       const dateField   = document.getElementById('lunch-date');
@@ -416,6 +423,7 @@
       const deliveryStreet = document.getElementById('lunch-delivery-street');
       const deliveryNumber = document.getElementById('lunch-delivery-number');
       const deliveryZip = document.getElementById('lunch-delivery-zip');
+      const deliveryZipFeedback = document.getElementById('lunch-delivery-zip-feedback');
       const deliveryCity = document.getElementById('lunch-delivery-city');
       const receiptFulfillment = document.getElementById('lunch-receipt-fulfillment');
       const receiptDay = document.getElementById('lunch-receipt-day');
@@ -436,6 +444,8 @@
       let lunchPaypalClientId = '';
       let lunchPaypalReady = false;
       let lunchPaypalApproved = false;
+      let lunchPaypalConfigError = '';
+      let deliveryZipErrorTimeout = null;
 
       function getSelectedPaymentMethod() {
         return form?.querySelector('input[name="paymentMethod"]:checked')?.value || 'Vor Ort';
@@ -460,7 +470,10 @@
           paypalContainer.style.opacity = accepted ? '1' : '0.45';
           paypalContainer.style.filter = accepted ? 'none' : 'grayscale(0.2)';
         }
-        if (paypalHint) paypalHint.hidden = !!lunchPaypalClientId;
+        if (paypalHint) {
+          paypalHint.hidden = !!lunchPaypalClientId;
+          if (!lunchPaypalClientId && lunchPaypalConfigError) paypalHint.textContent = lunchPaypalConfigError;
+        }
       }
 
       function resetLunchPaypalApproval() {
@@ -470,11 +483,23 @@
       async function fetchLunchPaypalClientId() {
         try {
           const res = await fetch(PAYPAL_CONFIG.configEndpoint, { method: 'GET', cache: 'no-store' });
-          if (!res.ok) return '';
-          const payload = await res.json();
-          return String(payload?.clientId || '').trim();
+          if (!res.ok) {
+            return {
+              clientId: '',
+              error: 'PayPal ist lokal nicht aktiv: /.netlify/functions/get-paypal-config ist nicht erreichbar (HTTP ' + res.status + ').'
+            };
+          }
+          const payload = await res.json().catch(() => ({}));
+          const clientId = String(payload?.clientId || '').trim();
+          if (!clientId) {
+            return { clientId: '', error: 'PayPal-Konfiguration unvollständig: PAYPAL_CLIENT_ID fehlt.' };
+          }
+          return { clientId, error: '' };
         } catch {
-          return '';
+          return {
+            clientId: '',
+            error: 'PayPal ist lokal nicht aktiv: Starte die Seite über Netlify Dev, damit /.netlify/functions verfügbar ist.'
+          };
         }
       }
 
@@ -508,7 +533,9 @@
       }
 
       async function setupLunchPaypal() {
-        lunchPaypalClientId = await fetchLunchPaypalClientId();
+        const paypalConfig = await fetchLunchPaypalClientId();
+        lunchPaypalClientId = paypalConfig.clientId;
+        lunchPaypalConfigError = paypalConfig.error;
         refreshLunchPaypalVisibility();
         if (!lunchPaypalClientId) return;
 
@@ -594,17 +621,101 @@
         if (!timeField) return;
         const mode = form?.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
         const previous = timeField.value;
-        const options = bundeswehrVerified && mode === 'delivery'
-          ? ['12:00', '13:00']
-          : ['11:00','11:15','11:30','11:45','12:00','12:15','12:30','12:45','13:00','13:15','13:30','13:45','14:00','14:15','14:30','14:45','15:00','15:15','15:30'];
-        timeField.innerHTML = `<option value="">Bitte wählen</option>${options.map(value => `<option value="${value}">${value} Uhr</option>`).join('')}`;
-        if (options.includes(previous)) {
+        const selectedDay = String(dayField?.value || '').trim();
+        const selectedMenu = selectedDay ? LUNCH_MENU[selectedDay] : null;
+        const selectedOrderDate = selectedMenu?.weekday ? getLunchOrderDate(Number(selectedMenu.weekday)) : null;
+        const selectedDate = selectedOrderDate ? toISODate(selectedOrderDate) : String(dateField?.value || '').trim();
+        const todayIso = toISODate(new Date());
+        const isSameDayDelivery = mode === 'delivery' && !!selectedDate && selectedDate === todayIso;
+
+        let options = [];
+        if (mode === 'delivery' && bundeswehrVerified) {
+          options = [
+            { value: '12:00', label: '12:00 Uhr' },
+            { value: '13:00', label: '13:00 Uhr' }
+          ];
+        } else if (mode === 'delivery' && isSameDayDelivery) {
+          options = [
+            { value: 'So schnell wie möglich', label: 'So schnell wie möglich' }
+          ];
+        } else if (mode === 'delivery') {
+          options = [
+            { value: '11-12 Uhr', label: '11-12 Uhr' },
+            { value: '12-13 Uhr', label: '12-13 Uhr' },
+            { value: '13-14 Uhr', label: '13-14 Uhr' },
+            { value: '14-15 Uhr', label: '14-15 Uhr' }
+          ];
+        } else {
+          options = [
+            { value: '11:00', label: '11:00 Uhr' },
+            { value: '11:15', label: '11:15 Uhr' },
+            { value: '11:30', label: '11:30 Uhr' },
+            { value: '11:45', label: '11:45 Uhr' },
+            { value: '12:00', label: '12:00 Uhr' },
+            { value: '12:15', label: '12:15 Uhr' },
+            { value: '12:30', label: '12:30 Uhr' },
+            { value: '12:45', label: '12:45 Uhr' },
+            { value: '13:00', label: '13:00 Uhr' },
+            { value: '13:15', label: '13:15 Uhr' },
+            { value: '13:30', label: '13:30 Uhr' },
+            { value: '13:45', label: '13:45 Uhr' },
+            { value: '14:00', label: '14:00 Uhr' },
+            { value: '14:15', label: '14:15 Uhr' },
+            { value: '14:30', label: '14:30 Uhr' },
+            { value: '14:45', label: '14:45 Uhr' },
+            { value: '15:00', label: '15:00 Uhr' },
+            { value: '15:15', label: '15:15 Uhr' },
+            { value: '15:30', label: '15:30 Uhr' }
+          ];
+        }
+
+        timeField.innerHTML = `<option value="">Bitte wählen</option>${options.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}`;
+        if (options.some(opt => opt.value === previous)) {
           timeField.value = previous;
         }
       }
 
       function cleanTimeValue(value) {
-        return String(value || '').slice(0, 5);
+        const raw = String(value || '').trim();
+        if (/^\d{2}:\d{2}(:\d{2})?$/.test(raw)) return raw.slice(0, 5);
+        return raw;
+      }
+
+      function normalizeZip(value) {
+        return String(value || '').replace(/\D/g, '').slice(0, 5);
+      }
+
+      function isAllowedDeliveryZip(value) {
+        return ALLOWED_DELIVERY_ZIPS.has(normalizeZip(value));
+      }
+
+      function validateDeliveryZipField({ triggerReport = false } = {}) {
+        if (!deliveryZip) return true;
+        const zip = normalizeZip(deliveryZip.value);
+        deliveryZip.value = zip;
+        
+        if (!zip) {
+          deliveryZip.setCustomValidity('');
+          return true;
+        }
+        if (zip.length < 5) {
+          deliveryZip.setCustomValidity('');
+          return true;
+        }
+        const isAllowed = isAllowedDeliveryZip(zip);
+        deliveryZip.setCustomValidity(isAllowed ? '' : 'Dieses Liefergebiet wird leider nicht beliefert.');
+        
+        if (triggerReport && !isAllowed) {
+          deliveryZip.reportValidity();
+        }
+        return isAllowed;
+      }
+
+      function formatPickupTimeLabel(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        if (/^\d{2}:\d{2}$/.test(raw)) return `${raw} Uhr`;
+        return raw;
       }
 
       function saveLunchPlan(plan) {
@@ -775,9 +886,68 @@
 
       function renderLunchPlanUI() {
         const stock = loadLunchStock();
-        const todayWeekday = getTodayWeekday();
-        void stock;
-        void todayWeekday;
+        if (!lunchPlanTiles) return;
+
+        const selectedDay = dayField?.value || '';
+        const items = LUNCH_WEEKDAYS.map(({ day, weekday }) => {
+          const menu = LUNCH_MENU[day];
+          const isActive = !!menu?.dish && menu.isActive !== false;
+          const orderDate = isActive ? getLunchOrderDate(weekday) : null;
+          const dateLabel = orderDate
+            ? orderDate.toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })
+            : 'Nicht verfügbar';
+          const priceLabel = isActive ? formatPrice(menu.price) : '–';
+          const available = isActive ? getStockValue(stock, menu.dish) : NaN;
+          const stockLabel = !isActive
+            ? 'Inaktiv'
+            : Number.isFinite(available)
+              ? available <= 0
+                ? 'Ausverkauft'
+                : `${available} Portion${available === 1 ? '' : 'en'} verfügbar`
+              : 'Solange Vorrat reicht';
+          const disabled = !isActive || (Number.isFinite(available) && available <= 0);
+          return {
+            day,
+            weekday,
+            menu,
+            dateLabel,
+            priceLabel,
+            stockLabel,
+            disabled,
+            selected: selectedDay === day
+          };
+        });
+
+        const visibleItems = items.filter(item => item.menu?.dish);
+        lunchPlanTiles.innerHTML = visibleItems.length ? visibleItems.map(item => `
+          <button
+            type="button"
+            class="lunch-plan-tile${item.selected ? ' is-selected' : ''}${item.disabled ? ' is-disabled' : ''}"
+            data-lunch-day="${escapeHtml(item.day)}"
+            ${item.disabled ? 'disabled' : ''}
+            aria-pressed="${item.selected ? 'true' : 'false'}"
+          >
+            <span class="lunch-plan-tile-content">
+              <span class="lunch-plan-tile-badge">${escapeHtml(item.day)}</span>
+              <span class="lunch-plan-tile-day">${escapeHtml(item.dateLabel)}</span>
+              <strong class="lunch-plan-tile-dish">${escapeHtml(item.menu?.dish || 'Kein Gericht')}</strong>
+              <span class="lunch-plan-tile-meta-row">
+                <span class="lunch-plan-tile-price">${escapeHtml(item.priceLabel)}</span>
+                <span class="lunch-plan-tile-stock">${escapeHtml(item.stockLabel)}</span>
+              </span>
+              <span class="lunch-plan-tile-hint">Klicken zum Auswählen</span>
+            </span>
+          </button>
+        `).join('') : '<div class="checkout-hint">Der Wochenplan ist gerade leer. Bitte später wieder schauen.</div>';
+
+        lunchPlanTiles.querySelectorAll('[data-lunch-day]').forEach(button => {
+          button.addEventListener('click', () => {
+            const day = button.getAttribute('data-lunch-day') || '';
+            if (!day || button.disabled || !dayField) return;
+            dayField.value = day;
+            dayField.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+        });
       }
 
       function escapeHtml(value) {
@@ -832,6 +1002,7 @@
             field.value = '';
           }
         });
+        if (!isDelivery && deliveryZipFeedback) deliveryZipFeedback.hidden = true;
         renderPickupTimeOptions();
         const dateLabelEl = document.getElementById('lunch-date-field-label');
         const timeLabelEl = document.getElementById('lunch-time-field-label');
@@ -920,6 +1091,40 @@
         if (step2Panel) step2Panel.hidden = step !== 2;
         if (receiptPanel) receiptPanel.hidden = step !== 2;
         if (lunchLayout) lunchLayout.classList.toggle('is-step-1', step === 1);
+        if (step === 2) {
+          updateForm();
+        }
+      }
+
+      function validateStep1Selection() {
+        const selectedDay = String(dayField?.value || '').trim();
+        const selectedTime = String(timeField?.value || '').trim();
+        if (!selectedDay || !selectedTime) {
+          return { ok: false, message: 'Bitte wähle zuerst Wochentag, Abholzeit und Menge.' };
+        }
+
+        const menu = selectedDay ? LUNCH_MENU[selectedDay] : null;
+        if (!menu || !menu.dish || menu.isActive === false) {
+          return { ok: false, message: 'Bitte wähle einen verfügbaren Wochentag.' };
+        }
+
+        const qty = Math.max(1, Number.parseInt(qtyField?.value || '1', 10) || 1);
+        const stock = loadLunchStock();
+        const available = getStockValue(stock, menu.dish);
+        const hasLimitedStock = Number.isFinite(available) && available >= 0;
+        if (hasLimitedStock && available <= 0) {
+          return { ok: false, message: `${menu.dish} ist aktuell ausverkauft.` };
+        }
+        if (hasLimitedStock && qty > available) {
+          return { ok: false, message: `Für ${menu.dish} sind nur noch ${available} Portion(en) verfügbar.` };
+        }
+
+        const mode = form?.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
+        if (mode === 'delivery' && !bundeswehrVerified && (qty * (Number(menu.price) || 0)) < DELIVERY_MIN_ORDER) {
+          return { ok: false, message: `Mindestbestellwert für Lieferung: ${fmt.format(DELIVERY_MIN_ORDER)} €.` };
+        }
+
+        return { ok: true, message: '' };
       }
 
       function updateForm() {
@@ -928,6 +1133,7 @@
         const mode = form?.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
         const stock = loadLunchStock();
         let qty      = Math.max(1, Number.parseInt(qtyField?.value || '1', 10) || 1);
+        let minimumViolation = false;
 
         // Dish
         if (dishField) dishField.value = menu && menu.dish && menu.isActive !== false ? menu.dish : '';
@@ -946,28 +1152,33 @@
         }
 
         // Price
-        let total = menu ? qty * menu.price : null;
+        let subtotal = menu ? qty * menu.price : null;
         if (menu && menu.dish && menu.isActive !== false) {
           const available = getStockValue(stock, menu.dish);
           const hasLimitedStock = Number.isFinite(available) && available >= 0;
           if (hasLimitedStock) {
-            if (qtyField) qtyField.max = '20';
+            if (qtyField) qtyField.max = String(Math.max(1, available));
             if (available <= 0) {
+              qty = 1;
+              if (qtyField) qtyField.value = '1';
               if (stockHint) {
                 stockHint.classList.add('checkout-hint-warning');
                 stockHint.textContent = `${menu.dish} ist aktuell ausverkauft.`;
               }
               if (submitBtn) submitBtn.disabled = true;
-              total = null;
+              subtotal = null;
             } else if (qty > available) {
+              qty = available;
+              if (qtyField) qtyField.value = String(qty);
               if (stockHint) {
                 stockHint.classList.add('checkout-hint-warning');
-                stockHint.textContent = `Nur noch maximal ${available} verfügbar. (gerne im Laden anrufen und nachfragen)`;
+                stockHint.textContent = `Nur noch ${available} verfügbar. Menge wurde angepasst.`;
               }
-              if (submitBtn) submitBtn.disabled = true;
-              total = null;
+              if (submitBtn) submitBtn.disabled = false;
+              subtotal = qty * menu.price;
             } else {
-              total = qty * menu.price;
+              if (qtyField) qtyField.value = String(qty);
+              subtotal = qty * menu.price;
               if (stockHint) {
                 stockHint.classList.remove('checkout-hint-warning');
                 stockHint.textContent = `Verfügbar: ${available} Portion(en)`;
@@ -992,6 +1203,18 @@
           }
           if (submitBtn) submitBtn.disabled = false;
         }
+
+        if (mode === 'delivery' && !bundeswehrVerified && subtotal !== null && subtotal < DELIVERY_MIN_ORDER) {
+          minimumViolation = true;
+          if (stockHint) {
+            stockHint.classList.add('checkout-hint-warning');
+            stockHint.textContent = `Mindestbestellwert für Lieferung: ${fmt.format(DELIVERY_MIN_ORDER)} €`;
+          }
+          if (submitBtn) submitBtn.disabled = true;
+        }
+
+        const deliveryCharge = mode === 'delivery' && !bundeswehrVerified ? DELIVERY_FEE : 0;
+        const total = subtotal !== null ? subtotal + deliveryCharge : null;
         if (priceValue) priceValue.textContent = total !== null ? `${fmt.format(total)} €` : '–';
 
         if (receiptFulfillment) receiptFulfillment.textContent = mode === 'delivery' ? 'Lieferung' : 'Abholung';
@@ -1024,13 +1247,16 @@
         if (receiptBwNote) {
           receiptBwNote.hidden = !(mode === 'delivery' && bundeswehrVerified);
         }
-        if (submitBtn) submitBtn.disabled = !!submitBtn.disabled || !areLunchTermsAccepted();
+        if (deliveryZipFeedback && !deliveryZip?.value) {
+          deliveryZipFeedback.hidden = true;
+        }
         refreshLunchPaypalVisibility();
       }
 
       dayField?.addEventListener('change', () => {
         resetLunchPaypalApproval();
         renderLunchPlanUI();
+        renderPickupTimeOptions();
         updateForm();
       });
       qtyField?.addEventListener('input', () => {
@@ -1070,6 +1296,7 @@
         if (deliveryZip) deliveryZip.value = '40470';
         if (deliveryCity) deliveryCity.value = 'Düsseldorf';
         setDeliveryFieldsReadonly(true);
+        validateDeliveryZipField();
         if (bwCodeFeedback) {
           bwCodeFeedback.classList.add('feedback-success');
           bwCodeFeedback.classList.remove('checkout-hint-warning');
@@ -1078,6 +1305,11 @@
         renderPickupTimeOptions();
         updateForm();
       });
+      deliveryZip?.addEventListener('input', () => {
+        const currentZip = normalizeZip(deliveryZip.value);
+        validateDeliveryZipField({ triggerReport: currentZip.length === 5 });
+      });
+      deliveryZip?.addEventListener('blur', () => validateDeliveryZipField({ triggerReport: true }));
       lunchTerms?.addEventListener('change', () => {
         resetLunchPaypalApproval();
         updateForm();
@@ -1102,15 +1334,9 @@
           feedback.classList.remove('feedback-success');
           feedback.textContent = '';
         }
-        const selectedDay = dayField?.value || '';
-        const selectedTime = timeField?.value || '';
-        const isDisabled = submitBtn?.disabled;
-        if (!selectedDay || !selectedTime) {
-          if (feedback) feedback.textContent = 'Bitte wähle zuerst Wochentag, Abholzeit und Menge.';
-          return;
-        }
-        if (isDisabled) {
-          if (feedback) feedback.textContent = 'Bitte korrigiere zuerst die Auswahl in Schritt 1.';
+        const check = validateStep1Selection();
+        if (!check.ok) {
+          if (feedback) feedback.textContent = check.message || 'Bitte korrigiere zuerst die Auswahl in Schritt 1.';
           return;
         }
         showStep(2);
@@ -1210,6 +1436,15 @@
             if (feedback) feedback.textContent = 'Bitte gib eine gültige Postleitzahl (5 Stellen) an.';
             return;
           }
+          if (!isAllowedDeliveryZip(deliveryZipValue)) {
+            if (feedback) feedback.textContent = 'Lieferung nur in die Postleitzahlen 40470, 40235, 40472 und 40237.';
+            return;
+          }
+          if (!bundeswehrVerified && (menu.price * quantity) < DELIVERY_MIN_ORDER) {
+            if (feedback) feedback.textContent = `Mindestbestellwert für Lieferung: ${fmt.format(DELIVERY_MIN_ORDER)} €.`;
+            updateForm();
+            return;
+          }
         }
         if (!termsOk || !contractOk) {
           if (feedback) feedback.textContent = 'Bitte bestätige AGB und die zahlungspflichtige Bestellung.';
@@ -1268,7 +1503,8 @@
             return;
           }
         } else {
-          const total = menu.price * quantity;
+          const deliveryCharge = fulfillment === 'delivery' && !bundeswehrVerified ? DELIVERY_FEE : 0;
+          const total = (menu.price * quantity) + deliveryCharge;
           const internalNumber = getNextLunchNumber();
           const pickupCode = getNextPickupCode();
           reservation = {
@@ -1282,6 +1518,7 @@
               fulfillment,
               dish: menu.dish,
               unitPrice: menu.price,
+              deliveryFee: deliveryCharge,
               quantity, total, notes,
               paymentMethod,
               bundeswehrDelivery: fulfillment === 'delivery' ? bundeswehrVerified : false,
@@ -1305,11 +1542,12 @@
             },
             status: 'bestellt'
           };
+        }
 
-          if (hasLimitedStock) {
-            setStockValue(stock, menu.dish, Math.max(0, available - quantity));
-            saveLunchStock(stock);
-          }
+        if (hasLimitedStock) {
+          const nextAvailable = Math.max(0, available - quantity);
+          setStockValue(stock, menu.dish, nextAvailable);
+          saveLunchStock(stock);
         }
 
         const existing = JSON.parse(localStorage.getItem(LUNCH_STORAGE_KEY) || '[]');
@@ -1363,7 +1601,7 @@
           order_number:     String(reservation.id || reservation.internalNumber || ''),
           pickup_code:      String(reservation.pickupCode || ''),
           items_text:       `${quantity}× ${menu.dish}`,
-          date_time:        `${dateFormatted}, ${pickupTime} Uhr`,
+          date_time:        `${dateFormatted}, ${formatPickupTimeLabel(pickupTime)}`,
           fulfillment_type: fulfillment === 'delivery' ? 'Lieferung' : 'Abholung in der Filiale',
           location:         String(reservation.reservation?.location || 'Simonsbrotkörbchen, Lenaustraße 1, 40470 Düsseldorf'),
           total_price:      `${(Number(reservation.reservation?.total || 0)).toFixed(2).replace('.', ',')} €`,
@@ -1377,7 +1615,7 @@
         if (fulfillment === 'delivery') {
           pickupBlock.hidden = true;
           delivBlock.hidden  = false;
-          timeEl.textContent = pickupTime + ' Uhr';
+          timeEl.textContent = formatPickupTimeLabel(pickupTime);
 
           const printData = reservation;
           document.getElementById('lunch-confirm-print').onclick = () => {
@@ -1390,7 +1628,7 @@
                 <tr><td>E-Mail</td><td>${printData.customer.email}</td></tr>
                 <tr><td>Gericht</td><td>${printData.reservation.dish}</td></tr>
                 <tr><td>Datum</td><td>${dateFormatted}</td></tr>
-                <tr><td>Lieferzeit</td><td>${printData.reservation.pickupTime} Uhr</td></tr>
+                <tr><td>Lieferzeit</td><td>${formatPickupTimeLabel(printData.reservation.pickupTime)}</td></tr>
                 <tr><td>Menge</td><td>${printData.reservation.quantity}</td></tr>
                 <tr><td>Lieferadresse</td><td>${printData.reservation.location}</td></tr>
                 <tr><td>Zahlungsart</td><td>${printData.reservation.paymentMethod}</td></tr>
@@ -1410,7 +1648,7 @@
                 <tr><td>E-Mail</td><td>${printData.customer.email}</td></tr>
                 <tr><td>Gericht</td><td>${printData.reservation.dish}</td></tr>
                 <tr><td>Datum</td><td>${dateFormatted}</td></tr>
-                <tr><td>Lieferzeit</td><td>${printData.reservation.pickupTime} Uhr</td></tr>
+                <tr><td>Lieferzeit</td><td>${formatPickupTimeLabel(printData.reservation.pickupTime)}</td></tr>
                 <tr><td>Menge</td><td>${printData.reservation.quantity}</td></tr>
                 <tr><td>Lieferadresse</td><td>${printData.reservation.location}</td></tr>
                 <tr><td>Zahlungsart</td><td>${printData.reservation.paymentMethod}</td></tr>
