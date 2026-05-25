@@ -132,14 +132,6 @@
   .nav-toggle {
     order: 0;
     margin-right: 0.5rem;
-  }
-  .brand {
-    order: 1;
-    flex: 1 1 auto;
-    justify-content: flex-start;
-    width: auto;
-  }
-  .nav-toggle {
     display: flex !important;
     flex-direction: column;
     justify-content: center;
@@ -148,7 +140,6 @@
     border: none !important;
     box-shadow: none !important;
     padding: 0;
-    margin-right: 0.5rem;
     width: 44px;
     height: 44px;
     min-width: 44px;
@@ -156,9 +147,10 @@
   }
   .brand {
     order: 1;
-    flex: 1 1 auto;
-    justify-content: center;
+    flex: 0 0 auto;
+    justify-content: flex-start;
     width: auto;
+    margin-left: 0;
   }
   .nav-toggle-bar {
     width: 32px;
@@ -169,9 +161,6 @@
     display: block;
     transition: background 0.2s;
     box-shadow: 0 2px 4px rgba(160,58,40,0.13);
-  }
-  .nav-toggle-bar:first-child {
-    margin-top: 0;
   }
   .nav-toggle-bar:first-child {
     margin-top: 0;
