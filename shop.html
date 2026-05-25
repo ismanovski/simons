@@ -9,29 +9,33 @@
 <body>
   <header class="site-header" data-header>
     <div class="container header-layout">
-      <a class="brand" href="index.html">
-        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
-        <span class="brand-copy">
-          <span class="brand-title">Simonsbrotkörbchen</span>
-          <span class="brand-subtitle">Bestellung &amp; Abholung in Düsseldorf</span>
-        </span>
-      </a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation" data-nav-toggle>
         <span class="sr-only">Menü öffnen</span>
         <span class="nav-toggle-bar"></span>
         <span class="nav-toggle-bar"></span>
         <span class="nav-toggle-bar"></span>
       </button>
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="logo-minus-simons.png" alt="Simonsbrotkörbchen Logo">
+        <span class="brand-copy">
+          <span class="brand-title">Simonsbrotkörbchen</span>
+          <span class="brand-subtitle">Bestellung & Abholung in Düsseldorf</span>
+        </span>
+      </a>
+
+      <a class="desktop-header-cart" href="checkout.html" aria-label="Warenkorb öffnen">
+        <img class="desktop-header-cart-icon" src="warenkorb icon.png" alt="Warenkorb">
+        <span class="cart-count" data-cart-count>0</span>
+      </a>
+
       <nav class="site-nav" id="primary-navigation" data-nav>
         <a class="nav-link" href="index.html">Startseite</a>
         <a class="nav-link is-active" href="jetzt-bestellen.html">Jetzt Bestellen</a>
         <a class="nav-link" href="gallery.html">Galerie</a>
         <a class="nav-link" href="contact.html">Kontakt</a>
-        <a class="btn btn-outline nav-cart" href="checkout.html">
-          <span>Warenkorb</span>
-          <span class="cart-count" data-cart-count>0</span>
-        </a>
       </nav>
+
+
     </div>
   </header>
 
